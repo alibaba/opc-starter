@@ -2,7 +2,7 @@
 
 > 一人公司启动器 - AI-Friendly React Boilerplate
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](https://opensource.org/license/agpl-v3)
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.1-38B2AC.svg)](https://tailwindcss.com/)
@@ -119,18 +119,15 @@ opc-starter/
 
 ## 📖 文档
 
-- [快速开始](docs/QUICK_START.md)
 - [架构说明](docs/Architecture.md)
-- [自定义指南](docs/CUSTOMIZATION.md)
-- [Agent Studio](docs/agent-studio/README.md)
-- [Supabase 配置](app/supabase/SUPABASE_COOKBOOK.md)
+- [设计系统说明](docs/DESIGN_TOKENS.md)
 
 ## 🗺️ 路线图
 
 - [x] v1.0.0 - 基础 Boilerplate 发布
-- [ ] v1.1.0 - 多 LLM Provider 支持 (OpenAI, Claude, Gemini)
-- [ ] v1.2.0 - 国际化 (i18n)
-- [ ] v1.3.0 - 主题系统 (深色/浅色模式)
+- [x] v1.1.0 - 主题系统 (深色/浅色模式)
+- [ ] v1.2.0 - 多 LLM Provider 支持 (OpenAI, Claude, Gemini)
+- [ ] v1.3.0 - 国际化 (i18n)
 
 ## 🤝 贡献
 
@@ -138,7 +135,7 @@ opc-starter/
 
 ## 📄 许可证
 
-[MIT](LICENSE) © OPC-Starter Contributors
+[AGPL-3.0](LICENSE) © OPC-Starter Contributors
 
 ---
 
