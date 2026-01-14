@@ -1,0 +1,10 @@
+{
+  "name": "photo-wall",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "singlePageApplication"
+  },
+  "dev": {
+    "port": 18080
+  }
+}

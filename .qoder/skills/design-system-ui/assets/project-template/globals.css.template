@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+/*
+ * Design System Theme Configuration
+ * Generated from: [DESIGN_SOURCE]
+ * 
+ * Replace the HSL values below with extracted design tokens
+ */
+
+:root {
+  /* ========================================
+   * COLOR TOKENS - Light Mode
+   * ======================================== */
+  
+  /* Background & Foreground */
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  
+  /* Card Surface */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  
+  /* Popover Surface */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  
+  /* Primary Brand Color */
+  --primary: 262 83% 58%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary Color */
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 220 9% 46%;
+  
+  /* Muted Elements */
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  
+  /* Accent Color */
+  --accent: 340 82% 52%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Destructive Actions */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Borders & Inputs */
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 262 83% 58%;
+  
+  /* ========================================
+   * RADIUS TOKEN
+   * ======================================== */
+  --radius: 0.5rem;
+  
+  /* ========================================
+   * TYPOGRAPHY TOKENS
+   * ======================================== */
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: "Clash Display", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  /* ========================================
+   * ANIMATION TOKENS
+   * ======================================== */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* ========================================
+   * CHART COLORS (Optional)
+   * ======================================== */
+  --chart-1: 262 83% 58%;
+  --chart-2: 340 82% 52%;
+  --chart-3: 142 76% 36%;
+  --chart-4: 38 92% 50%;
+  --chart-5: 221 83% 53%;
+}
+
+/* ==========================================
+ * DARK MODE OVERRIDES
+ * ========================================== */
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 0 0% 98%;
+  
+  --card: 217 33% 17%;
+  --card-foreground: 0 0% 98%;
+  
+  --popover: 217 33% 17%;
+  --popover-foreground: 0 0% 98%;
+  
+  --primary: 262 83% 68%;
+  --primary-foreground: 222 47% 11%;
+  
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 0 0% 98%;
+  
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  
+  --accent: 340 82% 62%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 217 33% 22%;
+  --input: 217 33% 22%;
+  --ring: 262 83% 68%;
+}
+
+/* ==========================================
+ * BASE STYLES
+ * ========================================== */
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans);
+}
+
+/* ==========================================
+ * CUSTOM UTILITIES
+ * ========================================== */
+
+/* Text balance for headings */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible styles */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+  background-color: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
+}
+
+/* ==========================================
+ * ANIMATION KEYFRAMES
+ * ========================================== */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility classes for animations */
+.animate-fade-in {
+  animation: fade-in var(--duration-normal) var(--ease-default);
+}
+
+.animate-slide-up {
+  animation: slide-up var(--duration-normal) var(--ease-default);
+}
+
+.animate-scale-in {
+  animation: scale-in var(--duration-normal) var(--ease-bounce);
+}
