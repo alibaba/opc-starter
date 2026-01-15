@@ -4,24 +4,24 @@
  * @version 1.0.0
  */
 
-import React, { useCallback } from 'react';
-import type { A2UIComponent, A2UIDataModel, UserActionMessage } from '@/types/a2ui';
-import { A2UIRendererSafe } from './A2UIRenderer';
-import { cn } from '@/lib/utils';
+import React, { useCallback } from 'react'
+import type { A2UIComponent, A2UIDataModel, UserActionMessage } from '@/types/a2ui'
+import { A2UIRendererSafe } from './A2UIRenderer'
+import { cn } from '@/lib/utils'
 
 export interface A2UISurfaceProps {
   /** Surface ID */
-  surfaceId: string;
+  surfaceId: string
   /** 组件树 */
-  component: A2UIComponent;
+  component: A2UIComponent
   /** 数据模型 */
-  dataModel: A2UIDataModel;
+  dataModel: A2UIDataModel
   /** 用户操作回调 */
-  onAction?: (message: UserActionMessage) => void;
+  onAction?: (message: UserActionMessage) => void
   /** 渲染错误回调 */
-  onError?: (error: Error) => void;
+  onError?: (error: Error) => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -35,13 +35,8 @@ export const A2UISurface: React.FC<A2UISurfaceProps> = ({
   onError,
   className,
 }) => {
-  // 防御性检查：如果 component 未定义，返回 null
-  if (!component) {
-    console.warn('[A2UI Surface] 收到 undefined component, surfaceId:', surfaceId);
-    return null;
-  }
-
   // 处理用户操作
+  // 注意：useCallback 必须在条件判断之前调用，保证 Hook 调用顺序一致
   const handleAction = useCallback(
     (componentId: string, actionId: string, value?: unknown) => {
       const message: UserActionMessage = {
@@ -50,28 +45,31 @@ export const A2UISurface: React.FC<A2UISurfaceProps> = ({
         componentId,
         actionId,
         value,
-      };
+      }
 
-      console.log('[A2UI Surface] 用户操作:', message);
-      onAction?.(message);
+      console.log('[A2UI Surface] 用户操作:', message)
+      onAction?.(message)
     },
     [surfaceId, onAction]
-  );
+  )
 
   // 处理渲染错误
   const handleError = useCallback(
     (error: Error) => {
-      console.error(`[A2UI Surface ${surfaceId}] 渲染错误:`, error);
-      onError?.(error);
+      console.error(`[A2UI Surface ${surfaceId}] 渲染错误:`, error)
+      onError?.(error)
     },
     [surfaceId, onError]
-  );
+  )
+
+  // 防御性检查：如果 component 未定义，返回 null
+  if (!component) {
+    console.warn('[A2UI Surface] 收到 undefined component, surfaceId:', surfaceId)
+    return null
+  }
 
   return (
-    <div
-      className={cn('a2ui-surface', className)}
-      data-surface-id={surfaceId}
-    >
+    <div className={cn('a2ui-surface', className)} data-surface-id={surfaceId}>
       <A2UIRendererSafe
         component={component}
         dataModel={dataModel}
@@ -79,15 +77,13 @@ export const A2UISurface: React.FC<A2UISurfaceProps> = ({
         onError={handleError}
       />
     </div>
-  );
-};
+  )
+}
 
 /**
  * 空 Surface 占位符
  */
-export const A2UISurfacePlaceholder: React.FC<{ className?: string }> = ({
-  className,
-}) => {
+export const A2UISurfacePlaceholder: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <div
       className={cn(
@@ -111,5 +107,5 @@ export const A2UISurfacePlaceholder: React.FC<{ className?: string }> = ({
         <p className="mt-2 text-sm">等待 AI 响应...</p>
       </div>
     </div>
-  );
-};
+  )
+}

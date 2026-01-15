@@ -4,6 +4,13 @@ import type { Person } from '@/types/person'
 import type { Photo } from '@/types/photo'
 import type { SyncStatus } from './DataService'
 
+// Realtime payload 类型定义
+interface RealtimePayload {
+  eventType: string
+  new: Record<string, unknown>
+  old: Record<string, unknown>
+}
+
 // -------------------- 全局环境与 Polyfill --------------------
 // 注意: vitest 使用 jsdom 环境，window/navigator/localStorage 已存在
 // 这里仅提供必要的 polyfill 和 mock
@@ -39,7 +46,7 @@ const photoDBMock = {
     photoStore[photo.id] = photo
   }),
   addPhotos: vi.fn(async (photos: Photo[]) => {
-    photos.forEach(p => (photoStore[p.id] = p))
+    photos.forEach((p) => (photoStore[p.id] = p))
   }),
   updatePhoto: vi.fn(async (id: string, data: Partial<Photo>) => {
     photoStore[id] = { ...(photoStore[id] || { id }), ...data } as Photo
@@ -48,7 +55,7 @@ const photoDBMock = {
     delete photoStore[id]
   }),
   clear: vi.fn(async () => {
-    Object.keys(photoStore).forEach(k => delete photoStore[k])
+    Object.keys(photoStore).forEach((k) => delete photoStore[k])
   }),
 }
 
@@ -60,7 +67,7 @@ const albumDBMock = {
     albumStore[album.id] = album
   }),
   addAlbums: vi.fn(async (albums: Album[]) => {
-    albums.forEach(a => (albumStore[a.id] = a))
+    albums.forEach((a) => (albumStore[a.id] = a))
   }),
   updateAlbum: vi.fn(async (id: string, updates: Partial<Album>) => {
     albumStore[id] = { ...(albumStore[id] || { id }), ...updates } as Album
@@ -78,7 +85,7 @@ const personDBMock = {
     personStore[person.id] = person
   }),
   addPersons: vi.fn(async (persons: Person[]) => {
-    persons.forEach(p => (personStore[p.id] = p))
+    persons.forEach((p) => (personStore[p.id] = p))
   }),
   updatePerson: vi.fn(async (id: string, updates: Partial<Person>) => {
     personStore[id] = { ...(personStore[id] || { id }), ...updates } as Person
@@ -96,11 +103,14 @@ const supabaseState = {
   user: { id: 'user-1' },
 }
 
-const channelHandlers: Record<string, ((payload: any) => Promise<void> | void) | undefined> = {}
+const channelHandlers: Record<
+  string,
+  ((payload: RealtimePayload) => Promise<void> | void) | undefined
+> = {}
 
 const createChannel = (name: string) => {
   return {
-    on: vi.fn((_event: string, _filter: unknown, cb: (payload: any) => void) => {
+    on: vi.fn((_event: string, _filter: unknown, cb: (payload: RealtimePayload) => void) => {
       channelHandlers[name] = cb
       return channelMocks[name]
     }),
@@ -208,7 +218,7 @@ vi.mock('@/config/oss', () => ({
   convertToAccelerateUrl: vi.fn((url: string) => `accel:${url}`),
 }))
 
-let dataService: typeof import('./DataService')['dataService']
+let dataService: (typeof import('./DataService'))['dataService']
 
 const basePhoto = (): Photo => ({
   id: 'p1',
@@ -230,11 +240,11 @@ beforeEach(async () => {
   vi.resetModules()
   localStorage.clear()
   mockOnLine = true // 重置网络状态为在线
-  Object.keys(photoStore).forEach(k => delete photoStore[k])
-  Object.keys(albumStore).forEach(k => delete albumStore[k])
-  Object.keys(personStore).forEach(k => delete personStore[k])
-  Object.keys(channelHandlers).forEach(k => delete channelHandlers[k])
-  Object.keys(channelMocks).forEach(k => delete channelMocks[k])
+  Object.keys(photoStore).forEach((k) => delete photoStore[k])
+  Object.keys(albumStore).forEach((k) => delete albumStore[k])
+  Object.keys(personStore).forEach((k) => delete personStore[k])
+  Object.keys(channelHandlers).forEach((k) => delete channelHandlers[k])
+  Object.keys(channelMocks).forEach((k) => delete channelMocks[k])
   supabaseState.photos = []
   supabaseState.albums = []
   supabaseState.faces = []
@@ -248,7 +258,7 @@ beforeEach(async () => {
 describe('DataService 对外能力', () => {
   it('应维护同步状态并响应网络事件', () => {
     const statuses: SyncStatus[] = []
-    const off = dataService.onSyncStatusChange(s => statuses.push(s))
+    const off = dataService.onSyncStatusChange((s) => statuses.push(s))
 
     expect(dataService.getSyncStatus()).toBe('idle')
     expect(statuses.at(0)).toBe('idle')
@@ -277,7 +287,7 @@ describe('DataService 对外能力', () => {
 
   it('离线乐观更新应入队并标记 pending', async () => {
     photoStore['p1'] = basePhoto()
-    ;(dataService as any).isOnline = false
+    ;(dataService as unknown as { isOnline: boolean }).isOnline = false
 
     const updated = await dataService.optimisticUpdate('p1', { tags: ['offline'] })
     const queue = dataService.getQueueStats()
@@ -305,7 +315,7 @@ describe('DataService 对外能力', () => {
 
   it('删除照片离线时入队', async () => {
     photoStore['p1'] = basePhoto()
-    ;(dataService as any).isOnline = false
+    ;(dataService as unknown as { isOnline: boolean }).isOnline = false
 
     await dataService.deletePhoto('p1')
     const queue = dataService.getQueueStats()
@@ -328,7 +338,7 @@ describe('DataService 对外能力', () => {
 
   it('订阅照片应更新本地并可取消', async () => {
     const changes: string[] = []
-    const off = dataService.subscribePhotos(evt => changes.push(evt.type))
+    const off = dataService.subscribePhotos((evt) => changes.push(evt.type))
     const handler = channelHandlers['photos-realtime']
 
     await handler?.({
@@ -357,7 +367,7 @@ describe('DataService 对外能力', () => {
     offAll()
     dataService.cleanup()
 
-    Object.values(channelMocks).forEach(ch => {
+    Object.values(channelMocks).forEach((ch) => {
       expect(ch.unsubscribe).toHaveBeenCalled()
     })
   })
@@ -399,7 +409,7 @@ describe('DataService 对外能力', () => {
         file_size: 1,
       },
     ]
-    ;(dataService as any).lastFullSyncAt = 0
+    ;(dataService as unknown as { lastFullSyncAt: number }).lastFullSyncAt = 0
 
     const result = await dataService.incrementalSync()
 
@@ -424,20 +434,27 @@ describe('DataService 对外能力', () => {
     photoStore['p1'] = { ...basePhoto(), cloudSyncStatus: 'pending' }
     photoStore['p2'] = { ...basePhoto(), id: 'p2', cloudSyncStatus: 'error' }
     // 重构后离线队列由 offlineQueueManager 管理，通过 setQueue 注入测试数据
-    ;(dataService as any).offlineQueueManager.setQueue([{ type: 'update', entityType: 'photo', id: 'p1', data: {}, timestamp: 0, retryCount: 0 }])
+    ;(
+      dataService as unknown as { offlineQueueManager: { setQueue: (queue: unknown[]) => void } }
+    ).offlineQueueManager.setQueue([
+      { type: 'update', entityType: 'photo', id: 'p1', data: {}, timestamp: 0, retryCount: 0 },
+    ])
 
     const stats = dataService.getQueueStats()
     const pending = await dataService.getPendingPhotos()
     const failed = await dataService.getFailedPhotos()
 
     expect(stats.queueSize).toBe(1)
-    expect(pending.map(p => p.id)).toContain('p1')
-    expect(failed.map(p => p.id)).toContain('p2')
+    expect(pending.map((p) => p.id)).toContain('p1')
+    expect(failed.map((p) => p.id)).toContain('p2')
   })
 
   it('retryFailedSync 应重置状态并处理队列', async () => {
     photoStore['p2'] = { ...basePhoto(), id: 'p2', cloudSyncStatus: 'error', tags: ['x'] }
-    const process = vi.spyOn(dataService as any, 'processOfflineQueue').mockResolvedValue({ success: 1, failed: 0 })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const process = vi
+      .spyOn(dataService as any, 'processOfflineQueue')
+      .mockResolvedValue({ success: 1, failed: 0 })
 
     const res = await dataService.retryFailedSync()
 
@@ -447,8 +464,11 @@ describe('DataService 对外能力', () => {
   })
 
   it('triggerQueueProcessing 在离线时直接返回', async () => {
-    ;(dataService as any).isOnline = false
-    const process = vi.spyOn(dataService as any, 'processOfflineQueue').mockResolvedValue({ success: 0, failed: 0 })
+    ;(dataService as unknown as { isOnline: boolean }).isOnline = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const process = vi
+      .spyOn(dataService as any, 'processOfflineQueue')
+      .mockResolvedValue({ success: 0, failed: 0 })
 
     const res = await dataService.triggerQueueProcessing()
     expect(res).toEqual({ success: 0, failed: 0 })
@@ -469,12 +489,24 @@ describe('DataService 对外能力', () => {
     photoStore['p-local'] = localNewer
     await dataService.resolveConflict(localNewer, remoteOld)
 
-    const equalA = { ...basePhoto(), id: 'p-merge', tags: ['x'], participants: ['u1'], version: 5 }
-    const equalB = { ...basePhoto(), id: 'p-merge', tags: ['y'], version: 5, participants: ['u2'] }
+    const equalA = {
+      ...basePhoto(),
+      id: 'p-merge',
+      tags: ['x'],
+      participants: ['u1'],
+      version: 5,
+    } as Photo & { participants?: string[] }
+    const equalB = {
+      ...basePhoto(),
+      id: 'p-merge',
+      tags: ['y'],
+      version: 5,
+      participants: ['u2'],
+    } as Photo & { participants?: string[] }
     photoStore['p-merge'] = equalA
-    const merged = await dataService.resolveConflict(equalA as any, equalB as any)
+    const merged = await dataService.resolveConflict(equalA, equalB)
     expect(merged.tags?.sort()).toEqual(['x', 'y'])
-    expect((merged as any).participants?.length).toBe(2)
+    expect((merged as Photo & { participants?: string[] }).participants?.length).toBe(2)
 
     const stats = dataService.getConflictStats()
     expect(stats.total).toBe(3)
@@ -540,11 +572,11 @@ describe('DataService Collection Access (S21-5)', () => {
     it('photos.find() 应该支持函数过滤器', async () => {
       const photo1: Photo = { ...basePhoto(), id: 'filter-1', tags: ['family'] }
       await dataService.photos.insert(photo1)
-      
+
       const { firstValueFrom } = await import('rxjs')
       const photos = await firstValueFrom(
-        dataService.photos.find({ 
-          filter: (p: Photo) => p.tags?.includes('family') ?? false 
+        dataService.photos.find({
+          filter: (p: Photo) => p.tags?.includes('family') ?? false,
         })
       )
       expect(photos.length).toBeGreaterThan(0)

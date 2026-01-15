@@ -5,105 +5,113 @@
  * @see STORY-23-004, STORY-23-006
  */
 
-import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from 'react';
-import { Send, Image, Paperclip, Square, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { useAgentChat } from '@/hooks/useAgentChat';
-import { useAgentContext } from '@/hooks/useAgentContext';
-import { useAgentStore } from '@/stores/useAgentStore';
-import { usePhotoEditorStore } from '@/stores/usePhotoEditorStore';
+import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from 'react'
+import { Send, Image, Paperclip, Square, Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { useAgentChat } from '@/hooks/useAgentChat'
+import { useAgentContext } from '@/hooks/useAgentContext'
+import { useAgentStore } from '@/stores/useAgentStore'
+import { usePhotoEditorStore } from '@/stores/usePhotoEditorStore'
 
 interface AgentInputProps {
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 /**
  * 推荐提示词类型
  */
 interface SuggestedPrompt {
-  id: string;
-  text: string;
+  id: string
+  text: string
   /** 显示条件：返回 true 时显示 */
-  condition: () => boolean;
+  condition: () => boolean
 }
 
 /**
  * 输入框组件
  */
 export function AgentInput({ className }: AgentInputProps) {
-  const [input, setInput] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [input, setInput] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // 使用 useAgentChat Hook 获取真正的发送能力
-  const { sendMessage, isStreaming, abort, error, retryCount } = useAgentChat();
+  const { sendMessage, isStreaming, abort, error, retryCount } = useAgentChat()
 
-  const context = useAgentContext();
-  const setContext = useAgentStore((state) => state.setContext);
+  const context = useAgentContext()
+  const setContext = useAgentStore((state) => state.setContext)
 
-  // 编辑器状态：检测是否有未保存的编辑
-  const hasEdits = usePhotoEditorStore((state) => state.historyIndex >= 0);
-  const originalPhoto = usePhotoEditorStore((state) => state.originalPhoto);
+  // 编辑器状态：检测是否有未保存的编辑（保留以备将来使用）
+  const _hasEdits = usePhotoEditorStore((state) => state.historyIndex >= 0)
+  const _originalPhoto = usePhotoEditorStore((state) => state.originalPhoto)
+  // 避免 unused 警告
+  void _hasEdits
+  void _originalPhoto
 
   // 动态推荐提示词
   // 注意：移除"保存编辑后的照片"提示，用户保存后会通过 A2UI 确认组件处理
-  const suggestedPrompts = useMemo<SuggestedPrompt[]>(() => [
-    // 可以在这里添加推荐提示词
-  ], [hasEdits, originalPhoto]);
+  // hasEdits 和 originalPhoto 暂时未使用，但保留以备将来添加推荐提示词
+  const suggestedPrompts = useMemo<SuggestedPrompt[]>(() => {
+    // 可以在这里添加推荐提示词，例如：
+    // if (hasEdits && originalPhoto) {
+    //   return [{ id: 'save', text: '保存编辑', condition: () => true }];
+    // }
+    return []
+  }, [])
 
   // 过滤出当前应该显示的提示词
   const visiblePrompts = useMemo(
     () => suggestedPrompts.filter((p) => p.condition()),
     [suggestedPrompts]
-  );
+  )
 
   // 同步上下文
   useEffect(() => {
-    setContext(context);
-  }, [context, setContext]);
+    setContext(context)
+  }, [context, setContext])
 
   // 自动调整高度
   useEffect(() => {
-    const textarea = textareaRef.current;
+    const textarea = textareaRef.current
     if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+      textarea.style.height = 'auto'
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
     }
-  }, [input]);
+  }, [input])
 
   // 发送消息
   const handleSend = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || isStreaming) return;
+    const trimmed = input.trim()
+    if (!trimmed || isStreaming) return
 
     // 发送消息（useAgentChat 内部会处理会话创建）
-    setInput('');
-    await sendMessage(trimmed);
+    setInput('')
+    await sendMessage(trimmed)
 
     // 重置输入框高度
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = 'auto'
     }
-  };
+  }
 
   // 点击推荐提示词发送
   const handlePromptClick = async (promptText: string) => {
-    if (isStreaming) return;
-    await sendMessage(promptText);
-  };
+    if (isStreaming) return
+    await sendMessage(promptText)
+  }
 
   // 键盘事件处理
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     // Enter 发送（不带 Shift）
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+      e.preventDefault()
+      handleSend()
     }
-  };
+  }
 
   // 选中照片数量提示
-  const selectedCount = context.selectedPhotos.length;
+  const selectedCount = context.selectedPhotos.length
 
   return (
     <div className={cn('border-t border-border bg-card', className)}>
@@ -212,5 +220,5 @@ export function AgentInput({ className }: AgentInputProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

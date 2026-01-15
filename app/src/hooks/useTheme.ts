@@ -30,7 +30,7 @@ function getStoredTheme(): Theme {
 function applyTheme(theme: Theme) {
   const root = document.documentElement
   const effectiveTheme = theme === 'system' ? getSystemTheme() : theme
-  
+
   if (effectiveTheme === 'dark') {
     root.classList.add('dark')
   } else {
@@ -40,14 +40,14 @@ function applyTheme(theme: Theme) {
 
 /**
  * 主题管理 Hook
- * 
+ *
  * @example
  * ```tsx
  * const { theme, setTheme, effectiveTheme } = useTheme()
- * 
+ *
  * // 切换主题
  * setTheme('dark')
- * 
+ *
  * // 循环切换
  * const cycleTheme = () => {
  *   const themes: Theme[] = ['light', 'dark', 'system']
@@ -72,14 +72,16 @@ export function useTheme() {
   }, [])
 
   // 初始化时应用主题
+  // 注意：这里故意只在组件挂载时执行一次，theme 变化由 setTheme 函数处理
   useEffect(() => {
     applyTheme(theme)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 监听系统主题变化
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    
+
     const handleChange = (e: MediaQueryListEvent) => {
       if (theme === 'system') {
         applyTheme('system')

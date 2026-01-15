@@ -4,24 +4,21 @@
  * @version 1.0.0
  */
 
-import React, { useMemo } from 'react';
-import type { A2UIComponent, A2UIDataModel } from '@/types/a2ui';
-import { isValidComponentType, getComponent } from './registry';
-import { resolveBindings, wrapActions } from './utils';
-import { validateComponent, SecurityError, sanitizeProps } from './validators';
+import React, { useMemo } from 'react'
+import type { A2UIComponent, A2UIDataModel } from '@/types/a2ui'
+import { isValidComponentType, getComponent } from './registry'
+import { resolveBindings, wrapActions } from './utils'
+import { validateComponent, SecurityError, sanitizeProps } from './validators'
 
 /**
  * 未知组件警告
  */
 interface UnknownComponentWarningProps {
-  type: string;
-  id: string;
+  type: string
+  id: string
 }
 
-const UnknownComponentWarning: React.FC<UnknownComponentWarningProps> = ({
-  type,
-  id,
-}) => {
+const UnknownComponentWarning: React.FC<UnknownComponentWarningProps> = ({ type, id }) => {
   return (
     <div className="rounded-md border border-yellow-500/50 bg-yellow-50 p-3 text-sm text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200">
       <div className="flex items-center gap-2">
@@ -42,19 +39,17 @@ const UnknownComponentWarning: React.FC<UnknownComponentWarningProps> = ({
         </span>
       </div>
     </div>
-  );
-};
+  )
+}
 
 /**
  * 安全错误组件
  */
 interface SecurityErrorDisplayProps {
-  error: SecurityError;
+  error: SecurityError
 }
 
-const SecurityErrorDisplay: React.FC<SecurityErrorDisplayProps> = ({
-  error,
-}) => {
+const SecurityErrorDisplay: React.FC<SecurityErrorDisplayProps> = ({ error }) => {
   return (
     <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
       <div className="flex items-center gap-2">
@@ -73,25 +68,21 @@ const SecurityErrorDisplay: React.FC<SecurityErrorDisplayProps> = ({
         <span>安全校验失败: {error.message}</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
 /**
  * A2UIRenderer Props
  */
 export interface A2UIRendererProps {
   /** 要渲染的组件定义 */
-  component: A2UIComponent;
+  component: A2UIComponent
   /** 数据模型 */
-  dataModel: A2UIDataModel;
+  dataModel: A2UIDataModel
   /** 用户操作回调 */
-  onAction: (
-    componentId: string,
-    actionId: string,
-    value?: unknown
-  ) => void;
+  onAction: (componentId: string, actionId: string, value?: unknown) => void
   /** 是否严格模式（发现错误立即停止渲染） */
-  strictMode?: boolean;
+  strictMode?: boolean
 }
 
 /**
@@ -103,63 +94,62 @@ export const A2UIRenderer: React.FC<A2UIRendererProps> = ({
   onAction,
   strictMode = false,
 }) => {
-  // 防御性检查：如果 component 未定义，返回 null
-  if (!component) {
-    console.warn('[A2UI] A2UIRenderer 收到 undefined component');
-    return null;
-  }
-
   // 严格模式：进行完整的安全校验（包括子组件）
   // 非严格模式：只对当前组件的 props 进行校验，子组件各自处理
+  // 注意：useMemo 必须在条件判断之前调用，保证 Hook 调用顺序一致
   const securityError = useMemo(() => {
+    // 防御性检查：如果 component 未定义，返回 null
+    if (!component) {
+      return null
+    }
     if (!strictMode) {
       // 非严格模式：只校验当前组件的 props，不递归校验子组件
       // 依赖 sanitizeProps 进行安全过滤
-      return null;
+      return null
     }
     try {
-      validateComponent(component);
-      return null;
+      validateComponent(component)
+      return null
     } catch (error) {
       if (error instanceof SecurityError) {
-        return error;
+        return error
       }
-      throw error;
+      throw error
     }
-  }, [component, strictMode]);
+  }, [component, strictMode])
+
+  // 防御性检查：如果 component 未定义，返回 null
+  if (!component) {
+    console.warn('[A2UI] A2UIRenderer 收到 undefined component')
+    return null
+  }
 
   // 严格模式下显示安全错误
   if (securityError && strictMode) {
-    console.error('[A2UI] 安全校验失败:', securityError);
-    return <SecurityErrorDisplay error={securityError} />;
+    console.error('[A2UI] 安全校验失败:', securityError)
+    return <SecurityErrorDisplay error={securityError} />
   }
 
   // 检查组件类型
   if (!isValidComponentType(component.type)) {
-    console.warn(`[A2UI] 未知组件类型: ${component.type}`);
-    return <UnknownComponentWarning type={component.type} id={component.id} />;
+    console.warn(`[A2UI] 未知组件类型: ${component.type}`)
+    return <UnknownComponentWarning type={component.type} id={component.id} />
   }
 
   // 获取组件
-  const Component = getComponent(component.type);
+  const Component = getComponent(component.type)
   if (!Component) {
-    return <UnknownComponentWarning type={component.type} id={component.id} />;
+    return <UnknownComponentWarning type={component.type} id={component.id} />
   }
 
   // 解析 props 绑定
-  const rawProps = resolveBindings(component.props, dataModel);
-  
+  const rawProps = resolveBindings(component.props, dataModel)
+
   // 安全过滤 props（非严格模式始终过滤）
-  const resolvedProps = strictMode
-    ? rawProps
-    : sanitizeProps(rawProps, component.type);
+  const resolvedProps = strictMode ? rawProps : sanitizeProps(rawProps, component.type)
 
   // 包装事件处理器
-  const eventHandlers = wrapActions(
-    component.actions,
-    onAction,
-    component.id
-  );
+  const eventHandlers = wrapActions(component.actions, onAction, component.id)
 
   // 递归渲染子组件
   const children = component.children?.map((child) => (
@@ -170,27 +160,27 @@ export const A2UIRenderer: React.FC<A2UIRendererProps> = ({
       onAction={onAction}
       strictMode={strictMode}
     />
-  ));
+  ))
 
   // 渲染
   return (
     <Component {...resolvedProps} {...eventHandlers}>
       {children}
     </Component>
-  );
-};
+  )
+}
 
 /**
  * A2UIRenderer with Error Boundary
  */
 interface A2UIRendererWithBoundaryProps extends A2UIRendererProps {
   /** 错误发生时的回调 */
-  onError?: (error: Error) => void;
+  onError?: (error: Error) => void
 }
 
 interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
+  hasError: boolean
+  error: Error | null
 }
 
 class A2UIErrorBoundary extends React.Component<
@@ -198,17 +188,17 @@ class A2UIErrorBoundary extends React.Component<
   ErrorBoundaryState
 > {
   constructor(props: { children: React.ReactNode; onError?: (error: Error) => void }) {
-    super(props);
-    this.state = { hasError: false, error: null };
+    super(props)
+    this.state = { hasError: false, error: null }
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
 
   componentDidCatch(error: Error) {
-    console.error('[A2UI] 渲染错误:', error);
-    this.props.onError?.(error);
+    console.error('[A2UI] 渲染错误:', error)
+    this.props.onError?.(error)
   }
 
   render() {
@@ -231,15 +221,13 @@ class A2UIErrorBoundary extends React.Component<
             <span>组件渲染失败</span>
           </div>
           {this.state.error && (
-            <pre className="mt-2 overflow-auto text-xs">
-              {this.state.error.message}
-            </pre>
+            <pre className="mt-2 overflow-auto text-xs">{this.state.error.message}</pre>
           )}
         </div>
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }
 
@@ -251,5 +239,5 @@ export const A2UIRendererSafe: React.FC<A2UIRendererWithBoundaryProps> = ({
     <A2UIErrorBoundary onError={onError}>
       <A2UIRenderer {...props} />
     </A2UIErrorBoundary>
-  );
-};
+  )
+}

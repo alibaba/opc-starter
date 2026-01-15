@@ -26,7 +26,7 @@ export function createRemoteApi(): RemoteApi {
       avatar_url,
       department,
       created_at,
-      updated_at,
+      // updated_at 暂不使用，但保留以备将来扩展
     } = supabasePerson as Record<string, unknown>
 
     return {
@@ -75,9 +75,7 @@ export function createRemoteApi(): RemoteApi {
       updated_at: normalized.joinedAt.toISOString(),
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .upsert(payload)
+    const { error } = await supabase.from('profiles').upsert(payload)
 
     if (error) throw error
     return transformSupabasePerson(payload)
@@ -98,20 +96,14 @@ export function createRemoteApi(): RemoteApi {
       updated_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(supabaseUpdates)
-      .eq('id', id)
+    const { error } = await supabase.from('profiles').update(supabaseUpdates).eq('id', id)
 
     if (error) throw error
     return normalized
   }
 
   const deletePerson = async (id: string): Promise<void> => {
-    const { error } = await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('profiles').delete().eq('id', id)
 
     if (error) throw error
   }
@@ -127,9 +119,7 @@ export function createRemoteApi(): RemoteApi {
     if (error) throw error
 
     if (cloudPersons && cloudPersons.length > 0) {
-      const persons: Person[] = cloudPersons.map(person => 
-        transformSupabasePerson(person)
-      )
+      const persons: Person[] = cloudPersons.map((person) => transformSupabasePerson(person))
 
       await personDB.addPersons(persons)
       console.log(`[DataService] ✅ 同步了 ${persons.length} 个人员`)
