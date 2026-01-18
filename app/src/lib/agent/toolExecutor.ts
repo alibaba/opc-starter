@@ -5,31 +5,23 @@
  * @see STORY-24-008
  */
 
-import { useCallback } from 'react';
-import { executeToolByName, getAllTools } from './tools';
-import type { ToolCall, ToolExecutionResult } from '@/types/agent';
+import { useCallback } from 'react'
+import { executeToolByName, getAllTools } from './tools'
+import type { ToolCall, ToolExecutionResult } from '@/types/agent'
 
-export {
-  setFusionTaskCallback,
-  setVideoTaskCallback,
-  setNavigateCallback,
-  setLoadPhotoNavigateCallback,
-} from './tools';
-
-export type { FusionTaskCallback } from './tools/fusion/callbacks';
-export type { VideoTaskCallback } from './tools/video/callbacks';
-export type { NavigateCallback } from './tools/navigation';
+export { setNavigateCallback } from './tools/navigation'
+export type { NavigateCallback } from './tools/navigation'
 
 interface ToolMeta {
-  name: string;
-  description: string;
-  category: 'edit' | 'ai' | 'context' | 'navigation';
+  name: string
+  description: string
+  category: 'edit' | 'ai' | 'context' | 'navigation'
 }
 
 interface UseToolExecutorReturn {
-  executeToolCall: (call: ToolCall) => Promise<ToolExecutionResult>;
-  executeToolCalls: (calls: ToolCall[]) => Promise<Map<string, ToolExecutionResult>>;
-  availableTools: ToolMeta[];
+  executeToolCall: (call: ToolCall) => Promise<ToolExecutionResult>
+  executeToolCalls: (calls: ToolCall[]) => Promise<Map<string, ToolExecutionResult>>
+  availableTools: ToolMeta[]
 }
 
 function getAvailableTools(): ToolMeta[] {
@@ -37,7 +29,7 @@ function getAvailableTools(): ToolMeta[] {
     name: tool.meta.name,
     description: tool.meta.description,
     category: tool.meta.category,
-  }));
+  }))
 }
 
 /**
@@ -45,33 +37,30 @@ function getAvailableTools(): ToolMeta[] {
  * @description 简化版 - 所有逻辑已迁移到 tools/ 目录
  */
 export function useToolExecutor(): UseToolExecutorReturn {
-  const executeToolCall = useCallback(
-    async (call: ToolCall): Promise<ToolExecutionResult> => {
-      console.log('[ToolExecutor] 执行工具:', call.name, call.arguments);
-      return executeToolByName(call.name, call.arguments);
-    },
-    []
-  );
+  const executeToolCall = useCallback(async (call: ToolCall): Promise<ToolExecutionResult> => {
+    console.log('[ToolExecutor] 执行工具:', call.name, call.arguments)
+    return executeToolByName(call.name, call.arguments)
+  }, [])
 
   const executeToolCalls = useCallback(
     async (calls: ToolCall[]): Promise<Map<string, ToolExecutionResult>> => {
-      const results = new Map<string, ToolExecutionResult>();
+      const results = new Map<string, ToolExecutionResult>()
 
       for (const call of calls) {
-        const result = await executeToolCall(call);
-        results.set(call.id, result);
+        const result = await executeToolCall(call)
+        results.set(call.id, result)
       }
 
-      return results;
+      return results
     },
     [executeToolCall]
-  );
+  )
 
   return {
     executeToolCall,
     executeToolCalls,
     availableTools: getAvailableTools(),
-  };
+  }
 }
 
-export default useToolExecutor;
+export default useToolExecutor

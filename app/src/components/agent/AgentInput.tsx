@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button'
 import { useAgentChat } from '@/hooks/useAgentChat'
 import { useAgentContext } from '@/hooks/useAgentContext'
 import { useAgentStore } from '@/stores/useAgentStore'
-import { usePhotoEditorStore } from '@/stores/usePhotoEditorStore'
 
 interface AgentInputProps {
   /** 自定义类名 */
@@ -42,21 +41,8 @@ export function AgentInput({ className }: AgentInputProps) {
   const context = useAgentContext()
   const setContext = useAgentStore((state) => state.setContext)
 
-  // 编辑器状态：检测是否有未保存的编辑（保留以备将来使用）
-  const _hasEdits = usePhotoEditorStore((state) => state.historyIndex >= 0)
-  const _originalPhoto = usePhotoEditorStore((state) => state.originalPhoto)
-  // 避免 unused 警告
-  void _hasEdits
-  void _originalPhoto
-
   // 动态推荐提示词
-  // 注意：移除"保存编辑后的照片"提示，用户保存后会通过 A2UI 确认组件处理
-  // hasEdits 和 originalPhoto 暂时未使用，但保留以备将来添加推荐提示词
   const suggestedPrompts = useMemo<SuggestedPrompt[]>(() => {
-    // 可以在这里添加推荐提示词，例如：
-    // if (hasEdits && originalPhoto) {
-    //   return [{ id: 'save', text: '保存编辑', condition: () => true }];
-    // }
     return []
   }, [])
 

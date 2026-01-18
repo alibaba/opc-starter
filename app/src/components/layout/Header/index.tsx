@@ -1,4 +1,4 @@
-import { Search, Bell, Settings, LogOut, Shield, Menu } from 'lucide-react'
+import { Bell, Settings, LogOut, Shield, Menu } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { usePermission } from '@/hooks/usePermission'
@@ -9,17 +9,13 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 interface HeaderProps {
   /** 移动端菜单点击回调 */
-  onMenuClick?: () => void;
+  onMenuClick?: () => void
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
   const { isAdmin } = usePermission()
-
-  const handleSearchClick = () => {
-    navigate('/search')
-  }
 
   const handleProfileClick = () => {
     navigate('/profile')
@@ -36,7 +32,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   // 获取用户显示名称
   const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '用户'
-  
+
   // 获取用户头像首字母
   const avatarInitial = displayName.charAt(0).toUpperCase()
 
@@ -45,35 +41,9 @@ export function Header({ onMenuClick }: HeaderProps) {
       {/* 左侧区域 */}
       <div className="flex items-center gap-2 md:gap-4 flex-1">
         {/* 移动端汉堡菜单按钮 */}
-        <button 
-          className="p-2 hover:bg-accent rounded-lg md:hidden"
-          onClick={onMenuClick}
-        >
+        <button className="p-2 hover:bg-accent rounded-lg md:hidden" onClick={onMenuClick}>
           <Menu className="w-5 h-5" />
         </button>
-
-        {/* 搜索框 - 移动端简化为图标 */}
-        <div className="flex-1 max-w-xl">
-          {/* 移动端：搜索图标按钮 */}
-          <button 
-            className="p-2 hover:bg-accent rounded-lg md:hidden"
-            onClick={handleSearchClick}
-          >
-            <Search className="w-5 h-5 text-muted-foreground" />
-          </button>
-          
-          {/* 桌面端：完整搜索框 */}
-          <div className="hidden md:block relative cursor-pointer" onClick={handleSearchClick}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="搜索照片、人员、标签..."
-              className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
-              readOnly
-              onClick={handleSearchClick}
-            />
-          </div>
-        </div>
       </div>
 
       {/* 右侧操作区 */}
@@ -105,7 +75,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         </button>
 
         {/* 设置 - 保持图标按钮 */}
-        <button 
+        <button
           className="p-2 hover:bg-accent rounded-lg transition-colors"
           onClick={handleSettingsClick}
           title="云存储设置"
@@ -129,7 +99,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               </div>
               <span className="hidden md:inline text-sm font-medium">{displayName}</span>
             </button>
-            
+
             {/* 登出按钮 - 移动端只显示图标 */}
             <Button
               variant="ghost"

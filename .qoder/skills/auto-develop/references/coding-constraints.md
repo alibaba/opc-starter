@@ -58,7 +58,7 @@ import { supabase } from '@/lib/supabase/client'
 
 ### SQL 变更集中管理
 
-所有数据库变更 → `photo-wall/supabase/setup.sql`
+所有数据库变更 → `app/supabase/setup.sql`
 
 禁止创建独立 SQL 迁移文件。
 

@@ -5,28 +5,21 @@
  * @see STORY-23-004
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
-import {
-  Bot,
-  X,
-  Minus,
-  Maximize2,
-  Trash2,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { useAgentStore, getLastThreadId } from '@/stores/useAgentStore';
-import { AgentThread } from './AgentThread';
-import { AgentInput } from './AgentInput';
-import { AgentResumeDialog } from './AgentResumeDialog';
-import { useFusionTaskNotifier } from '@/hooks/useFusionTaskNotifier';
+import { useState, useCallback, useEffect, useRef } from 'react'
+import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable'
+import { Bot, X, Minus, Maximize2, Trash2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { useAgentStore, getLastThreadId } from '@/stores/useAgentStore'
+import { AgentThread } from './AgentThread'
+import { AgentInput } from './AgentInput'
+import { AgentResumeDialog } from './AgentResumeDialog'
 
 interface AgentWindowProps {
   /** 是否显示 */
-  isOpen: boolean;
+  isOpen: boolean
   /** 关闭回调 */
-  onClose: () => void;
+  onClose: () => void
 }
 
 /**
@@ -35,111 +28,103 @@ interface AgentWindowProps {
 const WINDOW_SIZES = {
   expanded: { width: 420, height: 600 },
   minimized: { width: 280, height: 52 },
-} as const;
+} as const
 
 /**
  * 悬浮窗口容器
  */
 export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
   // 🔧 React 19 兼容性: 使用 nodeRef 避免 findDOMNode 错误
-  const nodeRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null)
 
   // 窗口状态
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [showResumeDialog, setShowResumeDialog] = useState(false);
-  const [hasCheckedResume, setHasCheckedResume] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [showResumeDialog, setShowResumeDialog] = useState(false)
+  const [hasCheckedResume, setHasCheckedResume] = useState(false)
 
   // Store 状态
-  const currentThreadId = useAgentStore((state) => state.currentThreadId);
-  const createThread = useAgentStore((state) => state.createThread);
-  const loadThread = useAgentStore((state) => state.loadThread);
-  const clearThread = useAgentStore((state) => state.clearThread);
-  const isStreaming = useAgentStore((state) => state.isStreaming);
-
-  // 🎨 STORY-23-008: 融合任务通知器
-  // 监听融合任务完成状态，自动通知 Agent 并渲染结果
-  // activeTasks 可用于未来显示进度指示器
-  useFusionTaskNotifier({ autoRenderResult: true });
+  const currentThreadId = useAgentStore((state) => state.currentThreadId)
+  const createThread = useAgentStore((state) => state.createThread)
+  const loadThread = useAgentStore((state) => state.loadThread)
+  const clearThread = useAgentStore((state) => state.clearThread)
+  const isStreaming = useAgentStore((state) => state.isStreaming)
 
   // 初始位置（右下角，留出边距）
   useEffect(() => {
     const updatePosition = () => {
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const { width, height } = WINDOW_SIZES.expanded;
+      const windowWidth = window.innerWidth
+      const windowHeight = window.innerHeight
+      const { width, height } = WINDOW_SIZES.expanded
 
       setPosition({
         x: windowWidth - width - 24,
         y: windowHeight - height - 24,
-      });
-    };
+      })
+    }
 
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    return () => window.removeEventListener('resize', updatePosition);
-  }, []);
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    return () => window.removeEventListener('resize', updatePosition)
+  }, [])
 
   // 打开时检查是否有上次对话
   useEffect(() => {
     if (isOpen && !hasCheckedResume) {
-      const lastThreadId = getLastThreadId();
+      const lastThreadId = getLastThreadId()
       if (lastThreadId && !currentThreadId) {
-        setShowResumeDialog(true);
+        setShowResumeDialog(true)
       } else if (!currentThreadId) {
         // 没有上次对话，直接创建新对话
-        createThread();
+        createThread()
       }
-      setHasCheckedResume(true);
+      setHasCheckedResume(true)
     }
-  }, [isOpen, hasCheckedResume, currentThreadId, createThread]);
+  }, [isOpen, hasCheckedResume, currentThreadId, createThread])
 
   // 关闭时重置检查状态
   useEffect(() => {
     if (!isOpen) {
-      setHasCheckedResume(false);
+      setHasCheckedResume(false)
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   // 拖拽处理
-  const handleDrag = useCallback(
-    (_e: DraggableEvent, data: DraggableData) => {
-      setPosition({ x: data.x, y: data.y });
-    },
-    []
-  );
+  const handleDrag = useCallback((_e: DraggableEvent, data: DraggableData) => {
+    setPosition({ x: data.x, y: data.y })
+  }, [])
 
   // 恢复上次对话
   const handleResume = useCallback(() => {
-    const lastThreadId = getLastThreadId();
+    const lastThreadId = getLastThreadId()
     if (lastThreadId) {
-      loadThread(lastThreadId);
+      loadThread(lastThreadId)
     }
-    setShowResumeDialog(false);
-  }, [loadThread]);
+    setShowResumeDialog(false)
+  }, [loadThread])
 
   // 开始新对话
   const handleNewChat = useCallback(() => {
-    createThread();
-    setShowResumeDialog(false);
-  }, [createThread]);
+    createThread()
+    setShowResumeDialog(false)
+  }, [createThread])
 
   // 清空对话
   const handleClearChat = useCallback(() => {
     if (window.confirm('确定要清空当前对话吗？')) {
-      clearThread();
-      createThread();
+      clearThread()
+      createThread()
     }
-  }, [clearThread, createThread]);
+  }, [clearThread, createThread])
 
   // 切换最小化
   const toggleMinimize = useCallback(() => {
-    setIsMinimized((prev) => !prev);
-  }, []);
+    setIsMinimized((prev) => !prev)
+  }, [])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const currentSize = isMinimized ? WINDOW_SIZES.minimized : WINDOW_SIZES.expanded;
+  const currentSize = isMinimized ? WINDOW_SIZES.minimized : WINDOW_SIZES.expanded
 
   return (
     <>
@@ -253,5 +238,5 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
         onResume={handleResume}
       />
     </>
-  );
+  )
 }

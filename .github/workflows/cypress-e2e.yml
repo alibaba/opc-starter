@@ -6,14 +6,14 @@ on:
       - main
       - develop
     paths:
-      - 'photo-wall/**'
+      - 'app/**'
       - '.github/workflows/cypress-e2e.yml'
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'photo-wall/**'
+      - 'app/**'
   workflow_dispatch:
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: photo-wall
+        working-directory: app
     
     steps:
       - name: 📥 Checkout
@@ -41,7 +41,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: photo-wall/package-lock.json
+          cache-dependency-path: app/package-lock.json
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -60,7 +60,7 @@ jobs:
       - name: 🧪 Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
-          working-directory: photo-wall
+          working-directory: app
           browser: ${{ matrix.browser }}
           start: npm run dev:test
           wait-on: 'http://localhost:5173'
@@ -81,7 +81,7 @@ jobs:
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.browser }}
-          path: photo-wall/cypress/screenshots
+          path: app/cypress/screenshots
           retention-days: 7
 
       - name: 🎥 Upload Videos
@@ -89,7 +89,7 @@ jobs:
         if: always()
         with:
           name: cypress-videos-${{ matrix.browser }}
-          path: photo-wall/cypress/videos
+          path: app/cypress/videos
           retention-days: 7
 
       - name: 📊 Generate Test Report

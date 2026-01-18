@@ -1,188 +1,181 @@
-# Project Structure
+# OPC-Starter 项目结构
 
-## 技术栈
-
-| 技术 | 版本 | 注意事项 |
-|------|------|----------|
-| React | 19.1 | |
-| TypeScript | 5.9 | |
-| Vite | 7.1 | |
-| **Tailwind CSS** | **4.1** | ⚠️ 必须使用 v4 语法 |
-| Supabase | 2.80 | |
-| Zustand | 5.0 | |
-
-## 数据流架构
-
-```
-React 19 → Zustand Store → DataService → IndexedDB
-                              ↓↑
-                    Supabase (Auth + PostgreSQL + Realtime)
-                              ↓↑
-                    阿里云 (OSS + 百炼 AI)
-```
-
-**数据访问模式**：
-- Read: IndexedDB (local-first)
-- Write: Optimistic update + Supabase Realtime sync
-- **所有操作必须通过 `DataService`**
+> 一人公司启动器 - AI 亲和的 React Boilerplate
 
 ## 目录结构
 
 ```
-photo-wall/
-├── docs/
-│   ├── Architecture.md      # 系统架构
-│   └── Epics.yaml           # 项目进度 & Epic/Story 管理
-├── photo-wall/
+opc-starter/
+├── app/                          # 主应用
 │   ├── src/
-│   │   ├── components/          # React 组件
+│   │   ├── auth/                 # 认证模块
+│   │   │   ├── components/       # 认证组件
+│   │   │   └── pages/            # 认证页面
+│   │   ├── components/
+│   │   │   ├── agent/            # Agent Studio ⭐
+│   │   │   │   ├── a2ui/         # A2UI 渲染系统
+│   │   │   │   │   ├── components/  # A2UI 业务组件
+│   │   │   │   │   ├── registry.ts  # 组件白名单
+│   │   │   │   │   └── A2UIRenderer.tsx
+│   │   │   │   ├── AgentWindow.tsx
+│   │   │   │   ├── AgentThread.tsx
+│   │   │   │   └── AgentInput.tsx
+│   │   │   ├── business/         # 业务组件
+│   │   │   ├── layout/           # 布局组件
+│   │   │   │   ├── Header/
+│   │   │   │   ├── MainLayout/
+│   │   │   │   └── Sidebar/
+│   │   │   ├── organization/     # 组织架构
+│   │   │   └── ui/               # 基础 UI (shadcn)
+│   │   ├── pages/                # 页面组件
+│   │   │   ├── DashboardPage.tsx
+│   │   │   ├── ProfilePage.tsx
+│   │   │   └── SettingsPage.tsx
 │   │   ├── services/
-│   │   │   ├── data/DataService.ts  # 统一数据访问（核心）
-│   │   │   ├── api/             # API 服务
-│   │   │   ├── ai/              # AI 服务
-│   │   │   └── cloud/           # OSS 存储服务
-│   │   ├── stores/              # Zustand Store
-│   │   ├── hooks/               # 自定义 Hooks
-│   │   ├── types/               # TypeScript 类型
-│   │   ├── mocks/               # MSW Mock 数据
-│   │   │   ├── handlers/        # API Mock Handlers
-│   │   │   └── data/            # Mock 数据
-│   │   └── utils/               # 工具函数
-│   ├── cypress/
-│   │   ├── e2e/                 # E2E 测试用例
-│   │   │   ├── auth/            # 认证相关测试
-│   │   │   ├── photos/          # 照片功能测试
-│   │   │   └── albums/          # 相册功能测试
-│   │   ├── fixtures/            # 测试数据 & 资源
-│   │   │   └── users.json       # 测试用户凭证
-│   │   └── support/             # Cypress 支持文件
-│   ├── supabase/
-│   │   ├── setup.sql            # 数据库脚本（所有 SQL 变更集中于此）
-│   │   ├── functions/           # Edge Functions
-│   │   ├── SUPABASE_COOKBOOK.md # Supabase 操作手册
-│   │   └── ALICLOUD_COOKBOOK.md # 阿里云服务配置
-│   └── package.json
-└── AGENTS.md                # AI 编码快速指南
+│   │   │   ├── data/             # DataService (核心) ⭐
+│   │   │   │   └── DataService.ts
+│   │   │   ├── api/              # API 服务
+│   │   │   └── storage/          # 存储服务
+│   │   ├── stores/               # Zustand Store
+│   │   │   ├── useAuthStore.ts
+│   │   │   ├── useProfileStore.ts
+│   │   │   ├── useAgentStore.ts
+│   │   │   └── useUIStore.ts
+│   │   ├── lib/
+│   │   │   ├── agent/            # Agent 客户端 ⭐
+│   │   │   │   ├── sseClient.ts     # SSE 流客户端
+│   │   │   │   ├── toolExecutor.ts  # 工具执行器
+│   │   │   │   └── tools/           # 前端工具
+│   │   │   │       ├── registry.ts
+│   │   │   │       ├── navigation/
+│   │   │   │       └── context/
+│   │   │   ├── reactive/         # 响应式适配器
+│   │   │   └── supabase/         # Supabase 客户端
+│   │   │       └── client.ts
+│   │   ├── hooks/                # 自定义 Hooks
+│   │   │   ├── useAgentChat.ts
+│   │   │   ├── useOrganization.ts
+│   │   │   ├── useSyncStatus.ts
+│   │   │   └── useTheme.ts
+│   │   ├── types/                # TypeScript 类型
+│   │   │   ├── a2ui.ts
+│   │   │   ├── agent.ts
+│   │   │   ├── auth.ts
+│   │   │   └── person.ts
+│   │   ├── config/               # 配置
+│   │   │   ├── routes.tsx
+│   │   │   └── constants.ts
+│   │   ├── utils/                # 工具函数
+│   │   └── mocks/                # MSW Mock
+│   │       ├── handlers/
+│   │       │   ├── authHandlers.ts
+│   │       │   ├── agentHandlers.ts
+│   │       │   └── supabaseRestHandlers.ts
+│   │       └── data/
+│   └── supabase/
+│       ├── functions/
+│       │   └── ai-assistant/    # Agent SSE 网关 ⭐
+│       │       ├── index.ts
+│       │       ├── tools.ts
+│       │       └── prompts/
+│       ├── setup.sql             # 数据库脚本 (所有变更集中于此)
+│       └── SUPABASE_COOKBOOK.md
+├── cypress/                      # E2E 测试
+│   ├── e2e/
+│   ├── fixtures/
+│   │   └── users.json            # 测试用户凭证
+│   └── support/
+├── docs/
+│   ├── Architecture.md           # 系统架构
+│   └── Epics.yaml                # 项目进度
+├── _bmad/                        # BMAD 方法论 (可选参考)
+│   ├── bmm/agents/               # Agent 角色定义
+│   └── bmm/workflows/            # 标准化工作流
+├── .qoder/skills/                # Qoder 技能
+│   └── auto-develop/             # 当前技能
+├── AGENTS.md                     # AI Coding 快速指南
+└── package.json
 ```
 
-## 关键文件
+## 核心文件
 
-| File | Purpose |
-|------|---------|
-| `photo-wall/src/services/data/DataService.ts` | 统一数据访问层，所有数据操作必须通过此服务 |
-| `photo-wall/supabase/setup.sql` | 所有数据库变更集中管理 |
-| `docs/Epics.yaml` | 项目进度追踪、Epic/Story/Task 管理 |
-| `AGENTS.md` | AI 编码快速指南 |
+| 文件 | 职责 |
+|------|------|
+| `app/src/services/data/DataService.ts` | 统一数据访问层，所有数据操作必须通过此服务 |
+| `app/supabase/setup.sql` | 所有数据库变更集中管理 |
+| `app/src/lib/agent/toolExecutor.ts` | Agent 工具前端执行器 |
+| `app/supabase/functions/ai-assistant/` | Agent SSE 网关后端 |
+| `docs/Architecture.md` | 完整系统架构文档 |
+| `AGENTS.md` | AI Coding 快速指南 |
 
-## 测试相关文件
+## 核心 Store
 
-| File | Purpose |
-|------|---------|
-| `cypress/e2e/**/*.cy.js` | E2E 测试用例 |
-| `cypress/fixtures/users.json` | 测试用户凭证 (禁止使用环境变量) |
-| `src/**/*.test.ts` | 单元测试 (Vitest) |
-| `src/mocks/handlers/authHandlers.ts` | 认证 API Mock |
-| `src/mocks/handlers/supabaseRestHandlers.ts` | REST API Mock |
-
-## Edge Functions
-
-Supabase Edge Functions 位于 `photo-wall/supabase/functions/`：
-
-| Function | Purpose |
-|----------|---------|
-| `oss-sts-token` | OSS 临时凭证 |
-| `aliyun-bailian-proxy` | AI 视频生成代理 |
-| `recognize-scene` | 场景识别 |
-| `alibaba-i2i-synthesis` | 图像合成 |
-
-**部署命令**：
-
-```bash
-cd photo-wall/supabase && supabase functions deploy <function-name>
-```
-
-## 外部服务
-
-| Service | Provider | Purpose |
-|---------|----------|---------|
-| Auth | Supabase | 用户认证 |
-| Database | Supabase PostgreSQL | 持久化存储 |
-| Realtime | Supabase Realtime | 数据同步 |
-| Storage | 阿里云 OSS | 照片存储 |
-| AI | 阿里云百炼 | 视频生成、场景识别 |
-
-## NPM Scripts
-
-### 开发
-
-```bash
-npm run dev          # 启动开发服务器
-npm run dev:test     # 启动测试模式服务器 (启用 MSW mock)
-```
-
-### 测试
-
-```bash
-npm run test               # 运行单元测试 (Vitest) - 运行一次后退出
-npm run test:e2e           # E2E 测试 - 开发模式 (带 Cypress UI)
-npm run test:e2e:headless  # E2E 测试 - 无头模式 (CI)
-npm run cypress:open       # 单独打开 Cypress UI
-npm run cypress:run        # 单独运行 Cypress (无头)
-```
-
-### 质量检查
-
-```bash
-npm run lint         # TypeScript 类型检查 + ESLint
-npm run build        # 生产构建
-npm run preview      # 预览构建结果
-```
+| Store | 职责 |
+|-------|------|
+| `useAuthStore` | 用户认证、会话管理 |
+| `useProfileStore` | 用户信息管理 |
+| `useAgentStore` | Agent 对话状态 |
+| `useUIStore` | UI 状态（侧边栏、主题等） |
 
 ## 文档更新策略
 
-| Content Type | Target File |
-|--------------|-------------|
-| SQL 变更 | `photo-wall/supabase/setup.sql` |
-| 数据库操作 | `photo-wall/supabase/SUPABASE_COOKBOOK.md` |
-| 阿里云配置 | `photo-wall/supabase/ALICLOUD_COOKBOOK.md` |
+| 内容类型 | 目标文件 |
+|----------|----------|
+| SQL 变更 | `app/supabase/setup.sql` |
+| 数据库操作指南 | `app/supabase/SUPABASE_COOKBOOK.md` |
 | 项目进度 | `docs/Epics.yaml` |
 | 系统架构 | `docs/Architecture.md` |
 
-**禁止创建新的文档文件，优先更新现有文档。**
+## 扩展指南
 
-## 测试数据策略
+### 添加新页面
 
-### 测试用户凭证
+1. 在 `app/src/pages/` 创建页面组件
+2. 在 `app/src/config/routes.tsx` 添加路由
+3. 在 `app/src/components/layout/MainLayout/` 添加导航入口
 
-从 `cypress/fixtures/users.json` 读取，格式：
+### 添加新数据实体
 
-```json
-{
-  "testUser": {
-    "email": "test@example.com",
-    "password": "testpassword"
-  }
-}
+1. 在 `app/src/types/` 定义类型
+2. 在 `app/src/services/data/adapters/` 创建适配器
+3. 在 `app/src/stores/` 创建 Zustand Store
+4. 更新 `app/supabase/setup.sql` 添加表结构
+
+### 添加新 Agent Tool
+
+1. **后端**: 在 `ai-assistant/tools.ts` 添加工具定义 (OpenAI 格式)
+2. **前端**: 在 `app/src/lib/agent/tools/` 创建工具目录
+3. **注册**: 在 `app/src/lib/agent/tools/registry.ts` 注册
+4. **System Prompt**: 在 `ai-assistant/prompts/` 添加使用说明
+
+### 添加新 A2UI 组件
+
+1. 在 `app/src/components/agent/a2ui/components/` 创建组件
+2. 在 `registry.ts` 注册组件 (白名单模式)
+3. 在 `app/src/types/a2ui.ts` 添加类型定义
+
+## NPM Scripts
+
+```bash
+# 开发
+npm run dev           # 启动开发服务器
+npm run dev:test      # 测试模式 (MSW mock)
+
+# 测试
+npm run test          # 单元测试
+npm run test:watch    # 监听模式
+npm run coverage      # 覆盖率报告
+npm run test:e2e      # Cypress 交互模式
+npm run test:e2e:headless  # Cypress 无头模式
+
+# 质量检查
+npm run lint          # ESLint 检查并修复
+npm run lint:check    # ESLint 仅检查
+npm run format        # Prettier 格式化
+npm run format:check  # Prettier 检查
+npm run type-check    # TypeScript 类型检查
+
+# 构建
+npm run build         # 生产构建
+npm run preview       # 预览构建结果
 ```
-
-### MSW Mock 数据
-
-- 认证 API：`src/mocks/handlers/authHandlers.ts`
-- REST API：`src/mocks/handlers/supabaseRestHandlers.ts`
-
-测试用户凭证需与 `authHandlers.ts` 中的 mock 保持一致。
-
-## 目录用途说明
-
-| Directory | Purpose |
-|-----------|---------|
-| `src/components/business/` | 业务组件 |
-| `src/components/ui/` | 通用 UI 组件 (shadcn/ui) |
-| `src/components/layout/` | 布局组件 |
-| `src/services/data/` | 统一数据访问层 |
-| `src/services/api/` | Supabase API 封装 |
-| `src/stores/` | Zustand 状态管理 |
-| `src/hooks/` | 自定义 React Hooks |
-| `src/types/` | TypeScript 类型定义 |
-| `src/utils/` | 工具函数 |
-| `src/mocks/` | MSW Mock 配置 |

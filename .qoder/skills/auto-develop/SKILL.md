@@ -1,34 +1,122 @@
 ---
 name: auto-develop
-description: Photo Wall 项目 TDD 开发规范。当开发新功能、修复 Bug、编写测试或进行代码审查时，此 Skill 提供完整的 TDD 驱动开发工作流、技术约束和编码规范。适用于 React/TypeScript 前端开发、Supabase 数据库操作、Cypress E2E 测试和阿里云服务集成。
+description: OPC-Starter 智能开发技能。AI 亲和的 React Boilerplate 项目开发规范，支持动态上下文感知、TDD 驱动开发、Agent Studio 扩展。适用于认证系统、组织架构、Agent 工具、数据同步等模块的迭代开发。
 ---
 
-# Photo Wall TDD 开发规范
+# OPC-Starter 智能开发技能
 
-> **核心理念**: 测试即规范，代码即实现。没有测试的代码不允许合并。
+> **项目定位**: OPC-Starter (一人公司启动器) 是一个 AI 亲和的 React Boilerplate，专为使用 Cursor、Qoder 等 AI Coding 工具的开发者设计。
+>
+> **核心理念**: 像高级研发专家 Amelia 一样执行 —— 测试即规范，代码即实现，精准定位，无冗余输出。
 
-## 技术栈
+---
+
+## 🎯 动态上下文系统
+
+### 上下文感知规则
+
+根据任务类型自动加载相关文档和约束，避免无关信息干扰。
+
+| 任务关键词 | 触发上下文 | 加载文档 |
+|------------|------------|----------|
+| `Agent`、`工具`、`Tool`、`A2UI` | Agent Studio 开发 | `AGENTS.md` → Agent 规范章节 |
+| `组件`、`页面`、`UI`、`样式` | 前端 UI 开发 | `references/coding-constraints.md` → 设计系统 |
+| `数据库`、`SQL`、`表`、`字段` | 数据库变更 | `references/db-sync-checklist.md` |
+| `测试`、`TDD`、`Cypress`、`Vitest` | 测试开发 | `references/tdd-workflow.md` |
+| `Bug`、`修复`、`异常`、`报错` | 问题排查 | `references/troubleshooting.md` |
+| `架构`、`模块`、`服务` | 系统设计 | `docs/Architecture.md` |
+
+### 执行前自检
+
+开始任务前，检测以下条件并动态加载规则：
+
+```yaml
+context_check:
+  - keyword_match: 检测任务描述关键词
+  - file_scope: 检测涉及的文件路径
+  - change_type: 判断是新功能/Bug修复/重构
+  
+auto_load:
+  agent_module: "app/src/components/agent/**" | "app/src/lib/agent/**"
+  ui_module: "app/src/components/**" | "app/src/pages/**"
+  data_module: "app/src/services/data/**" | "app/supabase/**"
+  test_module: "**/*.test.ts" | "**/*.spec.ts" | "cypress/**"
+```
+
+---
+
+## 📊 项目核心架构
+
+### 技术栈
 
 | 技术 | 版本 | 注意事项 |
 |------|------|----------|
-| React | 19.1 | |
-| TypeScript | 5.9 | |
-| Vite | 7.1 | |
+| React | 19.1 | 最新稳定版 |
+| TypeScript | 5.9 | 严格类型 |
+| Vite | 7.1 | 构建工具 |
 | **Tailwind CSS** | **4.1** | ⚠️ 必须使用 v4 语法 |
-| Supabase | 2.80 | |
-| Zustand | 5.0 | |
+| Supabase | 2.80 | Auth + Storage + Realtime + Edge Functions |
+| Zustand | 5.0 | 状态管理 |
 | **Vitest** | **4.0** | 单元测试框架 |
 | **Cypress** | **15.7** | E2E 测试框架 |
+| **GLM-4.7** | via 百炼 API | Agent LLM |
+| **A2UI** | v0.8 | Agent 动态 UI 协议 |
+
+### 目录结构
+
+```
+opc-starter/
+├── app/                          # 主应用
+│   ├── src/
+│   │   ├── auth/                 # 认证模块
+│   │   ├── components/
+│   │   │   ├── agent/            # Agent Studio ⭐
+│   │   │   │   └── a2ui/         # A2UI 渲染系统
+│   │   │   ├── business/         # 业务组件
+│   │   │   ├── layout/           # 布局组件
+│   │   │   ├── organization/     # 组织架构
+│   │   │   └── ui/               # 基础 UI (shadcn)
+│   │   ├── pages/                # 页面组件
+│   │   ├── services/
+│   │   │   └── data/             # DataService (核心) ⭐
+│   │   ├── stores/               # Zustand Store
+│   │   ├── lib/
+│   │   │   ├── agent/            # Agent 客户端 ⭐
+│   │   │   │   └── tools/        # 前端工具执行器
+│   │   │   └── supabase/         # Supabase 客户端
+│   │   ├── hooks/                # 自定义 Hooks
+│   │   ├── types/                # TypeScript 类型
+│   │   └── mocks/                # MSW Mock
+│   └── supabase/
+│       ├── functions/
+│       │   └── ai-assistant/    # Agent SSE 网关 ⭐
+│       └── setup.sql             # 数据库脚本 (所有变更集中于此)
+├── docs/
+│   ├── Architecture.md           # 系统架构
+│   └── Epics.yaml                # 项目进度
+├── _bmad/                        # BMAD 方法论 (可选参考)
+└── AGENTS.md                     # AI Coding 快速指南
+```
+
+### 核心能力模块
+
+| 模块 | 关键文件 | 说明 |
+|------|----------|------|
+| 认证系统 | `app/src/auth/` | Supabase Auth + JWT |
+| 组织架构 | `app/src/components/organization/` | 多层级团队、成员、角色 |
+| **Agent Studio** | `app/src/components/agent/` | 自然语言 AI 助手 ⭐ |
+| 数据同步 | `app/src/services/data/DataService.ts` | IndexedDB + Realtime |
+| 个人中心 | `app/src/pages/ProfilePage.tsx` | 用户信息、头像 |
 
 ---
 
 ## 🔴🟢🔵 TDD 核心原则
 
-### 红-绿-重构循环 (Red-Green-Refactor)
+### 红-绿-重构循环
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    TDD 循环 (每个功能点)                      │
+│                    TDD 循环 (每个功能点)                     │
 │                                                             │
 │     🔴 RED          🟢 GREEN         🔵 REFACTOR           │
 │   ┌─────────┐     ┌─────────┐     ┌─────────┐              │
@@ -41,11 +129,11 @@ description: Photo Wall 项目 TDD 开发规范。当开发新功能、修复 Bu
 └─────────────────────────────────────────────────────────────┘
 ```
 
-| 阶段 | 目标 | 时间占比 | 规则 |
-|------|------|----------|------|
-| 🔴 RED | 编写失败的测试 | 30% | 测试必须明确表达需求意图 |
-| 🟢 GREEN | 写最小代码通过测试 | 40% | 只写刚好让测试通过的代码 |
-| 🔵 REFACTOR | 优化代码结构 | 30% | 测试保持通过，消除重复 |
+| 阶段 | 目标 | 规则 |
+|------|------|------|
+| 🔴 RED | 编写失败的测试 | 测试必须明确表达需求意图 |
+| 🟢 GREEN | 写最小代码通过测试 | 只写刚好让测试通过的代码 |
+| 🔵 REFACTOR | 优化代码结构 | 测试保持通过，消除重复 |
 
 ### 测试先行原则 ⚠️ MANDATORY
 
@@ -59,350 +147,106 @@ description: Photo Wall 项目 TDD 开发规范。当开发新功能、修复 Bu
 ✅ 必须：每次提交前运行完整测试套件
 ```
 
----
-
-## 📊 测试覆盖率目标
-
-### 覆盖率门禁
-
-| 指标 | 最低要求 | 目标值 | 说明 |
-|------|----------|--------|------|
-| **行覆盖率** | ≥60% | ≥80% | 核心服务必须 ≥80% |
-| **分支覆盖率** | ≥50% | ≥70% | 条件判断覆盖 |
-| **函数覆盖率** | ≥70% | ≥90% | 公开函数必须覆盖 |
-
-### 测试金字塔策略
-
-```
-                    ▲
-                   /│\
-                  / │ \
-                 /  │  \        🔺 E2E 测试 (10-20%)
-                /   │   \       - 关键用户流程
-               /────┼────\      - 跨页面交互
-              /     │     \
-             /      │      \    🔸 集成测试 (20-30%)
-            /───────┼───────\   - 服务间交互
-           /        │        \  - API 调用
-          /         │         \
-         /──────────┼──────────\  🔹 单元测试 (50-70%)
-        /           │           \ - 函数逻辑
-       /────────────┴────────────\ - 工具方法
-```
+### 测试金字塔
 
 | 层级 | 测试类型 | 覆盖目标 | 运行频率 |
 |------|----------|----------|----------|
 | 底层 | 单元测试 (Vitest) | 工具函数、Services、Hooks | 每次保存 |
 | 中层 | 集成测试 (Vitest) | DataService、Store 交互 | 每次提交 |
-| 顶层 | E2E 测试 (Cypress) | 登录、上传、创建相册等关键流程 | PR 合并前 |
+| 顶层 | E2E 测试 (Cypress) | 登录、核心用户流程 | PR 合并前 |
 
 ---
 
-## 开发工作流 (TDD-Driven)
+## 🤖 Agent Studio 开发规范
+
+> 当任务涉及 Agent 相关开发时，自动加载此章节。
+
+### 架构流程
 
 ```
-需求/Bug → BMAD 方案讨论 → Epic/Story/Task → 🔴测试先行 → 🟢代码实现 → 🔵重构优化 → 质量验证 → 数据库同步 → 人工审查 → 上线
+用户 ←→ AgentWindow (悬浮对话框)
+           ↓
+      useAgentChat Hook
+           ↓
+      SSE Client ←→ ai-assistant (Edge Function)
+           ↓                    ↓
+      Tool Executor         GLM-4.7 (百炼 API)
+           ↓
+      A2UI Renderer (动态 UI)
 ```
 
-### Phase 1: 需求分析与方案设计
+### 核心文件
 
-1. **触发 BMAD Master 思考** - 引用 `@bmad/core/agents/bmad-master` 进行方案讨论
-2. **制定改进计划** - 创建或更新 `docs/Epics.yaml` 中的 Epic/Story
+| 文件 | 职责 |
+|------|------|
+| `app/src/components/agent/AgentWindow.tsx` | 悬浮对话窗口 |
+| `app/src/hooks/useAgentChat.ts` | Agent 对话状态管理 |
+| `app/src/lib/agent/sseClient.ts` | SSE 流式客户端 |
+| `app/src/lib/agent/toolExecutor.ts` | 本地工具执行器 |
+| `app/src/components/agent/a2ui/A2UIRenderer.tsx` | A2UI 组件渲染器 |
+| `app/src/components/agent/a2ui/registry.ts` | 组件白名单注册表 |
+| `app/supabase/functions/ai-assistant/` | Agent 后端网关 |
 
-### Phase 2: TDD 测试先行 🔴 RED
+### 添加新 Agent Tool
 
-> **原则**: 在编写实现代码之前，必须先编写失败的测试。
-
-#### 2.1 编写测试的顺序
-
-```
-1. 单元测试 (必须) → 2. 集成测试 (推荐) → 3. E2E 测试 (关键流程)
-```
-
-#### 2.2 单元测试规范 (Vitest)
-
-**测试文件命名**: `*.test.ts` 或 `*.spec.ts`，与源文件同目录
+1. **后端**: 在 `ai-assistant/tools.ts` 添加工具定义 (OpenAI 格式)
+2. **前端**: 在 `app/src/lib/agent/tools/` 创建工具目录
+3. **注册**: 在 `app/src/lib/agent/tools/registry.ts` 注册
+4. **System Prompt**: 在 `ai-assistant/prompts/` 添加使用说明
 
 ```typescript
-// src/services/photoService.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-
-describe('PhotoService', () => {
-  // 🔴 RED: 先写失败的测试
-  describe('uploadPhoto', () => {
-    it('应该成功上传照片并返回 URL', async () => {
-      // Arrange - 准备测试数据
-      const file = new File(['test'], 'photo.jpg', { type: 'image/jpeg' })
-      
-      // Act - 执行待测函数
-      const result = await photoService.uploadPhoto(file)
-      
-      // Assert - 验证结果
-      expect(result.url).toMatch(/^https:\/\//)
-      expect(result.id).toBeDefined()
-    })
-
-    it('当文件类型不支持时应抛出错误', async () => {
-      const file = new File(['test'], 'doc.pdf', { type: 'application/pdf' })
-      
-      await expect(photoService.uploadPhoto(file))
-        .rejects
-        .toThrow('不支持的文件类型')
-    })
-  })
-})
-```
-
-**测试三原则 (AAA)**:
-| 阶段 | 英文 | 说明 |
-|------|------|------|
-| 准备 | Arrange | 设置测试数据和 mock |
-| 执行 | Act | 调用待测函数 |
-| 断言 | Assert | 验证执行结果 |
-
-#### 2.3 Mock 策略
-
-```typescript
-// ✅ 推荐：使用 vi.mock 隔离外部依赖
-vi.mock('@/lib/supabase/client', () => ({
-  supabase: {
-    from: vi.fn().mockReturnThis(),
-    select: vi.fn().mockResolvedValue({ data: mockData, error: null })
-  }
-}))
-
-// ✅ 推荐：使用 vi.spyOn 监控方法调用
-const spy = vi.spyOn(dataService, 'savePhoto')
-await photoService.upload(file)
-expect(spy).toHaveBeenCalledWith(expect.objectContaining({ fileName: 'photo.jpg' }))
-```
-
-#### 2.4 E2E 测试规范 (Cypress)
-
-**关键流程必须有 E2E 覆盖**:
-- 用户登录/注册
-- 照片上传
-- 相册创建/编辑
-- 批量操作
-
-```javascript
-// cypress/e2e/albums/create.cy.js
-describe('创建相册', function() {
-  beforeEach(function() {
-    cy.fixture('users').then((users) => {
-      // 登录测试用户
-      cy.login(users.testUser.email, users.testUser.password)
-    })
-  })
-
-  it('应该成功创建新相册', function() {
-    // 🔴 RED: 先写这个测试，然后实现功能
-    cy.visit('/albums')
-    cy.get('[data-testid="create-album-btn"]').click()
-    cy.get('[data-testid="album-name-input"]').type('测试相册')
-    cy.get('[data-testid="album-submit-btn"]').click()
-    
-    // 验证相册创建成功
-    cy.get('[data-testid="album-list"]').should('contain', '测试相册')
-  })
-})
-```
-
-#### 2.5 shadcn/ui 组件测试 ⚠️ CRITICAL
-
-- **先检查 DOM 结构再写测试**，不要假设组件实现
-- Radix UI 组件使用 `<button>` 而非 `<input>`
-- 状态属性用 `data-state="checked"` 而非原生 `checked`
-
-详见 `references/tdd-workflow.md`。
-
-#### 2.6 测试命令
-
-```bash
-npm run test               # 运行单元测试
-npm run test:watch         # 监听模式（开发时使用）
-npm run coverage           # 生成覆盖率报告
-npm run test:e2e           # Cypress 交互模式
-npm run test:e2e:headless  # Cypress 无头模式（CI 用）
-```
-
-### Phase 3: 代码实现 🟢 GREEN
-
-> **原则**: 写最小可行代码使测试通过，不多不少。
-
-#### 3.1 实现顺序
-
-```
-1. 让单元测试通过 → 2. 让 E2E 测试通过 → 3. 处理边界场景
-```
-
-#### 3.2 实现规则
-
-```
-✅ 只写刚好让测试通过的代码
-✅ 不要过度设计
-✅ 每个测试通过后立即提交
-
-❌ 不要一次性写完所有功能
-❌ 不要写测试没有覆盖的代码
-❌ 不要提前优化
-```
-
-遵循技术约束完成代码实现。详见 `references/coding-constraints.md`。
-
-### Phase 3.5: 重构优化 🔵 REFACTOR
-
-> **原则**: 在测试保护下安全重构，消除代码重复。
-
-```
-✅ 测试全部通过后再重构
-✅ 每次小步重构后运行测试
-✅ 提取公共方法、消除重复
-✅ 改善命名、优化结构
-
-❌ 不要在重构时添加新功能
-❌ 不要跳过测试验证
-```
-
-### Bug 修复规范 ⚠️ CRITICAL
-
-**核心原则：先查数据，再改代码**
-
-修复显示异常、数据不正确等问题时，**必须先验证实际数据状态**，避免基于假设的多次返工。
-
-#### 调试流程
-
-```
-发现问题 → 浏览器调试验证 → 定位根因 → 一次性修复 → 验证通过
-```
-
-#### 1. 使用浏览器调试工具
-
-```bash
-# 打开浏览器 DevTools
-# Network 面板：检查 API 请求和响应数据
-# Console 面板：查看日志和错误信息
-```
-
-**必查项**：
-- API 响应数据是否符合预期
-- 关键字段是否为 `null` / `undefined` / 空数组
-- 外键引用的记录是否存在
-
-#### 2. 添加临时调试日志
-
-```typescript
-// 修改代码前，先添加日志定位问题
-console.log('[Debug] 数据状态:', JSON.stringify(data, null, 2));
-console.log('[Debug] 查询结果:', { data, error });
-```
-
-#### 3. 常见数据完整性问题
-
-| 问题场景 | 症状 | 排查方法 |
-|----------|------|----------|
-| 外键引用失效 | 关联查询返回 `null` | 检查被引用记录是否存在 |
-| 数组包含无效 ID | 批量查询返回部分数据 | 对比请求 ID 和响应数据 |
-| 字段为空 | 功能不生效 | 检查数据库记录实际值 |
-
-#### 4. 防御性编码
-
-处理外键引用或 ID 数组时，考虑数据可能无效：
-
-```typescript
-// ❌ 假设 photoIds[0] 一定有效
-const coverUrl = await getPhotoUrl(album.photoIds[0]);
-
-// ✅ 遍历找到第一张有效的照片
-for (const photoId of album.photoIds) {
-  const url = photoUrlMap.get(photoId);
-  if (url) {
-    album.coverPhotoUrl = url;
-    break;
-  }
+// 工具定义示例 (OpenAI 格式)
+{
+  type: "function",
+  function: {
+    name: "myNewTool",
+    description: "工具描述",
+    parameters: {
+      type: "object",
+      properties: { /* ... */ },
+      required: ["param1"],
+    },
+  },
 }
 ```
 
-#### 5. 小步验证原则
+### 添加新 A2UI 组件
 
-- 每次修改后立即验证效果
-- 不要基于多个假设一次性修改
-- 假设链越长，返工风险越高
+1. 在 `app/src/components/agent/a2ui/components/` 创建组件
+2. 在 `registry.ts` 注册组件 (白名单模式)
+3. 在 `app/src/types/a2ui.ts` 添加类型定义
 
-### Phase 4: 质量验证 (Quality Gate)
-
-> **原则**: 质量门禁必须全部通过，否则禁止合并代码。
-
-#### 4.1 质量门禁清单
-
-| 检查项 | 命令 | 通过标准 | 阻断级别 |
-|--------|------|----------|----------|
-| ESLint | `npm run lint:check` | 0 错误 | 🔴 强制 |
-| TypeScript | `npm run type-check` | 0 错误 | 🔴 强制 |
-| Prettier | `npm run format:check` | 0 差异 | 🔴 强制 |
-| 单元测试 | `npm run test` | 全部通过 | 🔴 强制 |
-| 覆盖率 | `npm run coverage` | ≥60% | 🟡 警告 |
-| E2E 测试 | `npm run test:e2e:headless` | 全部通过 | 🔴 强制 |
-| 构建 | `npm run build` | 成功 | 🔴 强制 |
-| 设计系统 | 见下方检查命令 | 无硬编码颜色 | 🟡 警告 |
-
-#### 4.1.1 设计系统检查
-
-UI 组件变更时执行：
-
-```bash
-# 检查新增/修改的文件是否有硬编码颜色
-git diff --name-only HEAD~1 | xargs grep -l "bg-gray-\|text-gray-\|bg-white\|bg-black" 2>/dev/null
-
-# 如有匹配，需替换为语义化颜色
+```typescript
+// registry.ts 注册示例
+export const A2UI_REGISTRY: A2UIComponentRegistry = {
+  'my-component': MyComponent,
+};
 ```
 
-#### 4.2 执行完整质量检查
+### A2UI Action ID 规范
 
-```bash
-# 推荐：使用质量验证脚本（一键执行所有检查）
-./scripts/quality_check.sh
+| 类别 | Action ID 格式 | 示例 |
+|------|---------------|------|
+| 导航 | `navigation.*` | `navigation.goTo` |
+| 用户 | `user.*` | `user.updateProfile` |
+| 组织 | `org.*` | `org.createTeam` |
 
-# 或手动执行
-npm run lint:check        # ESLint 检查
-npm run format:check      # Prettier 格式检查
-npm run type-check        # TypeScript 类型检查
-npm run test              # 单元测试
-npm run coverage          # 覆盖率报告
-npm run test:e2e:headless # E2E 回归测试
-npm run build             # 构建验证
+### Mock LLM 测试
+
+使用 MSW 模拟 Agent 响应：
+
+```typescript
+// app/src/mocks/handlers/agentHandlers.ts
+http.post('*/functions/v1/ai-assistant', async ({ request }) => {
+  // 返回 SSE 流式响应
+});
 ```
-
-#### 4.3 CI/CD 自动验证
-
-项目已配置 GitHub Actions，PR 提交时自动运行：
-- `.github/workflows/pr-check.yml` - Lint + Type + Test + Build
-- `.github/workflows/cypress-e2e.yml` - E2E 测试
-
-**所有 CI 检查必须通过后才能合并 PR。**
-
-### Phase 5: 数据库一致性检查 ⚠️ CRITICAL
-
-当功能涉及数据库变更时，**必须**执行数据库一致性检查。
-
-详见 `references/db-sync-checklist.md`。
-
-**核心检查项**：
-- TypeScript 类型与 SQL 表定义字段一致
-- 所有枚举值在 CHECK 约束中存在
-- 线上数据库已执行迁移（如需要）
-
-### Phase 6: 本地预览与人工审查
-
-```bash
-npm run preview    # 本地预览构建结果
-```
-
-人工检查要点：UI/UX 符合预期、功能完整性、边界场景、性能表现。
 
 ---
 
-## 技术约束速查
+## 🎨 设计系统规范
+
+> 当任务涉及 UI 组件开发时，自动加载此章节。
 
 ### Tailwind CSS v4 语法 (Mandatory)
 
@@ -414,234 +258,288 @@ className="bg-opacity-50 bg-gradient-to-r"
 className="bg-black/50 bg-linear-to-r"
 ```
 
-### 设计系统与暗色模式规范 ⚠️ CRITICAL
+| 禁止 (v2/v3) | 使用 (v4) |
+|--------------|-----------|
+| `bg-opacity-*` | `bg-color/opacity` |
+| `bg-gradient-to-*` | `bg-linear-to-*` |
 
-本项目采用 **Shadcn UI 设计系统 + Tailwind CSS v4**，支持浅色/深色模式切换。
+### 语义化颜色 (暗色模式适配)
 
-**核心原则**：使用语义化颜色，禁止硬编码颜色值。
-
-#### 语义化颜色对照表
+**核心原则**: 使用语义化颜色，禁止硬编码颜色值。
 
 | 语义化颜色 | 用途 | ❌ 禁止使用 |
 |------------|------|-------------|
 | `bg-background` | 页面背景 | `bg-gray-50`, `bg-white` |
 | `bg-card` | 卡片/容器背景 | `bg-white` |
-| `bg-popover` | 弹出层背景 | `bg-white` |
-| `bg-muted` | 禁用/次要背景 | `bg-gray-100`, `bg-gray-200` |
-| `bg-secondary` | 次要按钮/悬停背景 | `bg-gray-100` |
-| `bg-primary` | 主色按钮/激活态 | `bg-blue-600`, `bg-green-600` |
-| `bg-destructive` | 危险/删除操作 | `bg-red-600`, `bg-red-500` |
-| `bg-success` | 成功状态 | `bg-green-*` |
-| `bg-warning` | 警告状态 | `bg-yellow-*`, `bg-orange-*` |
 | `text-foreground` | 主要文字 | `text-gray-900`, `text-black` |
-| `text-muted-foreground` | 次要文字 | `text-gray-500`, `text-gray-600` |
-| `text-primary` | 强调文字/链接 | `text-blue-600` |
-| `text-destructive` | 错误文字 | `text-red-600`, `text-red-500` |
-| `border` / `border-border` | 边框 | `border-gray-200`, `border-gray-300` |
-
-#### 示例
+| `text-muted-foreground` | 次要文字 | `text-gray-500` |
+| `border` | 边框 | `border-gray-200` |
+| `bg-primary` | 主色按钮 | `bg-blue-600` |
+| `bg-destructive` | 危险操作 | `bg-red-600` |
 
 ```tsx
-// ❌ 禁止：硬编码颜色（不支持暗色模式）
+// ❌ 禁止：硬编码颜色
 <div className="bg-white text-gray-900 border-gray-200">
-<button className="bg-blue-600 text-white hover:bg-blue-700">
-<p className="text-gray-500">次要文字</p>
-<div className="bg-red-50 text-red-600">错误提示</div>
 
-// ✅ 正确：语义化颜色（自动适配暗色模式）
+// ✅ 正确：语义化颜色
 <div className="bg-card text-foreground border">
-<button className="bg-primary text-primary-foreground hover:bg-primary/90">
-<p className="text-muted-foreground">次要文字</p>
-<div className="bg-destructive/10 text-destructive">错误提示</div>
 ```
 
-#### 移动端覆盖组件规范 ⚠️ CRITICAL
+### 移动端覆盖组件 ⚠️ CRITICAL
 
-**Sidebar、Modal、Dropdown、Drawer 等移动端覆盖组件必须使用显式颜色，不能依赖 CSS 变量！**
-
-这是因为移动端浏览器对 CSS 变量在覆盖层的支持可能存在问题。
+**Sidebar、Modal、Dropdown 等覆盖层必须使用显式颜色 + `dark:` 前缀**
 
 ```tsx
 // ❌ 错误：CSS 变量在移动端覆盖层可能失效
 <aside className="bg-card text-foreground">
 
-// ✅ 正确：显式颜色 + dark: 前缀
+// ✅ 正确：显式颜色
 <aside className="bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100">
 ```
 
-| CSS 变量 | 浅色显式 | 深色显式 |
-|----------|----------|----------|
-| `bg-card` | `bg-white` | `dark:bg-slate-900` |
-| `text-foreground` | `text-gray-900` | `dark:text-gray-100` |
-| `border-border` | `border-gray-200` | `dark:border-slate-700` |
-| `text-muted-foreground` | `text-gray-500` | `dark:text-gray-400` |
+---
 
-#### 渐变文字暗色模式 ⚠️
+## 💾 数据访问规范
 
-**`bg-clip-text text-transparent` 在暗色模式下可能不可见！**
-
-```tsx
-// ❌ 危险：渐变文字在暗色模式下可能隐形
-<h1 className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-
-// ✅ 安全：使用普通文字颜色
-<h1 className="text-foreground font-bold">
-```
-
-#### 设计系统配色（定义在 `src/index.css`）
-
-| Token | 浅色模式 | 深色模式 | 说明 |
-|-------|----------|----------|------|
-| `--primary` | 深森林绿 HSL(145, 40%, 28%) | HSL(145, 50%, 45%) | 主品牌色 |
-| `--accent` | 琥珀橙 HSL(38, 92%, 50%) | HSL(38, 85%, 55%) | 强调色 |
-| `--background` | 温暖米色 | 深灰色 | 页面背景 |
-| `--success` | 自然绿 | 提亮绿 | 成功状态 |
-| `--warning` | 琥珀橙 | 提亮橙 | 警告状态 |
-
-#### 主题切换
-
-项目已集成主题切换功能：
-
-```tsx
-// 使用 useTheme hook
-import { useTheme } from '@/hooks/useTheme'
-
-const { theme, setTheme, isDark } = useTheme()
-// theme: 'light' | 'dark' | 'system'
-
-// 使用 ThemeToggle 组件（已集成在 Header）
-import { ThemeToggle } from '@/components/ui/theme-toggle'
-<ThemeToggle variant="dropdown" />
-```
-
-#### 设计系统审计命令
-
-开发新组件或修改现有组件时，使用以下命令检查硬编码颜色：
-
-```bash
-# 审计硬编码颜色
-grep -rn "bg-gray-\|text-gray-\|border-gray-" src/
-grep -rn "bg-white\|bg-black" src/
-grep -rn "bg-blue-\|text-blue-\|bg-red-\|text-red-\|bg-green-" src/
-
-# 验证 Tailwind v4 配置
-grep -n "@theme inline" src/index.css
-grep -n "@variant dark" src/index.css
-```
-
-#### 设计系统自验证检查点
-
-新增或修改 UI 组件后，执行以下验证：
-
-```javascript
-// 浏览器 DevTools Console 执行 - 验证 CSS 变量已生效
-const root = document.documentElement;
-console.log('foreground:', getComputedStyle(root).getPropertyValue('--foreground-color'));
-console.log('background:', getComputedStyle(root).getPropertyValue('--background-color'));
-console.log('primary:', getComputedStyle(root).getPropertyValue('--primary-color'));
-// 应返回 hsl(...) 格式的颜色值，不能为空
-```
-
-### 移动端响应式开发规范
-
-**Mobile First 原则**：基础样式针对移动端，使用 `md:` / `lg:` 前缀扩展桌面端。
-
-```tsx
-// ✅ Mobile First
-<div className="px-4 py-2 md:px-6 md:py-4 lg:px-8">
-<h1 className="text-xl md:text-3xl lg:text-5xl">
-```
-
-### 数据访问规范
+### DataService 统一访问
 
 ```typescript
 // ✅ 正确：通过 DataService 访问
 import { dataService } from '@/services/data/DataService'
-await dataService.getAllPhotos()
+await dataService.getAll('profiles')
 
 // ❌ 禁止：直接访问
-import { photoDB } from '@/services/db/photoDB'
-import { supabase } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'  // 禁止
 ```
 
-### SQL 变更
+### 数据流架构
 
-所有数据库变更 → `photo-wall/supabase/setup.sql`（禁止创建独立 SQL 文件）
+```
+┌─────────────────────────────────────────────────┐
+│  UI Layer → Zustand Stores → DataService        │
+│                                   │             │
+│                    ┌──────────────┼──────────┐  │
+│                    │         IndexedDB       │  │
+│                    │    • 读: 100% 本地      │  │
+│                    │    • 写: 乐观更新       │  │
+│                    │    • 同步: Realtime     │  │
+│                    └──────────────┼──────────┘  │
+│                                   │             │
+│                    ┌──────────────┼──────────┐  │
+│                    │         Supabase        │  │
+│                    │    • Postgres Changes   │  │
+│                    └─────────────────────────┘  │
+└─────────────────────────────────────────────────┘
+```
+
+### SQL 变更集中管理
+
+所有数据库变更 → `app/supabase/setup.sql`（禁止创建独立 SQL 文件）
 
 ---
 
-## 禁止清单 ❌
+## 🐛 Bug 修复规范
 
-### TDD 相关禁止事项 ⚠️ CRITICAL
+> 当任务为 Bug 修复时，自动加载此章节。
 
-| 禁止事项 | 后果 | 正确做法 |
+### 核心原则：先查数据，再改代码
+
+```
+发现问题 → 浏览器调试验证 → 定位根因 → 一次性修复 → 验证通过
+```
+
+### 调试步骤
+
+1. **使用浏览器 DevTools**
+   - Network 面板：检查 API 请求和响应数据
+   - Console 面板：查看日志和错误信息
+
+2. **添加临时调试日志**
+   ```typescript
+   console.log('[Debug] 数据状态:', JSON.stringify(data, null, 2));
+   ```
+
+3. **常见数据完整性问题**
+
+| 问题场景 | 症状 | 排查方法 |
 |----------|------|----------|
-| 先写代码再补测试 | 代码设计不佳，难以测试 | 先写测试，再写实现 |
-| 提交无测试覆盖的新功能 | 回归风险，无法保证质量 | 功能必须有测试覆盖 |
-| 不运行测试就提交代码 | CI 失败，阻塞其他人 | 提交前运行 `npm run test` |
-| 跳过 E2E 测试直接部署 | 生产环境故障 | 关键流程必须 E2E 通过 |
-| 忽略测试失败继续开发 | 问题堆积，修复成本增加 | 立即修复失败的测试 |
-| Mock 覆盖真实逻辑 | 测试与实际脱节 | 只 mock 外部依赖 |
+| 外键引用失效 | 关联查询返回 `null` | 检查被引用记录是否存在 |
+| 数组包含无效 ID | 批量查询返回部分数据 | 对比请求 ID 和响应数据 |
+| 字段为空 | 功能不生效 | 检查数据库记录实际值 |
 
-### 编码相关禁止事项
+### 防御性编码
+
+```typescript
+// ❌ 假设数据一定有效
+const coverUrl = await getPhotoUrl(album.photoIds[0]);
+
+// ✅ 遍历找到第一个有效项
+for (const photoId of album.photoIds) {
+  const url = photoUrlMap.get(photoId);
+  if (url) {
+    album.coverPhotoUrl = url;
+    break;
+  }
+}
+```
+
+---
+
+## ✅ 开发工作流
+
+### 完整流程
+
+```
+需求/Bug → BMAD 方案讨论(可选) → Epic/Story/Task → 🔴测试先行 → 🟢代码实现 → 🔵重构优化 → 质量验证 → 人工审查 → 上线
+```
+
+### Phase 1: TDD 测试先行 🔴
+
+```bash
+npm run test:watch    # 监听模式（开发时）
+```
+
+**测试文件命名**: `*.test.ts` 或 `*.spec.ts`，与源文件同目录
+
+```typescript
+// app/src/services/example.test.ts
+import { describe, it, expect, vi } from 'vitest'
+
+describe('ExampleService', () => {
+  it('应该完成预期功能', async () => {
+    // Arrange - 准备测试数据
+    // Act - 执行待测函数
+    // Assert - 验证结果
+  })
+})
+```
+
+### Phase 2: 代码实现 🟢
+
+遵循技术约束完成代码实现。详见 `references/coding-constraints.md`。
+
+### Phase 3: 重构优化 🔵
+
+```
+✅ 测试全部通过后再重构
+✅ 每次小步重构后运行测试
+✅ 提取公共方法、消除重复
+
+❌ 不要在重构时添加新功能
+```
+
+### Phase 4: 质量验证
+
+```bash
+# 一键质量验证
+./scripts/quality_check.sh
+
+# 或手动执行
+npm run lint:check        # ESLint 检查
+npm run format:check      # Prettier 格式检查
+npm run type-check        # TypeScript 类型检查
+npm run test              # 单元测试
+npm run test:e2e:headless # E2E 回归测试
+npm run build             # 构建验证
+```
+
+| 检查项 | 命令 | 通过标准 |
+|--------|------|----------|
+| ESLint | `npm run lint:check` | 0 错误 |
+| TypeScript | `npm run type-check` | 0 错误 |
+| 单元测试 | `npm run test` | 全部通过 |
+| E2E 测试 | `npm run test:e2e:headless` | 全部通过 |
+| 构建 | `npm run build` | 成功 |
+
+---
+
+## 🚫 禁止清单
+
+### 编码禁止
 
 | 类别 | 禁止事项 |
 |------|----------|
-| **Tailwind** | `*-opacity-*` 语法、`bg-gradient-to-*`（用 `bg-linear-to-*`） |
-| **颜色** | 硬编码颜色如 `bg-white`、`text-gray-900`、`bg-blue-600`（应使用语义化颜色） |
-| **覆盖层** | Sidebar/Modal/Dropdown 使用 CSS 变量颜色（应使用显式颜色 + `dark:` 前缀） |
-| **渐变文字** | 暗色模式下使用 `bg-clip-text text-transparent`（可能不可见） |
-| **数据访问** | 直接导入 `photoDB` 或 `supabase` client |
+| **Tailwind** | `*-opacity-*` 语法、`bg-gradient-to-*` |
+| **颜色** | 硬编码颜色如 `bg-white`、`text-gray-900`、`bg-blue-600` |
+| **覆盖层** | Sidebar/Modal/Dropdown 使用 CSS 变量颜色 |
+| **数据访问** | 直接导入 `supabase` client |
 | **文件管理** | 创建独立 SQL 迁移文件、创建新文档文件 |
 | **TypeScript** | 使用 `any` 类型 |
 | **React Hooks** | `useCallback` 作为 `useEffect` 依赖（无 ref guard） |
-| **CSS** | `animation` 简写与分写属性混用 |
-| **数据库** | 前端新增枚举值但未更新数据库 CHECK 约束 |
-| **测试** | 假设 shadcn/ui 组件是原生 HTML 元素 |
-| **Bug 修复** | 不验证数据就修改代码；假设外键/ID引用一定有效 |
-| **字体** | 使用 Inter、Roboto、Arial 等通用字体（项目使用 Plus Jakarta Sans + Nunito） |
+| **Agent** | 在 A2UI 中使用未注册的组件类型 |
+| **Agent** | 直接调用 LLM API（必须通过 ai-assistant Edge Function） |
+
+### TDD 禁止
+
+| 禁止事项 | 后果 |
+|----------|------|
+| 先写代码再补测试 | 代码设计不佳，难以测试 |
+| 提交无测试覆盖的新功能 | 回归风险，无法保证质量 |
+| 不运行测试就提交代码 | CI 失败，阻塞其他人 |
+| 忽略测试失败继续开发 | 问题堆积，修复成本增加 |
 
 ---
 
-## Scripts
+## 📚 参考文档
 
-| 脚本 | 用途 | 使用场景 |
-|------|------|----------|
-| `scripts/quality_check.sh` | 完整质量验证流程 | Phase 4 完成后 |
-| `scripts/db_constraint_diff.py` | 前后端一致性检查 | Phase 5 数据库变更时 |
+### 按需加载
+
+| 文档 | 内容 | 触发关键词 |
+|------|------|------------|
+| `references/tdd-workflow.md` | TDD 完整流程、测试编写规范 | vitest, cypress, test |
+| `references/coding-constraints.md` | 编码约束、React Hooks 反模式 | useEffect, hooks, ltree |
+| `references/project-structure.md` | 项目结构、NPM 命令 | structure, npm |
+| `references/db-sync-checklist.md` | 数据库一致性检查 | CHECK, migration, sql |
+| `references/troubleshooting.md` | 常见问题与解决方案 | error, fix, debug |
+
+### 外部文档
+
+| 文档 | 用途 |
+|------|------|
+| `docs/Architecture.md` | 完整系统架构 |
+| `docs/Epics.yaml` | 项目进度追踪 |
+| `AGENTS.md` | AI Coding 快速指南 |
+| `app/supabase/SUPABASE_COOKBOOK.md` | 数据库操作手册 |
+
+### BMAD 方法论参考 (可选)
+
+当需要规范化需求分析、方案设计时，可参考 BMAD 工作流：
+
+| Agent | 用途 |
+|-------|------|
+| `_bmad/bmm/agents/dev.md` (Amelia) | 高级研发专家，精准执行 Story |
+| `_bmad/bmm/agents/architect.md` | 系统架构师，技术方案设计 |
+| `_bmad/bmm/workflows/` | 标准化工作流 |
 
 ---
 
-## 快速命令
+## 🚀 快速命令
 
 ```bash
-# 🚀 开发
+# 开发
 npm run dev           # 启动开发服务器
 npm run dev:test      # 测试模式 (MSW mock)
 
-# 🧪 TDD 测试命令
+# TDD 测试
 npm run test          # 运行单元测试
 npm run test:watch    # 监听模式（开发时推荐）
 npm run coverage      # 生成覆盖率报告
 
-# 🔄 E2E 测试
+# E2E 测试
 npm run test:e2e      # Cypress 交互模式
 npm run test:e2e:headless  # Cypress 无头模式 (CI)
 
-# ✅ 质量检查
+# 质量检查
 npm run lint          # ESLint 检查并修复
-npm run lint:check    # ESLint 仅检查（CI 用）
 npm run format        # Prettier 格式化
-npm run format:check  # Prettier 检查（CI 用）
 npm run type-check    # TypeScript 类型检查
 npm run build         # 生产构建
-npm run preview       # 预览构建结果
 
-# 🔧 一键质量验证
-./scripts/quality_check.sh  # 执行完整质量检查流程
+# 一键质量验证
+./scripts/quality_check.sh
 ```
 
-### TDD 开发推荐工作流
+### 推荐工作流
 
 ```bash
 # 1. 启动测试监听（新终端窗口）
@@ -650,34 +548,9 @@ npm run test:watch
 # 2. 启动开发服务器（另一个终端窗口）
 npm run dev:test
 
-# 3. 编写测试 → 看到红色失败 → 实现代码 → 看到绿色通过 → 重构
-# 4. 提交前运行完整质量检查
+# 3. 🔴 编写测试 → 看到红色失败
+# 4. 🟢 实现代码 → 看到绿色通过
+# 5. 🔵 重构优化
+# 6. 提交前运行完整质量检查
 ./scripts/quality_check.sh
 ```
-
----
-
-## 参考文档
-
-按需读取以下详细文档：
-
-| 文档 | 内容 | 关键词 |
-|------|------|--------|
-| `references/tdd-workflow.md` | TDD 完整流程、测试编写规范、shadcn/ui 测试 | vitest, cypress, radix |
-| `references/coding-constraints.md` | 编码约束、React Hooks 反模式、数据流规范 | useEffect, ltree, supabase |
-| `references/project-structure.md` | 项目结构、技术栈、数据流、Edge Functions、NPM 命令 | structure, npm, edge |
-| `references/db-sync-checklist.md` | 数据库一致性检查、迁移 SQL 模板 | CHECK, migration |
-| `references/troubleshooting.md` | 常见问题与解决方案 | error, fix, debug |
-
-### 相关技能
-
-| 技能 | 用途 | 调用场景 |
-|------|------|----------|
-| `@.qoder/skills/design-system-ui` | 设计系统改造、Tailwind v4 配置、暗色模式适配 | 新增 UI 组件、主题定制、颜色问题修复 |
-
-## 外部文档
-
-- `docs/Architecture.md` - 完整系统架构
-- `docs/Epics.yaml` - 项目进度追踪
-- `photo-wall/supabase/SUPABASE_COOKBOOK.md` - 数据库操作手册
-- `photo-wall/supabase/ALICLOUD_COOKBOOK.md` - 阿里云配置指南

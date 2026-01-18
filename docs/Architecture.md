@@ -94,7 +94,7 @@ src/lib/agent/
            ↓
       useAgentChat Hook
            ↓
-      SSE Client ←→ agent-gateway (Edge Function)
+      SSE Client ←→ ai-assistant (Edge Function)
            ↓                    ↓
       Tool Executor         GLM-4.7 (百炼 API)
            ↓
@@ -164,7 +164,7 @@ app/
 │   └── utils/             # 工具函数
 ├── supabase/
 │   ├── functions/         # Edge Functions
-│   │   └── agent-gateway/ # Agent 网关
+│   │   └── ai-assistant/ # Agent 网关
 │   ├── setup.sql          # 数据库初始化
 │   └── SUPABASE_COOKBOOK.md
 └── cypress/               # E2E 测试
@@ -207,7 +207,7 @@ CREATE TABLE organization_memberships (
 
 | Function | 职责 |
 |----------|------|
-| `agent-gateway` | Agent SSE 网关，LLM 交互、工具调用代理 |
+| `ai-assistant` | Agent SSE 网关，LLM 交互、工具调用代理 |
 
 ## RLS 策略
 
@@ -246,7 +246,7 @@ SECURITY DEFINER;
 
 ### 添加新 Agent Tool
 
-1. **后端**: 在 `agent-gateway/tools.ts` 添加工具定义
+1. **后端**: 在 `ai-assistant/tools.ts` 添加工具定义
 2. **前端**: 在 `src/lib/agent/tools/` 创建工具目录
 3. **注册**: 在 `src/lib/agent/tools/registry.ts` 注册
 

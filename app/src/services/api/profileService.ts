@@ -135,7 +135,7 @@ export async function updateProfile(input: ProfileUpdateInput): Promise<UserProf
 }
 
 /**
- * 上传头像（使用阿里云 OSS）
+ * 上传头像（使用 Supabase Storage）
  */
 export async function uploadAvatar(file: File): Promise<AvatarUploadResult> {
   try {
@@ -148,27 +148,29 @@ export async function uploadAvatar(file: File): Promise<AvatarUploadResult> {
     // 压缩图片到 400x400px WebP 格式
     const compressedBlob = await compressImageToWebP(file, 400, 0.85)
 
-    // 转换为 File 对象（OSS 上传需要 File 类型）
+    // 转换为 File 对象
     const avatarFile = new File([compressedBlob], 'avatar.webp', {
       type: 'image/webp',
       lastModified: Date.now(),
     })
 
-    // 上传到阿里云 OSS
-    const { uploadToOSS } = await import('@/lib/oss/client')
-    const avatarId = `avatar-${Date.now()}`
+    // 上传到 Supabase Storage
+    const { storageService } = await import('@/services/storage/supabaseStorage')
+    const avatarPath = `${user.id}/avatar-${Date.now()}.webp`
 
-    const result = await uploadToOSS(avatarFile, user.id, avatarId, {
-      fileType: 'original',
-    })
+    const result = await storageService.upload(avatarFile, avatarPath, 'avatars')
 
-    console.log('✅ 头像上传到 OSS 成功:', result)
+    if (!result.success || !result.publicUrl) {
+      throw new Error(result.error || '上传头像失败')
+    }
+
+    console.log('✅ 头像上传成功:', result)
 
     // 更新 profiles 表中的 avatar_url
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
-        avatar_url: result.url,
+        avatar_url: result.publicUrl,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
@@ -187,8 +189,8 @@ export async function uploadAvatar(file: File): Promise<AvatarUploadResult> {
     }
 
     return {
-      url: result.url,
-      path: result.ossKey,
+      url: result.publicUrl,
+      path: result.path || avatarPath,
     }
   } catch (error) {
     console.error('Error in uploadAvatar:', error)
@@ -197,10 +199,7 @@ export async function uploadAvatar(file: File): Promise<AvatarUploadResult> {
 }
 
 /**
- * 删除头像
- */
-/**
- * 删除头像（使用 OSS）
+ * 删除头像（使用 Supabase Storage）
  */
 export async function deleteAvatar(): Promise<void> {
   try {
@@ -210,22 +209,22 @@ export async function deleteAvatar(): Promise<void> {
       throw new Error('未登录或用户不存在')
     }
 
-    // 获取当前头像 URL，提取 OSS Key
+    // 获取当前头像 URL，提取存储路径
     const profile = await getProfile()
     if (profile?.avatarUrl) {
       try {
-        // 从 avatar_url 中提取 OSS Key
-        // 示例: https://photo-wall-dev.oss-cn-hangzhou.aliyuncs.com/userId/original/avatar-123.webp
+        // 从 avatar_url 中提取存储路径
+        // 示例: https://xxx.supabase.co/storage/v1/object/public/avatars/userId/avatar-123.webp
         const url = new URL(profile.avatarUrl)
-        const ossKey = url.pathname.substring(1) // 移除开头的 /
-
-        // 删除 OSS 文件
-        const { deleteFromOSS } = await import('@/lib/oss/client')
-        await deleteFromOSS(ossKey)
-
-        console.log('✅ 已删除 OSS 头像文件:', ossKey)
+        const pathMatch = url.pathname.match(/\/avatars\/(.+)$/)
+        if (pathMatch) {
+          const storagePath = pathMatch[1]
+          const { storageService } = await import('@/services/storage/supabaseStorage')
+          await storageService.delete([storagePath], 'avatars')
+          console.log('✅ 已删除头像文件:', storagePath)
+        }
       } catch (error) {
-        console.warn('Failed to delete avatar from OSS:', error)
+        console.warn('Failed to delete avatar from storage:', error)
         // 不阻塞主流程
       }
     }

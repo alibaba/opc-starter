@@ -22,7 +22,7 @@ git checkout -b fix/your-bug-fix
 ### 3. 安装依赖
 
 ```bash
-cd photo-wall
+cd app
 npm install
 ```
 

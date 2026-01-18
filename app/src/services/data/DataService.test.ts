@@ -451,7 +451,7 @@ describe('DataService 对外能力', () => {
 
   it('retryFailedSync 应重置状态并处理队列', async () => {
     photoStore['p2'] = { ...basePhoto(), id: 'p2', cloudSyncStatus: 'error', tags: ['x'] }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const process = vi
       .spyOn(dataService as any, 'processOfflineQueue')
       .mockResolvedValue({ success: 1, failed: 0 })
@@ -465,7 +465,7 @@ describe('DataService 对外能力', () => {
 
   it('triggerQueueProcessing 在离线时直接返回', async () => {
     ;(dataService as unknown as { isOnline: boolean }).isOnline = false
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const process = vi
       .spyOn(dataService as any, 'processOfflineQueue')
       .mockResolvedValue({ success: 0, failed: 0 })

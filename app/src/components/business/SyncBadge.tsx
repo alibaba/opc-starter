@@ -1,19 +1,32 @@
-import { CheckCircle2, RefreshCw, Clock, AlertCircle, WifiOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { CloudSyncStatus } from '@/types/photo';
+import { CheckCircle2, RefreshCw, Clock, AlertCircle, WifiOff } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+/**
+ * 云同步状态类型
+ */
+type CloudSyncStatus =
+  | 'synced' // 已同步
+  | 'syncing' // 同步中
+  | 'pending' // 待同步
+  | 'error' // 同步错误
+  | 'offline' // 离线
+  | 'local-only' // 仅本地
 
 interface SyncBadgeProps {
-  status?: CloudSyncStatus;
-  className?: string;
-  size?: 'sm' | 'md';
+  status?: CloudSyncStatus
+  className?: string
+  size?: 'sm' | 'md'
 }
 
 export function SyncBadge({ status = 'synced', className, size = 'sm' }: SyncBadgeProps) {
-  const badges: Record<CloudSyncStatus, {
-    icon: React.ReactNode;
-    label: string;
-    className: string;
-  }> = {
+  const badges: Record<
+    CloudSyncStatus,
+    {
+      icon: React.ReactNode
+      label: string
+      className: string
+    }
+  > = {
     synced: {
       icon: <CheckCircle2 className={cn(size === 'sm' ? 'w-3 h-3' : 'w-4 h-4')} />,
       label: 'Synced',
@@ -44,12 +57,12 @@ export function SyncBadge({ status = 'synced', className, size = 'sm' }: SyncBad
       label: 'Local',
       className: 'bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground',
     },
-  };
+  }
 
-  const badge = badges[status];
+  const badge = badges[status]
 
   if (!badge) {
-    return null;
+    return null
   }
 
   return (
@@ -66,5 +79,5 @@ export function SyncBadge({ status = 'synced', className, size = 'sm' }: SyncBad
       {badge.icon}
       {size === 'md' && <span>{badge.label}</span>}
     </div>
-  );
+  )
 }

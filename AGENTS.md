@@ -98,7 +98,7 @@
            ↓
       useAgentChat Hook
            ↓
-      SSE Client ←→ agent-gateway (Edge Function)
+      SSE Client ←→ ai-assistant (Edge Function)
            ↓                    ↓
       Tool Executor         GLM-4.7 (百炼 API)
            ↓
@@ -115,14 +115,13 @@
 | `src/lib/agent/toolExecutor.ts` | 本地工具执行器 |
 | `src/components/agent/a2ui/A2UIRenderer.tsx` | A2UI 组件渲染器 |
 | `src/components/agent/a2ui/registry.ts` | 组件白名单注册表 |
-| `supabase/functions/agent-gateway/` | Agent 后端网关 |
+| `supabase/functions/ai-assistant/` | AI 助手后端（单文件） |
 
 ### 添加新 Agent Tool
 
-1. **后端**: 在 `agent-gateway/tools.ts` 添加工具定义
+1. **后端**: 在 `ai-assistant/index.ts` 的 TOOLS 数组添加工具定义
 2. **前端**: 在 `src/lib/agent/tools/` 创建工具目录
 3. **注册**: 在 `src/lib/agent/tools/registry.ts` 注册
-4. **System Prompt**: 在 `agent-gateway/prompts/` 添加使用说明
 
 ```typescript
 // 工具定义示例 (OpenAI 格式)
@@ -168,7 +167,7 @@ export const A2UI_REGISTRY: A2UIComponentRegistry = {
 
 ```typescript
 // src/mocks/handlers/agentHandlers.ts
-http.post('*/functions/v1/agent-gateway', async ({ request }) => {
+http.post('*/functions/v1/ai-assistant', async ({ request }) => {
   // 返回 SSE 流式响应
 });
 ```
@@ -181,7 +180,7 @@ http.post('*/functions/v1/agent-gateway', async ({ request }) => {
 - ❌ 使用 Tailwind CSS v2/v3 的 opacity 语法
 - ❌ 使用 `bg-gradient-to-*`（应使用 `bg-linear-to-*`）
 - ❌ 在 A2UI 中使用未注册的组件类型
-- ❌ 直接调用 LLM API（通过 agent-gateway Edge Function）
+- ❌ 直接调用 LLM API（通过 ai-assistant Edge Function）
 
 ## Cypress E2E 测试规范
 

@@ -1,10 +1,10 @@
 /**
- * Agent Gateway Edge Function
+ * AI Assistant Edge Function
  *
- * 处理对话请求、调用 LLM、返回 SSE 流
+ * OPC-Starter 通用 AI 助手，提供智能问答和页面导航能力
  * 使用 OpenAI SDK 兼容模式调用 GLM-4.7
  *
- * @see docs/epic-23-a2ui/stories/STORY-23-005.md
+ * @version 2.0.0 - 简化版本，移除 Photo 相关功能
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
@@ -13,26 +13,17 @@ import OpenAI from 'npm:openai@4'
 import type {
   ChatCompletionMessageParam,
   ChatCompletionToolMessageParam,
+  ChatCompletionTool,
 } from 'npm:openai@4/resources'
-import { TOOLS } from './tools.ts'
-import { buildSystemPromptWithContext } from './prompts/system.ts'
 
 // ============ 类型定义 ============
 
 interface AgentContext {
-  currentPage?: 'timeline' | 'album' | 'editor' | 'ai-studio'
-  selectedPhotos?: Array<{
-    id: string
-    url: string
-    thumbnail?: string
-  }>
-  editingState?: {
-    photoId: string
-    hasUnsavedChanges: boolean
-  }
-  currentAlbum?: {
-    id: string
-    name: string
+  currentPage?: 'dashboard' | 'persons' | 'profile' | 'settings' | 'cloud-storage' | 'other'
+  viewContext?: {
+    viewMode: string
+    teamId: string | null
+    teamName: string | null
   }
 }
 
@@ -43,7 +34,7 @@ interface RequestMessage {
   name?: string
 }
 
-interface AgentGatewayRequest {
+interface AIAssistantRequest {
   messages: RequestMessage[]
   context?: AgentContext
   threadId?: string
@@ -53,8 +44,7 @@ interface AgentGatewayRequest {
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
@@ -70,6 +60,152 @@ const openai = new OpenAI({
   apiKey: Deno.env.get('ALIYUN_BAILIAN_API_KEY') || '',
   baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
 })
+
+// ============ System Prompt ============
+
+function buildSystemPrompt(context?: AgentContext): string {
+  const pageNames: Record<string, string> = {
+    dashboard: '首页',
+    persons: '组织管理',
+    profile: '个人中心',
+    settings: '系统设置',
+    'cloud-storage': '云存储设置',
+    other: '其他页面',
+  }
+
+  const currentPageName = context?.currentPage
+    ? pageNames[context.currentPage] || context.currentPage
+    : '未知页面'
+
+  return `你是 OPC-Starter 的 AI 助手，帮助用户高效使用一人公司启动器平台。
+
+## 你的身份
+- 名称：OPC 助手
+- 风格：专业、友好、简洁
+- 语言：中文
+
+## 平台功能介绍
+OPC-Starter 是一个面向个人创业者和小团队的管理平台，主要功能包括：
+
+### 1. 首页 (Dashboard)
+- 查看个人和团队概况
+- 快速访问常用功能
+
+### 2. 组织管理 (Persons)
+- 创建和管理团队结构
+- 添加、编辑团队成员
+- 分配角色和权限
+
+### 3. 个人中心 (Profile)
+- 编辑个人信息（姓名、头像、简介等）
+- 查看账号设置
+
+### 4. 系统设置 (Settings)
+- 调整系统偏好
+- 管理云存储连接
+
+### 5. 云存储设置 (Cloud Storage)
+- 配置 Supabase Storage
+- 管理文件上传和存储
+
+## 当前上下文
+- 用户当前在: ${currentPageName}
+${context?.viewContext?.teamName ? `- 当前团队: ${context.viewContext.teamName}` : ''}
+
+## 可用工具
+你可以使用以下工具来帮助用户：
+
+1. **navigateToPage**: 导航到指定页面
+   - 可选页面: home(首页), persons(组织管理), profile(个人中心), settings(设置), storage(云存储)
+
+2. **getCurrentContext**: 获取当前应用上下文信息
+
+3. **renderUI**: 生成 A2UI 界面组件供用户交互
+   - 可用组件: card, button, text, badge, progress
+
+## 交互规则
+1. 使用简洁友好的中文回复
+2. 根据用户当前所在页面提供相关建议
+3. 对于复杂操作，可以使用 renderUI 生成交互界面
+4. 主动引导用户探索平台功能
+5. 遇到不明确的请求，先澄清用户意图
+
+## 回复示例
+- 用户问"怎么创建团队" → 解释步骤并提供导航按钮
+- 用户问"我的个人信息" → 引导到个人中心页面
+- 用户问"这个平台是做什么的" → 简洁介绍平台功能`
+}
+
+// ============ 工具定义 ============
+
+const TOOLS: ChatCompletionTool[] = [
+  {
+    type: 'function',
+    function: {
+      name: 'navigateToPage',
+      description: '导航到指定页面。当用户需要访问特定功能时使用。',
+      parameters: {
+        type: 'object',
+        properties: {
+          page: {
+            type: 'string',
+            enum: ['home', 'persons', 'profile', 'settings', 'storage'],
+            description:
+              '目标页面: home(首页), persons(组织管理), profile(个人中心), settings(设置), storage(云存储)',
+          },
+        },
+        required: ['page'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'getCurrentContext',
+      description: '获取当前应用上下文信息，包括当前页面、用户状态等',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'renderUI',
+      description: '生成 A2UI 界面供用户交互。当需要用户选择、确认或展示信息时调用。',
+      parameters: {
+        type: 'object',
+        properties: {
+          surfaceId: {
+            type: 'string',
+            description: '界面唯一标识，如不提供将自动生成',
+          },
+          component: {
+            type: 'object',
+            description: 'A2UI 组件树',
+            properties: {
+              id: { type: 'string' },
+              type: {
+                type: 'string',
+                enum: ['card', 'button', 'text', 'badge', 'progress'],
+              },
+              props: { type: 'object' },
+              children: { type: 'array' },
+            },
+            required: ['id', 'type'],
+          },
+          dataModel: {
+            type: 'object',
+            description: '数据模型，用于绑定组件属性',
+          },
+        },
+        required: ['component'],
+      },
+    },
+  },
+]
 
 // ============ SSE 事件发送 ============
 
@@ -102,22 +238,9 @@ function convertToOpenAIMessages(
   const result: ChatCompletionMessageParam[] = [
     {
       role: 'system',
-      content: buildSystemPromptWithContext({
-        currentPage: context?.currentPage,
-        selectedPhotoCount: context?.selectedPhotos?.length,
-        editingPhotoId: context?.editingState?.photoId,
-        albumName: context?.currentAlbum?.name,
-      }),
+      content: buildSystemPrompt(context),
     },
   ]
-
-  // 如果有上下文，注入为一条 system 消息
-  if (context?.selectedPhotos && context.selectedPhotos.length > 0) {
-    result.push({
-      role: 'system',
-      content: `[Context] 用户选中的照片:\n${context.selectedPhotos.map((p) => `- ID: ${p.id}`).join('\n')}`,
-    })
-  }
 
   // 转换历史消息
   for (const msg of messages) {
@@ -137,7 +260,7 @@ function convertToOpenAIMessages(
   return result
 }
 
-// ============ 工具调用处理 (丰富反馈) ============
+// ============ 工具调用处理 ============
 
 interface ToolCallResult {
   toolCallId: string
@@ -145,44 +268,28 @@ interface ToolCallResult {
   result: string
 }
 
-/**
- * 丰富工具结果接口
- * @description 遵循 Gemini 文档的工具链准则，返回上下文和建议
- */
 interface RichToolResult {
   success: boolean
   message: string
-  /** 上下文信息：帮助模型理解当前状态 */
   context?: Record<string, unknown>
-  /** 下一步建议：引导模型自主决策 */
   suggestedNextStep?: string
-  /** 错误时的恢复建议 */
-  recoveryHint?: string
-  /** 原有字段保持兼容 */
   executed?: boolean
   surfaceId?: string
 }
 
-function processRenderUI(
-  _args: Record<string, unknown>,
-  sse: SSEWriter
-): RichToolResult {
-  // 验证 component 参数
-  const component = _args.component as { id?: string; type?: string; props?: unknown } | undefined
+function processRenderUI(args: Record<string, unknown>, sse: SSEWriter): RichToolResult {
+  const component = args.component as { id?: string; type?: string; props?: unknown } | undefined
   if (!component || !component.type) {
-    console.warn('[renderUI] 缺少 component 或 component.type:', _args)
+    console.warn('[renderUI] 缺少 component 或 component.type:', args)
     return {
       success: false,
       message: '无效的 renderUI 调用：缺少 component 参数',
-      recoveryHint: 'renderUI 需要提供 component 对象，包含 id 和 type 字段',
     }
   }
 
-  // 生成 surfaceId
   const surfaceId =
-    (_args.surfaceId as string) || `surface_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    (args.surfaceId as string) || `surface_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
-  // 确保 component 有 id
   if (!component.id) {
     component.id = `component_${Date.now()}`
   }
@@ -192,7 +299,7 @@ function processRenderUI(
     type: 'beginRendering',
     surfaceId,
     component,
-    dataModel: _args.dataModel || {},
+    dataModel: args.dataModel || {},
   })
 
   return {
@@ -201,189 +308,53 @@ function processRenderUI(
     surfaceId,
     context: {
       componentType: component.type,
-      hasDataModel: !!_args.dataModel,
+      hasDataModel: !!args.dataModel,
     },
-    suggestedNextStep: '等待用户与界面交互，用户操作后会返回 action 事件',
+    suggestedNextStep: '等待用户与界面交互',
   }
 }
 
-/**
- * 构建丰富的工具结果
- * @description 让模型能根据工具结果自我修正
- * @param toolName - 工具名称
- * @param args - 工具参数
- * @param agentContext - Agent 上下文（包含选中照片等信息）
- */
-function buildRichToolResult(
+function buildToolResult(
   toolName: string,
   args: Record<string, unknown>,
   agentContext?: AgentContext
 ): RichToolResult {
   switch (toolName) {
-    case 'getSelectedPhotos': {
-      // ⚠️ 关键：直接从 context 读取选中照片信息，返回真实结果
-      const selectedPhotos = agentContext?.selectedPhotos || []
-      const count = selectedPhotos.length
-
-      if (count === 0) {
-        // 没有选中照片时，明确告诉 LLM 必须使用 renderUI 显示 selection-guide
-        return {
-          success: true,
-          message: '当前没有选中任何照片。',
-          context: {
-            selectedPhotoCount: 0,
-            photos: [],
-          },
-          suggestedNextStep:
-            '⚠️ 必须调用 renderUI 显示 selection-guide 组件引导用户选择照片。示例：renderUI({ component: { type: "selection-guide", id: "guide-1", props: { targetAction: "编辑", minPhotos: 1 } } })',
-          executed: true,
-        }
+    case 'navigateToPage': {
+      const pageMap: Record<string, string> = {
+        home: '首页',
+        persons: '组织管理',
+        profile: '个人中心',
+        settings: '系统设置',
+        storage: '云存储设置',
       }
-
-      // 有选中照片时，返回照片信息
+      const pageName = pageMap[args.page as string] || args.page
       return {
         success: true,
-        message: `获取到 ${count} 张选中的照片`,
-        context: {
-          selectedPhotoCount: count,
-          photoIds: selectedPhotos.map((p) => p.id),
-        },
-        suggestedNextStep:
-          count >= 2
-            ? '可以进行融合（fusePhotos）或视频生成（generateVideo）操作'
-            : '可以使用 loadPhotoForEdit 加载照片进行编辑',
+        message: `正在导航到${pageName}页面`,
+        context: { targetPage: args.page },
+        suggestedNextStep: '页面导航已发起，用户将看到新页面',
         executed: true,
       }
     }
 
-    case 'getCurrentPhoto':
+    case 'getCurrentContext': {
       return {
         success: true,
-        message: '前端正在获取当前编辑照片信息',
-        context: { awaitingFrontendResponse: true },
-        suggestedNextStep: '等待前端返回照片信息，如有编辑中的照片可直接操作',
-        executed: true,
-      }
-
-    case 'loadPhotoForEdit':
-      return {
-        success: true,
-        message: `照片 ${args.photoId} 已加载到编辑状态`,
+        message: '获取当前上下文成功',
         context: {
-          photoId: args.photoId,
-          navigatedToEditor: args.navigateToEditor || false,
+          currentPage: agentContext?.currentPage || 'unknown',
+          viewContext: agentContext?.viewContext,
         },
-        suggestedNextStep: '照片已就绪，现在可以执行编辑操作（rotatePhoto、cropPhoto、applyFilter、adjustImage）',
         executed: true,
       }
-
-    case 'rotatePhoto':
-      return {
-        success: true,
-        message: `旋转工具调用已发送到前端执行。目标角度: ${args.degrees || 90}°`,
-        context: { degrees: args.degrees, photoId: args.photoId },
-        suggestedNextStep: '⚠️ 重要：旋转由前端执行，无需再次调用此工具。请直接告诉用户照片已旋转，询问是否满意或需要保存。',
-        executed: true,
-        frontendPending: true,
-      }
-
-    case 'cropPhoto':
-      return {
-        success: true,
-        message: `裁剪工具调用已发送到前端执行。目标比例: ${args.aspectRatio || '自由'}`,
-        context: { aspectRatio: args.aspectRatio, photoId: args.photoId },
-        suggestedNextStep: '⚠️ 重要：裁剪由前端执行，无需再次调用此工具。请直接告诉用户裁剪工具已激活，等待用户调整裁剪区域后确认。',
-        executed: true,
-        frontendPending: true,
-      }
-
-    case 'applyFilter':
-      return {
-        success: true,
-        message: `滤镜工具调用已发送到前端执行。目标滤镜: ${args.filter || 'original'}`,
-        context: { filter: args.filter, photoId: args.photoId },
-        suggestedNextStep: '⚠️ 重要：滤镜由前端执行，无需再次调用此工具。请直接告诉用户滤镜已应用，询问是否满意效果或需要保存。',
-        executed: true,
-        frontendPending: true,
-      }
-
-    case 'adjustImage':
-      return {
-        success: true,
-        message: '已应用图片调整',
-        context: {
-          brightness: args.brightness,
-          contrast: args.contrast,
-          saturation: args.saturation,
-          photoId: args.photoId,
-        },
-        suggestedNextStep: '调整已应用。询问用户是否满意效果，可以继续微调或保存',
-        executed: true,
-      }
-
-    case 'saveEditedAsNew':
-      return {
-        success: true,
-        message: '已准备保存编辑后的照片',
-        context: { awaitingUserConfirmation: true },
-        suggestedNextStep: '保存确认界面已显示，等待用户点击保存按钮',
-        executed: true,
-      }
-
-    case 'navigateToPage':
-      return {
-        success: true,
-        message: `正在导航到 ${args.page || ''} 页面`,
-        context: { targetPage: args.page, params: args.params },
-        suggestedNextStep: '页面导航已发起，用户将看到新页面。可以继续引导用户操作',
-        executed: true,
-      }
-
-    case 'optimizeForAI':
-      return {
-        success: true,
-        message: '图片优化处理中',
-        context: {
-          photoId: args.photoId,
-          targetService: args.targetService,
-        },
-        suggestedNextStep: '图片正在优化，完成后可以提交到 AI 服务',
-        executed: true,
-      }
-
-    case 'generateVideo':
-      return {
-        success: true,
-        message: '视频生成任务已提交',
-        context: {
-          type: args.type,
-          photoIds: args.photoIds,
-          duration: args.duration,
-          isAsyncTask: true,
-        },
-        suggestedNextStep: '任务已提交到后台，告知用户任务已开始处理，完成后会收到通知',
-        executed: true,
-      }
-
-    case 'fusePhotos':
-      return {
-        success: true,
-        message: '照片融合任务已提交',
-        context: {
-          photoIds: args.photoIds,
-          prompt: args.prompt,
-          isAsyncTask: true,
-        },
-        suggestedNextStep: '融合任务已提交到后台，告知用户任务已开始处理，完成后会收到通知',
-        executed: true,
-      }
+    }
 
     default:
       return {
         success: true,
         message: `工具 ${toolName} 执行成功`,
         context: { args },
-        suggestedNextStep: '操作已完成，根据用户需求决定下一步',
         executed: true,
       }
   }
@@ -406,55 +377,6 @@ function processToolCall(
     }
   }
 
-  // getSelectedPhotos 特殊处理：如果没有选中照片，直接发送 selection-guide 组件
-  // 这确保用户一定能看到引导 UI，而不依赖 LLM 后续是否调用 renderUI
-  if (toolName === 'getSelectedPhotos') {
-    const selectedPhotos = agentContext?.selectedPhotos || []
-    
-    if (selectedPhotos.length === 0) {
-      // 发送 tool_call 事件（前端仍需执行以保持状态一致）
-      sse.write('tool_call', {
-        id: toolCallId,
-        name: toolName,
-        arguments: args,
-      })
-
-      // ⭐ 关键：直接发送 selection-guide 组件，确保 UI 显示
-      const surfaceId = `selection-guide-${toolCallId}-${Date.now()}`
-      sse.write('a2ui', {
-        type: 'beginRendering',
-        surfaceId,
-        component: {
-          id: `selection-guide-${Date.now()}`,
-          type: 'selection-guide',
-          props: {
-            title: '需要先选择照片',
-            description: '请在时间线页面选择要操作的照片',
-            targetAction: '操作',
-            minPhotos: 1,
-            showNavigateButton: true,
-          },
-        },
-        dataModel: {},
-      })
-
-      return {
-        toolCallId,
-        name: toolName,
-        result: JSON.stringify({
-          success: true,
-          message: '当前没有选中任何照片。已显示选择引导界面。',
-          context: {
-            selectedPhotoCount: 0,
-            photos: [],
-          },
-          uiDisplayed: true,
-          executed: true,
-        }),
-      }
-    }
-  }
-
   // 其他工具：发送 tool_call 事件给前端执行
   sse.write('tool_call', {
     id: toolCallId,
@@ -462,8 +384,7 @@ function processToolCall(
     arguments: args,
   })
 
-  // 返回丰富的工具结果，帮助模型自我修正（传递 context 以获取真实的照片信息）
-  const richResult = buildRichToolResult(toolName, args, agentContext)
+  const richResult = buildToolResult(toolName, args, agentContext)
 
   return {
     toolCallId,
@@ -481,10 +402,6 @@ interface StreamingToolCall {
   argumentsBuffer: string
 }
 
-/**
- * 累积流式工具调用
- * @description 处理 OpenAI 流式响应中的增量工具调用
- */
 function accumulateToolCalls(
   deltaToolCalls: Array<{
     index: number
@@ -497,12 +414,10 @@ function accumulateToolCalls(
     const existing = buffers.get(delta.index)
 
     if (existing) {
-      // 累积参数
       if (delta.function?.arguments) {
         existing.argumentsBuffer += delta.function.arguments
       }
     } else {
-      // 新工具调用
       buffers.set(delta.index, {
         index: delta.index,
         id: delta.id || '',
@@ -513,9 +428,6 @@ function accumulateToolCalls(
   }
 }
 
-/**
- * 构建 assistant 消息（包含工具调用）
- */
 function buildAssistantMessage(
   textContent: string,
   toolCalls: StreamingToolCall[]
@@ -534,15 +446,8 @@ function buildAssistantMessage(
   }
 }
 
-// ============ LLM 调用与循环 (N0 流式执行引擎) ============
+// ============ LLM 调用与循环 ============
 
-/**
- * N0 执行引擎 - 流式 Agent 循环
- * @description 实现 Token-by-Token 实时流式输出，遵循 Gemini 文档的 N0 循环理念
- * @param messages - 对话历史
- * @param sse - SSE 写入器
- * @param options - 配置选项
- */
 async function runAgentLoop(
   messages: ChatCompletionMessageParam[],
   sse: SSEWriter,
@@ -554,9 +459,7 @@ async function runAgentLoop(
   let totalPromptTokens = 0
   let totalCompletionTokens = 0
 
-  // ⭐ N0 核心循环
   while (iterations < maxIterations) {
-    // 检查中断信号
     if (signal?.aborted) {
       console.log('⏸️ 任务被用户中断')
       sse.write('interrupted', { reason: 'user_abort', iterations })
@@ -567,7 +470,6 @@ async function runAgentLoop(
     console.log(`🔄 Agent 循环 #${iterations}`)
 
     try {
-      // ✨ 关键改造：启用流式（百炼 API 完全支持）
       const stream = await openai.chat.completions.create({
         model: 'glm-4.7',
         messages: currentMessages,
@@ -576,12 +478,10 @@ async function runAgentLoop(
         stream_options: { include_usage: true },
       })
 
-      // 流式处理
       let textContent = ''
       const toolCallBuffers = new Map<number, StreamingToolCall>()
 
       for await (const chunk of stream) {
-        // 检查中断信号
         if (signal?.aborted) {
           console.log('⏸️ 流式响应被中断')
           break
@@ -590,25 +490,21 @@ async function runAgentLoop(
         const choice = chunk.choices[0]
         const delta = choice?.delta
 
-        // 实时推送文本
         if (delta?.content) {
           textContent += delta.content
           sse.write('text_delta', { content: delta.content })
         }
 
-        // 累积工具调用
         if (delta?.tool_calls) {
           accumulateToolCalls(delta.tool_calls, toolCallBuffers)
         }
 
-        // 收集 Token 使用统计
         if (chunk.usage) {
           totalPromptTokens = chunk.usage.prompt_tokens || 0
           totalCompletionTokens = chunk.usage.completion_tokens || 0
         }
       }
 
-      // 如果被中断，退出循环
       if (signal?.aborted) {
         sse.write('interrupted', { reason: 'user_abort', iterations })
         break
@@ -619,28 +515,23 @@ async function runAgentLoop(
         const toolCalls = Array.from(toolCallBuffers.values())
         console.log(`🔧 工具调用: ${toolCalls.length} 个`)
 
-        // 添加 assistant 消息（包含工具调用）
         currentMessages.push(buildAssistantMessage(textContent, toolCalls))
 
-        // 处理每个工具调用
         const toolResults: ToolCallResult[] = []
         for (const tc of toolCalls) {
-          // 🔍 调试日志：打印原始参数字符串
-          console.log(`  - ${tc.name} [id=${tc.id}] argumentsBuffer:`, JSON.stringify(tc.argumentsBuffer))
-          
+          console.log(`  - ${tc.name} [id=${tc.id}]`)
+
           let args: Record<string, unknown> = {}
           try {
             args = JSON.parse(tc.argumentsBuffer || '{}')
           } catch (parseError) {
             console.warn(`⚠️ 工具参数解析失败: ${tc.name}`, tc.argumentsBuffer, parseError)
           }
-          console.log(`  - ${tc.name} parsed args:`, JSON.stringify(args))
 
           const result = processToolCall(tc.name, tc.id, args, sse, agentContext)
           toolResults.push(result)
         }
 
-        // 添加工具结果消息
         for (const tr of toolResults) {
           currentMessages.push({
             role: 'tool',
@@ -649,7 +540,6 @@ async function runAgentLoop(
           } as ChatCompletionToolMessageParam)
         }
 
-        // 继续循环，让 LLM 处理工具结果
         continue
       }
 
@@ -729,17 +619,14 @@ serve(async (req) => {
     console.log('👤 用户认证成功:', user.id)
 
     // 解析请求
-    const body: AgentGatewayRequest = await req.json()
+    const body: AIAssistantRequest = await req.json()
     const { messages, context, threadId } = body
 
     if (!messages || messages.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'messages 不能为空' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+      return new Response(JSON.stringify({ error: 'messages 不能为空' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     console.log('📥 收到请求:', {
@@ -782,4 +669,4 @@ serve(async (req) => {
   }
 })
 
-console.log('🚀 Agent Gateway Function 已启动')
+console.log('🚀 AI Assistant Function 已启动')
