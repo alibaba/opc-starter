@@ -45,3 +45,4 @@ coverage/
 *.tsbuildinfo
 
 RDS迁移记录.md
+.mcp.json

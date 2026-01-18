@@ -15,7 +15,8 @@ export interface RealtimeCallbacks {
 interface RealtimeDeps {
   supabase: SupabaseClient
   transformSupabasePerson: (row: Record<string, unknown>) => Person
-  resolveConflict: <T>(local: T, remote: T) => Promise<T>
+  // 使用更宽松的类型定义来兼容 conflictResolver
+  resolveConflict: <T extends { id: string; version?: number }>(local: T, remote: T) => Promise<T>
 }
 
 export function createRealtimeManager(deps: RealtimeDeps) {

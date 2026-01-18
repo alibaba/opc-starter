@@ -3,4 +3,4 @@
  */
 
 export { dataService } from './DataService'
-export type { UploadProgressCallback, DataChangeEvent } from './DataService'
+export type { DataChangeEvent, SyncStatus, SyncProgress } from './DataService'

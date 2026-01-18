@@ -8,8 +8,8 @@ export default defineConfig(({ mode }) => {
   // mode: 'development' → .env.development
   // mode: 'test' → .env.test
   // mode: 'production' → .env.production
-  const env = loadEnv(mode, process.cwd(), '');
-  
+  const env = loadEnv(mode, process.cwd(), '')
+
   return {
     plugins: [react()],
     resolve: {
@@ -25,23 +25,26 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/supabase-proxy/, ''),
           configure: (proxy) => {
             proxy.on('error', (err) => {
-              console.log('proxy error', err);
-            });
+              console.log('proxy error', err)
+            })
             proxy.on('proxyReq', (_proxyReq, req) => {
-              console.log('Sending Request to the Target:', req.method, req.url);
-            });
+              console.log('Sending Request to the Target:', req.method, req.url)
+            })
             proxy.on('proxyRes', (proxyRes, req) => {
-              console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-            });
+              console.log('Received Response from the Target:', proxyRes.statusCode, req.url)
+            })
           },
         },
       },
     },
     // 定义全局常量，可在代码中使用
+    // 安全: 测试凭证仅在开发/测试模式注入，生产构建不包含
     define: {
       'import.meta.env.VITE_USE_MOCK_AUTH': JSON.stringify(env.VITE_USE_MOCK_AUTH),
-      'import.meta.env.TEST_USER_EMAIL': JSON.stringify(env.TEST_USER_EMAIL),
-      'import.meta.env.TEST_USER_PWD': JSON.stringify(env.TEST_USER_PWD),
+      ...(mode !== 'production' && {
+        'import.meta.env.TEST_USER_EMAIL': JSON.stringify(env.TEST_USER_EMAIL),
+        'import.meta.env.TEST_USER_PWD': JSON.stringify(env.TEST_USER_PWD),
+      }),
     },
     build: {
       // 打包优化配置
@@ -52,13 +55,16 @@ export default defineConfig(({ mode }) => {
             // React 核心库单独打包
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
             // UI 组件库单独打包
-            'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-progress', '@radix-ui/react-slot'],
+            'ui-vendor': [
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-progress',
+              '@radix-ui/react-slot',
+            ],
             // 状态管理和 HTTP 库
             'store-vendor': ['zustand', 'axios'],
             // 工具库
-            'utils-vendor': ['date-fns', 'jszip', 'idb', 'lucide-react'],
-            // Mock 服务（开发时使用）
-            'mock-vendor': ['msw', '@faker-js/faker'],
+            'utils-vendor': ['date-fns', 'idb', 'lucide-react'],
+            // 注意: msw 和 @faker-js/faker 已移至 devDependencies，不参与生产构建
           },
         },
       },
@@ -73,14 +79,7 @@ export default defineConfig(({ mode }) => {
     },
     // 优化依赖预构建
     optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'zustand',
-        'date-fns',
-        'lucide-react',
-      ],
+      include: ['react', 'react-dom', 'react-router-dom', 'zustand', 'date-fns', 'lucide-react'],
     },
   }
 })

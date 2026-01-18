@@ -1,8 +1,15 @@
+/// <reference types="node" />
 import '@testing-library/jest-dom'
-import { Blob as NodeBlob, File as NodeFile } from 'node:buffer'
 
-// 替换 jsdom 的 Blob/File 为 Node.js 原生版本（支持 arrayBuffer）
-// @ts-expect-error - 替换全局 Blob
-globalThis.Blob = NodeBlob
-// @ts-expect-error - 替换全局 File
-globalThis.File = NodeFile
+// Polyfill Blob.arrayBuffer for jsdom
+// jsdom 的 Blob/File 对象缺少 arrayBuffer 方法
+if (typeof Blob.prototype.arrayBuffer !== 'function') {
+  Blob.prototype.arrayBuffer = function () {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as ArrayBuffer)
+      reader.onerror = () => reject(reader.error)
+      reader.readAsArrayBuffer(this)
+    })
+  }
+}

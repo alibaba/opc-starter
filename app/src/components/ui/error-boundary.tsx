@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
-    
+
     if (isAppError(error)) {
       console.error('AppError details:', {
         code: error.code,
@@ -45,12 +45,12 @@ export class ErrorBoundary extends Component<Props, State> {
         metadata: error.metadata,
       })
     }
-    
+
     this.setState({
       error,
       errorInfo,
     })
-    
+
     this.props.onError?.(error, errorInfo)
   }
 
@@ -136,18 +136,19 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen flex items-center justify-center bg-background px-4">
           <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-8 border">
             <div className="flex flex-col items-center text-center">
-              <div className={`w-16 h-16 ${this.getErrorSeverityColor(this.state.error)} rounded-full flex items-center justify-center mb-4`}>
-                {isAppError(this.state.error) 
-                  ? this.getErrorIcon(this.state.error.category)
-                  : <AlertTriangle className="w-8 h-8 text-destructive" />
-                }
+              <div
+                className={`w-16 h-16 ${this.getErrorSeverityColor(this.state.error)} rounded-full flex items-center justify-center mb-4`}
+              >
+                {isAppError(this.state.error) ? (
+                  this.getErrorIcon(this.state.error.category)
+                ) : (
+                  <AlertTriangle className="w-8 h-8 text-destructive" />
+                )}
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">
                 {this.getErrorTitle(this.state.error)}
               </h1>
-              <p className="text-muted-foreground mb-6">
-                {this.getErrorMessage(this.state.error)}
-              </p>
+              <p className="text-muted-foreground mb-6">{this.getErrorMessage(this.state.error)}</p>
 
               {isAppError(this.state.error) && this.state.error.code && (
                 <div className="w-full mb-4 p-3 bg-muted rounded-lg">
@@ -156,11 +157,9 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
               )}
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <div className="w-full mb-6 p-4 bg-muted rounded-lg text-left">
-                  <div className="text-sm font-semibold text-foreground mb-2">
-                    错误详情：
-                  </div>
+                  <div className="text-sm font-semibold text-foreground mb-2">错误详情：</div>
                   <pre className="text-xs text-destructive overflow-auto max-h-40">
                     {this.state.error.toString()}
                     {this.state.errorInfo && (
@@ -175,18 +174,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <div className="flex gap-3">
                 {this.shouldShowRetry(this.state.error) && (
-                  <Button
-                    onClick={this.handleReset}
-                    className="flex items-center gap-2"
-                  >
+                  <Button onClick={this.handleReset} className="flex items-center gap-2">
                     <RefreshCw className="w-4 h-4" />
                     重新加载
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.href = '/'}
-                >
+                <Button variant="outline" onClick={() => (window.location.href = '/')}>
                   返回首页
                 </Button>
               </div>
@@ -207,10 +200,7 @@ interface FeatureErrorBoundaryProps {
   onReset?: () => void
 }
 
-export class FeatureErrorBoundary extends Component<
-  FeatureErrorBoundaryProps,
-  State
-> {
+export class FeatureErrorBoundary extends Component<FeatureErrorBoundaryProps, State> {
   constructor(props: FeatureErrorBoundaryProps) {
     super(props)
     this.state = {

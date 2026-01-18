@@ -7,21 +7,10 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAgentStore } from '@/stores/useAgentStore'
+import type { AgentContext } from '@/types/agent'
 
-/**
- * 简化的 Agent 上下文类型
- */
-export interface AgentContext {
-  currentPage: 'dashboard' | 'persons' | 'profile' | 'settings' | 'cloud-storage' | 'other'
-  selectedPhotos: never[] // 保持接口兼容，但总是空数组
-  editingState?: undefined
-  currentAlbum?: undefined
-  viewContext?: {
-    viewMode: string
-    teamId: string | null
-    teamName: string | null
-  }
-}
+// 重新导出类型以保持向后兼容
+export type { AgentContext } from '@/types/agent'
 
 /**
  * 确定当前页面类型
@@ -55,7 +44,7 @@ export function useAgentContext(): AgentContext {
       editingState: undefined,
       currentAlbum: undefined,
       viewContext: {
-        viewMode: 'default',
+        viewMode: 'mine' as const,
         teamId: null,
         teamName: null,
       },

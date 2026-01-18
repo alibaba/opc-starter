@@ -319,16 +319,16 @@ export async function syncToPersons(profile: UserProfile): Promise<void> {
  */
 function mapDatabaseToProfile(data: Record<string, unknown>): UserProfile {
   return {
-    id: data.id,
-    email: data.email || '',
-    fullName: data.full_name || '',
-    nickname: data.nickname || undefined,
-    gender: data.gender || undefined,
-    team: data.team || undefined,
-    avatarUrl: data.avatar_url || undefined,
-    bio: data.bio || undefined,
-    createdAt: new Date(data.created_at),
-    updatedAt: new Date(data.updated_at),
+    id: String(data.id ?? ''),
+    email: String(data.email ?? ''),
+    fullName: String(data.full_name ?? ''),
+    nickname: data.nickname ? String(data.nickname) : undefined,
+    gender: (data.gender as UserProfile['gender']) ?? undefined,
+    team: data.team ? String(data.team) : undefined,
+    avatarUrl: data.avatar_url ? String(data.avatar_url) : undefined,
+    bio: data.bio ? String(data.bio) : undefined,
+    createdAt: new Date(String(data.created_at)),
+    updatedAt: new Date(String(data.updated_at)),
   }
 }
 

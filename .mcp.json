@@ -1,1 +1,4 @@
-{"mcpServers":{"supabase":{"args":null,"type":"http","url":"https://mcp.supabase.com/mcp","WorkingDir":"","InProcessMcpServer":null}}}
+{
+    "mcpServers": {
+    }
+  }

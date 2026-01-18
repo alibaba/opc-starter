@@ -22,6 +22,7 @@ description: OPC-Starter 智能开发技能。AI 亲和的 React Boilerplate 项
 | `Agent`、`工具`、`Tool`、`A2UI` | Agent Studio 开发 | `AGENTS.md` → Agent 规范章节 |
 | `组件`、`页面`、`UI`、`样式` | 前端 UI 开发 | `references/coding-constraints.md` → 设计系统 |
 | `数据库`、`SQL`、`表`、`字段` | 数据库变更 | `references/db-sync-checklist.md` |
+| `Supabase`、`MCP`、`后端` | Supabase 后端操作 | SKILL.md → Supabase MCP 规范章节 |
 | `测试`、`TDD`、`Cypress`、`Vitest` | 测试开发 | `references/tdd-workflow.md` |
 | `Bug`、`修复`、`异常`、`报错` | 问题排查 | `references/troubleshooting.md` |
 | `架构`、`模块`、`服务` | 系统设计 | `docs/Architecture.md` |
@@ -338,6 +339,79 @@ import { supabase } from '@/lib/supabase/client'  // 禁止
 
 ---
 
+## 🔌 Supabase MCP 操作规范
+
+> 开发过程中对 Supabase 后端的状态读取和写入，**默认使用 MCP 提供的 supabase 工具**。
+
+### 核心原则
+
+1. **实时状态操作** → 使用 MCP `mcp__supabase__*` 系列工具
+2. **持久化变更同步** → 所有结构性变更必须同步到 `app/supabase/` 目录
+
+### MCP 工具使用场景
+
+| 场景 | MCP 工具 | 说明 |
+|------|----------|------|
+| 查询表结构 | `mcp__supabase__list_table` | 获取数据库表列表 |
+| 查询列信息 | `mcp__supabase__list_columns` | 获取表字段详情 |
+| 执行 SQL | `mcp__supabase__execute_sql` | 查询/修改数据 |
+| 用户管理 | `mcp__supabase__list_auth_users` | 认证用户列表 |
+| Edge Functions | `mcp__supabase__list_edge_functions` | 查看部署的函数 |
+| Storage 管理 | `mcp__supabase__list_storage_buckets` | 存储桶管理 |
+
+### 变更同步规范
+
+```
+┌────────────────────────────────────────────────────────────┐
+│           Supabase 变更同步流程                             │
+│                                                            │
+│  MCP 执行变更 ──┬──▶ DDL (表/RLS/函数)                      │
+│                │     └──▶ 同步到 app/supabase/setup.sql    │
+│                │                                           │
+│                └──▶ Edge Function 部署                     │
+│                      └──▶ 同步到 app/supabase/functions/   │
+└────────────────────────────────────────────────────────────┘
+```
+
+### 同步检查清单
+
+| 变更类型 | 需同步位置 | 操作 |
+|----------|-----------|------|
+| 新建/修改表 | `app/supabase/setup.sql` | 追加 DDL 语句 |
+| RLS 策略 | `app/supabase/setup.sql` | 追加 POLICY 语句 |
+| PostgreSQL 函数 | `app/supabase/setup.sql` | 追加 FUNCTION 定义 |
+| Edge Function | `app/supabase/functions/<name>/` | 更新对应目录代码 |
+| 索引/约束 | `app/supabase/setup.sql` | 追加 INDEX/CONSTRAINT |
+
+### 示例工作流
+
+```bash
+# 1. 使用 MCP 查询当前表结构
+mcp__supabase__list_columns(table_name="profiles")
+
+# 2. 使用 MCP 执行 DDL 变更
+mcp__supabase__execute_sql(sql="ALTER TABLE profiles ADD COLUMN bio TEXT;")
+
+# 3. 将变更同步到 setup.sql (⚠️ 必须执行)
+# 在 app/supabase/setup.sql 末尾追加:
+# -- [2026-01-18] Add bio column to profiles
+# ALTER TABLE profiles ADD COLUMN bio TEXT;
+
+# 4. 如果涉及 Edge Function，同步到对应目录
+# app/supabase/functions/ai-assistant/index.ts
+```
+
+### 禁止事项
+
+```
+❌ 使用 MCP 执行 DDL 后不同步到 setup.sql
+❌ 直接修改 setup.sql 而不通过 MCP 验证执行
+❌ 创建独立的 SQL 迁移文件
+❌ Edge Function 仅部署不同步代码
+```
+
+---
+
 ## 🐛 Bug 修复规范
 
 > 当任务为 Bug 修复时，自动加载此章节。
@@ -464,6 +538,7 @@ npm run build             # 构建验证
 | **覆盖层** | Sidebar/Modal/Dropdown 使用 CSS 变量颜色 |
 | **数据访问** | 直接导入 `supabase` client |
 | **文件管理** | 创建独立 SQL 迁移文件、创建新文档文件 |
+| **MCP Supabase** | 执行 DDL 后不同步 `setup.sql`、Edge Function 部署后不同步代码 |
 | **TypeScript** | 使用 `any` 类型 |
 | **React Hooks** | `useCallback` 作为 `useEffect` 依赖（无 ref guard） |
 | **Agent** | 在 A2UI 中使用未注册的组件类型 |

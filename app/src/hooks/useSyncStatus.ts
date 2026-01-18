@@ -1,6 +1,6 @@
 /**
  * 同步状态 Hook (Epic-18: S18-2, S18-3)
- * 
+ *
  * 用于在 React 组件中订阅和使用 DataService 的同步状态
  */
 
@@ -44,16 +44,16 @@ export interface UseSyncStatusReturn {
 
 /**
  * 同步状态 Hook
- * 
+ *
  * @example
  * ```tsx
  * const { status, isSyncing, progress, isOnline, pendingCount } = useSyncStatus()
- * 
+ *
  * // 首次加载显示 Loading
  * if (isSyncing) {
  *   return <Loading message={progress?.message} />
  * }
- * 
+ *
  * // 显示离线状态和待同步数量
  * if (!isOnline) {
  *   return <OfflineBanner pendingCount={pendingCount} />
@@ -72,69 +72,70 @@ export function useSyncStatus(): UseSyncStatusReturn {
     localWins: 0,
     merged: 0,
   })
-  
+
   useEffect(() => {
     // 订阅同步状态变更
     const unsubscribe = dataService.onSyncStatusChange((newStatus, newProgress) => {
       setStatus(newStatus)
       setProgress(newProgress || null)
     })
-    
+
     // 监听网络状态变更事件
     const handleNetworkChange = (e: CustomEvent<{ isOnline: boolean }>) => {
       setIsOnline(e.detail.isOnline)
     }
-    
+
     // 监听队列清空事件
     const handleQueueEmpty = () => {
       setPendingCount(0)
       updateFailedCount()
     }
-    
+
     // 监听同步失败事件
     const handleSyncFailed = () => {
       updateStats()
       updateFailedCount()
     }
-    
+
     // 监听冲突事件 (Epic-18: S18-4)
     const handleConflict = (e: CustomEvent<{ stats: ConflictStats }>) => {
       setConflictStats(e.detail.stats)
     }
-    
+
     window.addEventListener('dataservice:network', handleNetworkChange as EventListener)
     window.addEventListener('dataservice:queue-empty', handleQueueEmpty)
     window.addEventListener('dataservice:sync-failed', handleSyncFailed)
     window.addEventListener('dataservice:conflict', handleConflict as EventListener)
-    
+
     // 兼容原生网络事件
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
-    
+
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-    
+
     // 更新队列统计
     const updateStats = () => {
       const stats = dataService.getSyncStats()
       setPendingCount(stats.queueSize)
     }
-    
-    // 更新失败数量
-    const updateFailedCount = async () => {
+
+    // 更新失败数量（从队列统计中获取）
+    const updateFailedCount = () => {
       try {
-        const failedPhotos = await dataService.getFailedPhotos()
-        setFailedCount(failedPhotos.length)
+        // OPC-Starter 简化版：从队列统计中推断失败数量
+        const stats = dataService.getSyncStats()
+        setFailedCount(stats.failureCount || 0)
       } catch {
         // 忽略错误
       }
     }
-    
+
     // 更新冲突统计 (Epic-18: S18-4)
     const updateConflictStats = () => {
       setConflictStats(dataService.getConflictStats())
     }
-    
+
     updateStats()
     updateFailedCount()
     updateConflictStats()
@@ -142,7 +143,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
       updateStats()
       updateFailedCount()
     }, 5000)
-    
+
     return () => {
       unsubscribe()
       window.removeEventListener('dataservice:network', handleNetworkChange as EventListener)
@@ -154,19 +155,20 @@ export function useSyncStatus(): UseSyncStatusReturn {
       clearInterval(interval)
     }
   }, [])
-  
+
   const triggerSync = useCallback(async () => {
     await dataService.initialSync()
   }, [])
-  
+
   const triggerQueueProcessing = useCallback(async () => {
     return dataService.triggerQueueProcessing()
   }, [])
-  
+
   const retryFailedSync = useCallback(async () => {
-    return dataService.retryFailedSync()
+    // OPC-Starter 简化版：重新处理队列
+    return dataService.triggerQueueProcessing()
   }, [])
-  
+
   return {
     status,
     isSyncing: status === 'syncing',
@@ -183,4 +185,3 @@ export function useSyncStatus(): UseSyncStatusReturn {
 }
 
 export default useSyncStatus
-

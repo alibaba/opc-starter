@@ -1,4 +1,7 @@
-import type { Photo } from './photo'
+/**
+ * AI 相关类型定义
+ * @version 2.0.0 - OPC-Starter 简化版本
+ */
 
 export interface SceneRecognitionResult {
   className: string
@@ -31,23 +34,4 @@ export interface AITags {
   smartAlbums?: string[]
   qualityScore?: number
   qualityMetrics?: QualityMetrics
-}
-
-export interface SimilarPhoto {
-  id: string
-  similarity: number
-  photo: Photo
-}
-
-export interface DuplicateGroup {
-  groupId: string
-  photos: Array<{ id: string; similarity: number }>
-  representative: string
-}
-
-export interface DuplicateDetectionResult {
-  totalPhotos: number
-  duplicateGroups: DuplicateGroup[]
-  duplicateCount: number
-  spaceWasted: number
 }

@@ -122,8 +122,15 @@ export class AppError extends Error implements IAppError {
     this.originalError = options?.originalError
     this.isRecoverable = options?.isRecoverable ?? this.inferRecoverability(code)
 
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AppError)
+    // V8 引擎特有的堆栈捕获 API
+    const ErrorConstructor = Error as typeof Error & {
+      captureStackTrace?: (
+        targetObject: object,
+        constructorOpt?: new (...args: unknown[]) => unknown
+      ) => void
+    }
+    if (ErrorConstructor.captureStackTrace) {
+      ErrorConstructor.captureStackTrace(this, AppError)
     }
   }
 
@@ -148,7 +155,10 @@ export class AppError extends Error implements IAppError {
       ErrorCode.AUTH_SESSION_EXPIRED,
       ErrorCode.STORAGE_WRITE_ERROR,
     ]
-    const mediumCodes: ErrorCode[] = [ErrorCode.BUSINESS_NOT_FOUND, ErrorCode.VALIDATION_INVALID_FORMAT]
+    const mediumCodes: ErrorCode[] = [
+      ErrorCode.BUSINESS_NOT_FOUND,
+      ErrorCode.VALIDATION_INVALID_FORMAT,
+    ]
 
     if (criticalCodes.includes(code)) return ErrorSeverity.CRITICAL
     if (highCodes.includes(code)) return ErrorSeverity.HIGH
@@ -217,24 +227,16 @@ export const ErrorFactory = {
     }),
 
   notFound: (resource: string, message?: string) =>
-    new AppError(
-      ErrorCode.BUSINESS_NOT_FOUND,
-      message || `${resource}不存在`,
-      {
-        metadata: { resource },
-        isRecoverable: false,
-      }
-    ),
+    new AppError(ErrorCode.BUSINESS_NOT_FOUND, message || `${resource}不存在`, {
+      metadata: { resource },
+      isRecoverable: false,
+    }),
 
   alreadyExists: (resource: string, message?: string) =>
-    new AppError(
-      ErrorCode.BUSINESS_ALREADY_EXISTS,
-      message || `${resource}已存在`,
-      {
-        metadata: { resource },
-        isRecoverable: false,
-      }
-    ),
+    new AppError(ErrorCode.BUSINESS_ALREADY_EXISTS, message || `${resource}已存在`, {
+      metadata: { resource },
+      isRecoverable: false,
+    }),
 
   invalidOperation: (message: string) =>
     new AppError(ErrorCode.BUSINESS_INVALID_OPERATION, message, {
@@ -260,26 +262,18 @@ export const ErrorFactory = {
     }),
 
   uploadFailed: (fileName: string, message?: string, originalError?: Error) =>
-    new AppError(
-      ErrorCode.STORAGE_UPLOAD_FAILED,
-      message || `文件 ${fileName} 上传失败`,
-      {
-        metadata: { fileName },
-        originalError,
-        isRecoverable: true,
-      }
-    ),
+    new AppError(ErrorCode.STORAGE_UPLOAD_FAILED, message || `文件 ${fileName} 上传失败`, {
+      metadata: { fileName },
+      originalError,
+      isRecoverable: true,
+    }),
 
   downloadFailed: (fileName: string, message?: string, originalError?: Error) =>
-    new AppError(
-      ErrorCode.STORAGE_DOWNLOAD_FAILED,
-      message || `文件 ${fileName} 下载失败`,
-      {
-        metadata: { fileName },
-        originalError,
-        isRecoverable: true,
-      }
-    ),
+    new AppError(ErrorCode.STORAGE_DOWNLOAD_FAILED, message || `文件 ${fileName} 下载失败`, {
+      metadata: { fileName },
+      originalError,
+      isRecoverable: true,
+    }),
 
   systemError: (message: string, originalError?: Error) =>
     new AppError(ErrorCode.SYSTEM_INTERNAL_ERROR, message, {
