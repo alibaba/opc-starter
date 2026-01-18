@@ -13,7 +13,7 @@
                 ↓
         ┌───────┴───────┐
         ↓               ↓
-   GLM-4.7 (百炼)    工具调用
+   Qwen-Plus (百炼)  工具调用
         ↓               ↓
         └───────┬───────┘
                 ↓
@@ -72,6 +72,6 @@ ai-assistant 需要以下环境变量：
 
 | 变量 | 说明 |
 |------|------|
-| `DASHSCOPE_API_KEY` | 百炼 API 密钥 |
+| `ALIYUN_BAILIAN_API_KEY` | 百炼 API 密钥 |
 
 在 Supabase Dashboard → Settings → Edge Functions → Secrets 中配置。

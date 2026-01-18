@@ -17,7 +17,7 @@ OPC-Starter (一人公司启动器) 是一个 AI 亲和的 React Boilerplate，�
 | Supabase | 2.80 | Auth + Storage + Realtime + Edge Functions |
 | Zustand | 5.0 | 状态管理 |
 | Zod | 4.1 | 运行时类型校验 |
-| GLM-4.7 | via 百炼 API | Agent LLM |
+| Qwen-Plus | via 百炼 API | Agent LLM（通义千问） |
 
 ## 架构图
 
@@ -34,7 +34,7 @@ OPC-Starter (一人公司启动器) 是一个 AI 亲和的 React Boilerplate，�
                                ↓ ↑
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                      百炼 AI API (OpenAI 兼容)                                   │
-│                           GLM-4.7 Agent                                          │
+│                          Qwen-Plus Agent                                         │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -96,7 +96,7 @@ src/lib/agent/
            ↓
       SSE Client ←→ ai-assistant (Edge Function)
            ↓                    ↓
-      Tool Executor         GLM-4.7 (百炼 API)
+      Tool Executor         Qwen-Plus (百炼 API)
            ↓
       A2UI Renderer (动态 UI)
 ```

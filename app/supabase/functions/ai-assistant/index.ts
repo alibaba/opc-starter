@@ -2,7 +2,7 @@
  * AI Assistant Edge Function
  *
  * OPC-Starter 通用 AI 助手，提供智能问答和页面导航能力
- * 使用 OpenAI SDK 兼容模式调用 GLM-4.7
+ * 使用 OpenAI SDK 兼容模式调用通义千问 Qwen (百炼 API)
  *
  * @version 2.0.0 - 简化版本，移除 Photo 相关功能
  */
@@ -471,7 +471,7 @@ async function runAgentLoop(
 
     try {
       const stream = await openai.chat.completions.create({
-        model: 'glm-4.7',
+        model: 'qwen-plus',
         messages: currentMessages,
         tools: TOOLS,
         stream: true,

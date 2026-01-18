@@ -1,5 +1,5 @@
 {
-  "name": "photo-wall",
+  "name": "opt-starter",
   "assets": {
     "directory": "./dist",
     "notFoundStrategy": "singlePageApplication"

@@ -18,7 +18,7 @@
 | **Tailwind CSS** | **4.1** | ⚠️ 使用 v4 语法，禁用 v2/v3 语法 |
 | Supabase | 2.80 | Auth + Storage + Realtime + Edge Functions |
 | Zustand | 5.0 | |
-| **GLM-4.7** | via 百炼 API | OpenAI SDK 兼容模式 |
+| **Qwen-Plus** | via 百炼 API | OpenAI SDK 兼容模式（通义千问） |
 | **A2UI** | v0.8 | Agent 动态 UI 协议 |
 
 ## 项目能力概览
@@ -100,7 +100,7 @@
            ↓
       SSE Client ←→ ai-assistant (Edge Function)
            ↓                    ↓
-      Tool Executor         GLM-4.7 (百炼 API)
+      Tool Executor         Qwen-Plus (百炼 API)
            ↓
       A2UI Renderer (动态 UI)
 ```

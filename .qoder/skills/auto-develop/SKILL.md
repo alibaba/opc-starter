@@ -60,7 +60,7 @@ auto_load:
 | Zustand | 5.0 | 状态管理 |
 | **Vitest** | **4.0** | 单元测试框架 |
 | **Cypress** | **15.7** | E2E 测试框架 |
-| **GLM-4.7** | via 百炼 API | Agent LLM |
+| **Qwen-Plus** | via 百炼 API | Agent LLM（通义千问） |
 | **A2UI** | v0.8 | Agent 动态 UI 协议 |
 
 ### 目录结构
@@ -171,7 +171,7 @@ opc-starter/
            ↓
       SSE Client ←→ ai-assistant (Edge Function)
            ↓                    ↓
-      Tool Executor         GLM-4.7 (百炼 API)
+      Tool Executor         Qwen-Plus (百炼 API)
            ↓
       A2UI Renderer (动态 UI)
 ```
