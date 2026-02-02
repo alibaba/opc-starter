@@ -1,0 +1,115 @@
+name: Cypress E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'app/**'
+      - '.github/workflows/cypress-e2e.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'app/**'
+  workflow_dispatch:
+
+jobs:
+  cypress-run:
+    name: Run Cypress E2E Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        # 可以配置多个浏览器并行测试
+        browser: [chrome]
+        # browser: [chrome, firefox, edge]
+    
+    defaults:
+      run:
+        working-directory: app
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔐 Create Test Environment File
+        run: |
+          cat > .env.test << EOF
+          VITE_ENABLE_MSW=true
+          VITE_USE_MOCK_AUTH=true
+          VITE_SUPABASE_URL=https://placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY=placeholder-key
+          TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL || 'test@example.com' }}
+          TEST_USER_PWD=${{ secrets.TEST_USER_PWD || 'Test123456' }}
+          EOF
+
+      - name: 🧪 Run Cypress Tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: app
+          browser: ${{ matrix.browser }}
+          start: npm run dev:test
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 120
+          config-file: cypress.config.js
+          # Cypress Dashboard 配置（可选）
+          # record: true
+          # parallel: true
+          # group: 'E2E Tests'
+        env:
+          # Cypress Dashboard 记录密钥（需要在 GitHub Secrets 中配置）
+          # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # GitHub Token（用于 Cypress Dashboard 集成）
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📸 Upload Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.browser }}
+          path: app/cypress/screenshots
+          retention-days: 7
+
+      - name: 🎥 Upload Videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos-${{ matrix.browser }}
+          path: app/cypress/videos
+          retention-days: 7
+
+      - name: 📊 Generate Test Report
+        if: always()
+        run: |
+          echo "## Cypress E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Browser: ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  # 可选：测试结果汇总
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: cypress-run
+    if: always()
+    
+    steps:
+      - name: 📊 Test Results
+        run: |
+          echo "All Cypress tests completed"
+          echo "Check individual job results for details"
+

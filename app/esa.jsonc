@@ -1,0 +1,10 @@
+{
+  "name": "opt-starter",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "singlePageApplication"
+  },
+  "dev": {
+    "port": 18080
+  }
+}

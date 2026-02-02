@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/* ========================================
+ * Tailwind CSS v4 - 主题配置
+ * 使用 @theme inline 让颜色支持 CSS 变量
+ * ======================================== */
+@theme inline {
+  /* 字体 - Photo Wall 设计系统 */
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Nunito", "Plus Jakarta Sans", system-ui, sans-serif;
+
+  /* 圆角 */
+  --radius-lg: 0.75rem;
+  --radius-md: calc(0.75rem - 2px);
+  --radius-sm: calc(0.75rem - 4px);
+
+  /* 颜色变量 - 使用 CSS 变量实现动态切换 */
+  --color-background: var(--background-color);
+  --color-foreground: var(--foreground-color);
+  
+  --color-card: var(--card-color);
+  --color-card-foreground: var(--card-foreground-color);
+  
+  --color-popover: var(--popover-color);
+  --color-popover-foreground: var(--popover-foreground-color);
+  
+  --color-primary: var(--primary-color);
+  --color-primary-foreground: var(--primary-foreground-color);
+  
+  --color-secondary: var(--secondary-color);
+  --color-secondary-foreground: var(--secondary-foreground-color);
+  
+  --color-muted: var(--muted-color);
+  --color-muted-foreground: var(--muted-foreground-color);
+  
+  --color-accent: var(--accent-color);
+  --color-accent-foreground: var(--accent-foreground-color);
+  
+  --color-destructive: var(--destructive-color);
+  --color-destructive-foreground: var(--destructive-foreground-color);
+  
+  --color-success: var(--success-color);
+  --color-success-foreground: var(--success-foreground-color);
+  
+  --color-warning: var(--warning-color);
+  --color-warning-foreground: var(--warning-foreground-color);
+  
+  --color-border: var(--border-color);
+  --color-input: var(--input-color);
+  --color-ring: var(--ring-color);
+  
+  /* 图表颜色 */
+  --color-chart-1: var(--chart-1-color);
+  --color-chart-2: var(--chart-2-color);
+  --color-chart-3: var(--chart-3-color);
+  --color-chart-4: var(--chart-4-color);
+  --color-chart-5: var(--chart-5-color);
+  
+  /* 头像渐变 */
+  --color-avatar-from: var(--avatar-gradient-from);
+  --color-avatar-to: var(--avatar-gradient-to);
+}
+
+/* 深色模式变体 - Tailwind v4 方式 */
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    /* ========================================
+     * Photo Wall Design System
+     * 风格: 温暖亲和 (Warm & Friendly)
+     * 灵感来源: Donezo Dashboard
+     * ======================================== */
+
+    /* 背景色 - 温暖米色调 */
+    --background-color: hsl(50 20% 98%);
+    --foreground-color: hsl(220 20% 14%);
+
+    /* 卡片表面 */
+    --card-color: hsl(0 0% 100%);
+    --card-foreground-color: hsl(220 20% 14%);
+
+    /* 弹出层 */
+    --popover-color: hsl(0 0% 100%);
+    --popover-foreground-color: hsl(220 20% 14%);
+
+    /* 主色 - 深森林绿 (温暖自然感) */
+    --primary-color: hsl(145 40% 28%);
+    --primary-foreground-color: hsl(0 0% 100%);
+
+    /* 次要色 - 柔和灰绿 */
+    --secondary-color: hsl(140 15% 94%);
+    --secondary-foreground-color: hsl(145 30% 25%);
+
+    /* 静音元素 */
+    --muted-color: hsl(50 10% 94%);
+    --muted-foreground-color: hsl(220 10% 46%);
+
+    /* 强调色 - 温暖琥珀橙 */
+    --accent-color: hsl(38 92% 50%);
+    --accent-foreground-color: hsl(0 0% 100%);
+
+    /* 危险/删除操作 */
+    --destructive-color: hsl(0 72% 51%);
+    --destructive-foreground-color: hsl(0 0% 100%);
+
+    /* 成功状态 - 与主色协调 */
+    --success-color: hsl(145 60% 40%);
+    --success-foreground-color: hsl(0 0% 100%);
+
+    /* 警告状态 */
+    --warning-color: hsl(38 92% 50%);
+    --warning-foreground-color: hsl(38 92% 20%);
+
+    /* 边框和输入框 */
+    --border-color: hsl(50 10% 88%);
+    --input-color: hsl(50 10% 88%);
+    --ring-color: hsl(145 40% 28%);
+
+    /* 图表色彩 - 自然色系 */
+    --chart-1-color: hsl(145 40% 28%);
+    --chart-2-color: hsl(145 50% 45%);
+    --chart-3-color: hsl(38 92% 50%);
+    --chart-4-color: hsl(200 60% 50%);
+    --chart-5-color: hsl(280 60% 55%);
+
+    /* 头像渐变 - 与设计系统协调 */
+    --avatar-gradient-from: hsl(145 40% 28%);
+    --avatar-gradient-to: hsl(38 92% 50%);
+  }
+
+  .dark {
+    /* 深色模式 - 保持温暖感 */
+    --background-color: hsl(220 20% 10%);
+    --foreground-color: hsl(50 20% 95%);
+
+    --card-color: hsl(220 20% 13%);
+    --card-foreground-color: hsl(50 20% 95%);
+
+    --popover-color: hsl(220 20% 13%);
+    --popover-foreground-color: hsl(50 20% 95%);
+
+    /* 主色在深色模式下提亮 */
+    --primary-color: hsl(145 50% 45%);
+    --primary-foreground-color: hsl(220 20% 10%);
+
+    --secondary-color: hsl(220 15% 20%);
+    --secondary-foreground-color: hsl(50 20% 90%);
+
+    --muted-color: hsl(220 15% 18%);
+    --muted-foreground-color: hsl(220 10% 60%);
+
+    /* 强调色保持活力 */
+    --accent-color: hsl(38 85% 55%);
+    --accent-foreground-color: hsl(220 20% 10%);
+
+    --destructive-color: hsl(0 62% 45%);
+    --destructive-foreground-color: hsl(0 0% 100%);
+
+    --success-color: hsl(145 55% 50%);
+    --success-foreground-color: hsl(220 20% 10%);
+
+    --warning-color: hsl(38 85% 55%);
+    --warning-foreground-color: hsl(220 20% 10%);
+
+    --border-color: hsl(220 15% 22%);
+    --input-color: hsl(220 15% 22%);
+    --ring-color: hsl(145 50% 45%);
+
+    /* 头像渐变 - 深色模式更亮 */
+    --avatar-gradient-from: hsl(145 50% 45%);
+    --avatar-gradient-to: hsl(38 85% 55%);
+  }
+
+  * {
+    border-color: var(--border-color);
+  }
+
+  body {
+    background-color: var(--background-color);
+    color: var(--foreground-color);
+    font-family: var(--font-sans);
+    margin: 0;
+    min-height: 100vh;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 标题使用 Display 字体 */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
+  /* 平滑滚动 */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* 焦点样式 */
+  :focus-visible {
+    outline: 2px solid var(--ring-color);
+    outline-offset: 2px;
+  }
+
+  /* 选中文本样式 */
+  ::selection {
+    background-color: hsl(145 40% 28% / 0.15);
+    color: var(--primary-color);
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "testUser": {
+    "email": "test@example.com",
+    "password": "888888",
+    "displayName": "测试用户"
+  },
+  "invalidUser": {
+    "email": "invalid@example.com",
+    "password": "WrongPassword123"
+  }
+}

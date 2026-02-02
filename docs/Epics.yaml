@@ -1,0 +1,50 @@
+# OPC-Starter Epic 清单
+# 版本: v1.0.0 | 更新: 2026-01-13
+
+project:
+  name: "OPC-Starter (一人公司启动器)"
+  version: "v1.0.0"
+  tech_stack: "React 19 + TypeScript 5.9 + Vite 7 + Supabase + Tailwind CSS 4.1 + Qwen-Plus + Zod"
+  repository: "https://github.com/xxx/opc-starter"  # TODO: 更新为实际仓库地址
+
+# 进行中
+epics_active: []
+
+# 历史归档
+epics_archived:
+  - id: "Epic-25"
+    name: "v1.0.0 OPC-Starter 开源化"
+    description: "从 Photo Wall 转型为 OPC-Starter Boilerplate，移除照片业务、OSS依赖，保留 AI 亲和架构、Agent Studio、组织管理"
+    completed: "2026-01-13"
+    total_sp: 23
+    stories_count: 10
+    note: "项目正式转型为开源 Boilerplate"
+
+  - id: "Epic-1~24"
+    name: "Photo Wall 完整功能 (前身)"
+    description: "照片管理、AI视频、融合、组织架构、A2UI Agent Studio、AI亲和架构"
+    completed: "2026-01-07"
+    note: "作为 OPC-Starter 的前身，已完成 24 个 Epic，169 个 Stories，相关文档已归档清理"
+
+# 待开发 (开源后)
+epics_backlog:
+  - id: "Epic-26"
+    name: "多 LLM Provider 支持"
+    description: "支持 OpenAI、Claude、Gemini 等多 LLM 后端"
+    status: "planned"
+  
+  - id: "Epic-27"
+    name: "国际化 (i18n)"
+    description: "多语言支持"
+    status: "planned"
+  
+  - id: "Epic-28"
+    name: "主题系统"
+    description: "深色/浅色模式、自定义主题"
+    status: "planned"
+
+# 统计
+statistics:
+  completed: 25  # 包含 Photo Wall 历史 + Epic-25
+  active: 0
+  backlog: 3
