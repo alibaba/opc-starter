@@ -22,11 +22,16 @@ jobs:
       
       - name: Install dependencies
         working-directory: app
-        run: npm ci
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+          npm rebuild
       
       - name: Run ESLint
         working-directory: app
-        run: npm run lint
+        run: |
+          # 验证 ESLint 是否正确安装
+          ls -la node_modules/.bin/eslint
+          npm run lint
       
       - name: Run TypeScript type check
         working-directory: app
@@ -48,7 +53,9 @@ jobs:
       
       - name: Install dependencies
         working-directory: app
-        run: npm ci
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+          npm rebuild
       
       - name: Run unit tests
         working-directory: app
@@ -70,7 +77,9 @@ jobs:
       
       - name: Install dependencies
         working-directory: app
-        run: npm ci
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+          npm rebuild
       
       - name: Build
         working-directory: app
