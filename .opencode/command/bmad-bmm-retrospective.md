@@ -1,13 +1,17 @@
 ---
-description: 'Run after epic completion to review overall success, extract lessons learned, and explore if new information emerged that might impact the next epic'
+name: 'retrospective'
+description: 'Post-epic review to extract lessons and assess success. Use when the user says ""run a retrospective"" or ""lets retro the epic [epic]""'
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:
+Execute the BMAD 'retrospective' workflow.
 
-<steps CRITICAL="TRUE">
-1. Always LOAD the FULL @_bmad/core/tasks/workflow.xml
-2. READ its entire contents - this is the CORE OS for EXECUTING the specific workflow-config @_bmad/bmm/workflows/4-implementation/retrospective/workflow.yaml
-3. Pass the yaml path _bmad/bmm/workflows/4-implementation/retrospective/workflow.yaml as 'workflow-config' parameter to the workflow.xml instructions
-4. Follow workflow.xml instructions EXACTLY as written to process and follow the specific workflow config and its instructions
-5. Save outputs after EACH section when generating any documents from templates
-</steps>
+CRITICAL: You must load and follow the workflow definition exactly.
+
+WORKFLOW INSTRUCTIONS:
+
+1. LOAD the workflow file from {project-root}/_bmad/bmm/workflows/4-implementation/retrospective/workflow.yaml
+2. READ its entire contents
+3. FOLLOW every step precisely as specified
+4. DO NOT skip or modify any steps
+
+WORKFLOW FILE: {project-root}/_bmad/bmm/workflows/4-implementation/retrospective/workflow.yaml

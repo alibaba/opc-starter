@@ -250,3 +250,35 @@ const promise = (async () => {
 2. 在 `src/services/data/adapters/` 创建适配器
 3. 在 `src/stores/` 创建 Zustand Store
 4. 更新 `supabase/setup.sql` 添加表结构
+
+## Cursor Cloud specific instructions
+
+### Project layout
+
+All application code lives under `app/`. Run all npm commands from `/workspace/app`.
+
+### Running without Supabase (MSW mock mode)
+
+The app can run fully locally without a real Supabase project by using MSW mocks:
+
+1. Ensure `app/.env.test` exists with `VITE_ENABLE_MSW=true` (created automatically by the update script if missing).
+2. `npm run dev:test` — starts Vite on port **5173** with MSW intercepting all Supabase API calls.
+3. Test credentials (from `cypress/fixtures/users.json`): `test@example.com` / `888888`.
+
+### Gotchas
+
+- The original `package-lock.json` referenced Alibaba's internal npm registry (`registry.anpm.alibaba-inc.com`), which is unreachable from Cloud VMs. If `npm install` fails with `ECONNRESET` errors from that registry, delete `package-lock.json` and `node_modules`, then run `npm install --registry https://registry.npmjs.org/`.
+- The `prepare` script runs `cd .. && husky app/.husky` which installs git hooks from the repo root. This is expected and runs automatically during `npm install`.
+- Lint command (`npm run lint`) applies `--fix` by default.
+
+### Key commands (run from `app/`)
+
+| Task | Command |
+|------|---------|
+| Dev server (mock) | `npm run dev:test` |
+| Dev server (real Supabase) | `npm run dev` |
+| Lint | `npm run lint` |
+| Type check | `npm run type-check` |
+| Unit tests | `npm test` |
+| E2E tests | `npm run test:e2e` |
+| Build | `npm run build` |

@@ -1,13 +1,17 @@
 ---
-description: 'Summarize sprint-status.yaml, surface risks, and route to the right implementation workflow.'
+name: 'sprint-status'
+description: 'Summarize sprint status and surface risks. Use when the user says ""check sprint status"" or ""show sprint status""'
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:
+Execute the BMAD 'sprint-status' workflow.
 
-<steps CRITICAL="TRUE">
-1. Always LOAD the FULL @_bmad/core/tasks/workflow.xml
-2. READ its entire contents - this is the CORE OS for EXECUTING the specific workflow-config @_bmad/bmm/workflows/4-implementation/sprint-status/workflow.yaml
-3. Pass the yaml path _bmad/bmm/workflows/4-implementation/sprint-status/workflow.yaml as 'workflow-config' parameter to the workflow.xml instructions
-4. Follow workflow.xml instructions EXACTLY as written to process and follow the specific workflow config and its instructions
-5. Save outputs after EACH section when generating any documents from templates
-</steps>
+CRITICAL: You must load and follow the workflow definition exactly.
+
+WORKFLOW INSTRUCTIONS:
+
+1. LOAD the workflow file from {project-root}/_bmad/bmm/workflows/4-implementation/sprint-status/workflow.yaml
+2. READ its entire contents
+3. FOLLOW every step precisely as specified
+4. DO NOT skip or modify any steps
+
+WORKFLOW FILE: {project-root}/_bmad/bmm/workflows/4-implementation/sprint-status/workflow.yaml
