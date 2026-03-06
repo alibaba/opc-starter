@@ -1,3 +1,10 @@
+/**
+ * Person 本地适配器
+ *
+ * 将 IndexedDB 的 Person 存储封装为 LocalAdapter 接口，
+ * 供 ReactiveCollection 使用。
+ */
+
 import { personDB } from '@/services/db/personDB'
 import type { LocalAdapter, BaseEntity } from '@/lib/reactive/types'
 import type { Person } from '@/types/person'
@@ -10,7 +17,7 @@ export function createPersonAdapter(): LocalAdapter<Person & BaseEntity> {
     },
     findOne: async (id: string) => {
       const all = await personDB.getAll()
-      return all.find(p => p.id === id) as (Person & BaseEntity) | undefined
+      return all.find((p) => p.id === id) as (Person & BaseEntity) | undefined
     },
     query: async (options) => {
       const all = await personDB.getAll()

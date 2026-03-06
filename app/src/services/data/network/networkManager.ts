@@ -1,3 +1,9 @@
+/**
+ * 网络状态管理器
+ *
+ * 监听浏览器在线/离线状态变化，通知 DataService 进行离线队列处理或数据同步。
+ */
+
 export interface NetworkManager {
   isOnline(): boolean
   setOnline(value: boolean): void
@@ -52,7 +58,7 @@ export function createNetworkManager(): NetworkManager {
   }
 
   const isOnlineFn = (): boolean => online
-  
+
   const setOnline = (value: boolean): void => {
     online = value
   }

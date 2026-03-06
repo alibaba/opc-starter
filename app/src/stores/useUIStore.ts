@@ -1,24 +1,31 @@
-import { create } from 'zustand';
+/**
+ * UI 状态管理 Store
+ *
+ * 管理全局 UI 状态：侧边栏折叠、模态框、消息通知等，
+ * 使用 Zustand 实现响应式状态管理。
+ */
+
+import { create } from 'zustand'
 
 /**
  * Modal配置
  */
 interface ModalConfig {
-  isOpen: boolean;
-  title?: string;
-  content?: React.ReactNode;
-  onConfirm?: () => void;
-  onCancel?: () => void;
+  isOpen: boolean
+  title?: string
+  content?: React.ReactNode
+  onConfirm?: () => void
+  onCancel?: () => void
 }
 
 /**
  * Toast配置
  */
 interface ToastConfig {
-  isVisible: boolean;
-  message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  duration?: number;
+  isVisible: boolean
+  message: string
+  type: 'success' | 'error' | 'warning' | 'info'
+  duration?: number
 }
 
 /**
@@ -26,19 +33,19 @@ interface ToastConfig {
  */
 interface UIState {
   // 状态
-  loading: boolean;
-  uploadProgress: number; // 0-100
-  modal: ModalConfig;
-  toast: ToastConfig;
+  loading: boolean
+  uploadProgress: number // 0-100
+  modal: ModalConfig
+  toast: ToastConfig
 
   // Actions
-  showLoading: () => void;
-  hideLoading: () => void;
-  setUploadProgress: (progress: number) => void;
-  openModal: (config: Omit<ModalConfig, 'isOpen'>) => void;
-  closeModal: () => void;
-  showToast: (message: string, type?: ToastConfig['type'], duration?: number) => void;
-  hideToast: () => void;
+  showLoading: () => void
+  hideLoading: () => void
+  setUploadProgress: (progress: number) => void
+  openModal: (config: Omit<ModalConfig, 'isOpen'>) => void
+  closeModal: () => void
+  showToast: (message: string, type?: ToastConfig['type'], duration?: number) => void
+  hideToast: () => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -94,4 +101,4 @@ export const useUIStore = create<UIState>((set) => ({
         isVisible: false,
       },
     })),
-}));
+}))

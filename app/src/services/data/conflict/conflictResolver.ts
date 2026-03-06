@@ -1,3 +1,10 @@
+/**
+ * 数据冲突解决器
+ *
+ * 提供多种合并策略（server-wins / local-wins / merge / latest），
+ * 用于解决本地与远端数据同步时的版本冲突。
+ */
+
 export type MergeStrategy = 'merge' | 'server-wins' | 'local-wins' | 'latest'
 
 export interface ConflictStats {
