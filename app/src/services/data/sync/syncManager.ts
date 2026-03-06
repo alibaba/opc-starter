@@ -1,3 +1,10 @@
+/**
+ * 数据同步管理器
+ *
+ * 负责本地 IndexedDB 与远端 Supabase 之间的数据同步调度，
+ * 跟踪同步状态和进度。
+ */
+
 import type { SyncProgress, SyncStatus, SyncStatusCallback } from '@/services/data/DataService'
 
 interface SyncManagerDeps {
@@ -15,7 +22,7 @@ export function createSyncManager(deps?: SyncManagerDeps) {
 
   const setSyncStatus = (status: SyncStatus, progress?: SyncProgress): void => {
     syncStatus = status
-    callbacks.forEach(cb => cb(status, progress))
+    callbacks.forEach((cb) => cb(status, progress))
     deps?.onStatusChange?.(status, progress)
   }
 
