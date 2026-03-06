@@ -42,7 +42,7 @@
     "test:e2e:headless": "start-server-and-test dev:test http://localhost:5173 cypress:run",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "ai:check": "npm run lint:check && npm run type-check && npm run test && npm run build",
+    "ai:check": "npm run lint:check && npm run type-check && npm run coverage && npm run build",
     "prepare": "cd .. && husky app/.husky"
   },
   "dependencies": {
@@ -84,6 +84,8 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
     "@eslint/js": "^9.36.0",
     "@faker-js/faker": "^10.1.0",
     "@testing-library/jest-dom": "^6.9.1",
