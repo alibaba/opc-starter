@@ -39,7 +39,7 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
 
@@ -50,11 +50,8 @@ jobs:
         run: |
           cat > .env.test << EOF
           VITE_ENABLE_MSW=true
-          VITE_USE_MOCK_AUTH=true
           VITE_SUPABASE_URL=https://placeholder.supabase.co
           VITE_SUPABASE_ANON_KEY=placeholder-key
-          TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL || 'test@example.com' }}
-          TEST_USER_PWD=${{ secrets.TEST_USER_PWD || 'Test123456' }}
           EOF
 
       - name: 🧪 Run Cypress Tests

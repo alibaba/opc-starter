@@ -34,6 +34,17 @@ docs/
 | 数据库操作 | `app/supabase/SUPABASE_COOKBOOK.md` |
 | 项目进度 | `Epics.yaml` |
 
+## 🤖 AI 快速导航
+
+| 目标 | 关键入口 | 说明 |
+|------|---------|------|
+| 快速启动本地环境 | `README.md` | 优先使用根目录 `npm run dev:test` |
+| 理解运行链路 | `app/src/main.tsx` → `app/src/App.tsx` → `app/src/config/routes.tsx` | 应用初始化、路由和布局的主入口 |
+| 找页面挂载位置 | `app/src/components/layout/MainLayout/index.tsx` | Header、Sidebar、`AgentWindow`、`Outlet` 都从这里进入 |
+| 修改数据层 | `app/src/services/data/DataService.ts` | 数据访问统一入口 |
+| 修改 Agent 能力 | `app/src/components/agent/`、`app/src/lib/agent/` | UI、SSE、工具执行链路 |
+| 跑核心校验 | `package.json`、`scripts/quality_check.sh` | 根目录可直接执行 `npm run ai:check` 或 `./scripts/quality_check.sh` |
+
 ## 🚀 核心能力
 
 | 模块 | 描述 |

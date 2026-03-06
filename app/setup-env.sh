@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # 环境配置快速设置脚本
-# 用途：快速创建 .env.development 和 .env.test 文件
+# 用途：快速创建 .env.local 和 .env.test 文件
 
 set -e
 
-echo "🚀 Photo Wall 环境配置脚本"
+echo "🚀 OPC-Starter 环境配置脚本"
 echo "================================"
 echo ""
 
 # 检查是否已存在配置文件
-if [ -f ".env.development" ] || [ -f ".env.test" ]; then
+if [ -f ".env.local" ] || [ -f ".env.test" ]; then
     echo "⚠️  检测到已存在的环境配置文件："
-    [ -f ".env.development" ] && echo "  - .env.development"
+    [ -f ".env.local" ] && echo "  - .env.local"
     [ -f ".env.test" ] && echo "  - .env.test"
     echo ""
     read -p "是否覆盖现有文件？(y/N): " confirm
@@ -41,9 +41,9 @@ case $mode in
         read -p "Supabase Project URL: " supabase_url
         read -p "Supabase Anon Key: " supabase_key
         
-        # 创建 .env.development
-        cat > .env.development << EOF
-# 开发环境配置 - 连接真实 Supabase 后端
+        # 创建 .env.local
+        cat > .env.local << EOF
+# 本地开发配置 - 连接真实 Supabase 后端
 # 创建时间: $(date)
 
 # MSW Mock 开关 - 关闭
@@ -59,7 +59,7 @@ VITE_API_BASE_URL=/api
 # Mock 数据配置（开发环境不启用）
 VITE_MOCK_DATA_ENABLED=false
 EOF
-        echo "✅ 已创建 .env.development"
+        echo "✅ 已创建 .env.local"
         ;;
 esac
 
@@ -79,10 +79,6 @@ VITE_SUPABASE_ANON_KEY=placeholder-key
 
 # API 基础路径
 VITE_API_BASE_URL=/api
-
-# 测试用户信息
-TEST_USER_EMAIL=test@example.com
-TEST_USER_PWD=Test123456
 
 # Mock 数据配置
 VITE_MOCK_DATA_ENABLED=true
@@ -118,7 +114,7 @@ esac
 
 echo ""
 echo "📖 更多信息请查看:"
-echo "  - ENV_SETUP_GUIDE.md"
-echo "  - SUPABASE_QUICKSTART.md"
+echo "  - README.md"
+echo "  - ../AGENTS.md"
 echo ""
 

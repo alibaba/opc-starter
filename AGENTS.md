@@ -255,7 +255,10 @@ const promise = (async () => {
 
 ### Project layout
 
-All application code lives under `app/`. Run all npm commands from `/workspace/app`.
+All application code lives under `app/`.
+
+- Prefer `/workspace/app` for low-level application work.
+- `/workspace/package.json` exposes proxy scripts for AI tools that start at repo root, so `npm run dev:test`, `npm run ai:check`, and `npm run test:e2e:headless` also work from `/workspace`.
 
 ### Running without Supabase (MSW mock mode)
 
@@ -263,7 +266,7 @@ The app can run fully locally without a real Supabase project by using MSW mocks
 
 1. Ensure `app/.env.test` exists with `VITE_ENABLE_MSW=true` (created automatically by the update script if missing).
 2. `npm run dev:test` — starts Vite on port **5173** with MSW intercepting all Supabase API calls.
-3. Test credentials (from `cypress/fixtures/users.json`): `test@example.com` / `888888`.
+3. Test credentials are sourced from `app/cypress/fixtures/users.json`: `test@example.com` / `888888`.
 
 ### Gotchas
 
@@ -271,14 +274,19 @@ The app can run fully locally without a real Supabase project by using MSW mocks
 - The `prepare` script runs `cd .. && husky app/.husky` which installs git hooks from the repo root. This is expected and runs automatically during `npm install`.
 - Lint command (`npm run lint`) applies `--fix` by default.
 
-### Key commands (run from `app/`)
+### Key commands
+
+From `/workspace`, use the proxy scripts below. From `/workspace/app`, the same commands continue to work.
 
 | Task | Command |
 |------|---------|
 | Dev server (mock) | `npm run dev:test` |
 | Dev server (real Supabase) | `npm run dev` |
 | Lint | `npm run lint` |
+| Lint check | `npm run lint:check` |
 | Type check | `npm run type-check` |
 | Unit tests | `npm test` |
-| E2E tests | `npm run test:e2e` |
+| E2E tests | `npm run test:e2e:headless` |
+| Core AI checks | `npm run ai:check` |
+| Full quality check | `./scripts/quality_check.sh` |
 | Build | `npm run build` |

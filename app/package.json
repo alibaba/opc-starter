@@ -28,6 +28,7 @@
     "dev:test": "vite --mode test",
     "build": "tsc -b && vite build && rm -f dist/mockServiceWorker.js",
     "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
@@ -38,8 +39,10 @@
     "coverage:tools": "vitest run --coverage src/lib/agent/tools",
     "test:watch": "vitest",
     "test:e2e": "start-server-and-test dev:test http://localhost:5173 cypress:run",
+    "test:e2e:headless": "start-server-and-test dev:test http://localhost:5173 cypress:run",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
+    "ai:check": "npm run lint:check && npm run type-check && npm run test && npm run build",
     "prepare": "cd .. && husky app/.husky"
   },
   "dependencies": {

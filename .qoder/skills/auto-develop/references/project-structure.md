@@ -165,7 +165,8 @@ npm run dev:test      # 测试模式 (MSW mock)
 npm run test          # 单元测试
 npm run test:watch    # 监听模式
 npm run coverage      # 覆盖率报告
-npm run test:e2e      # Cypress 交互模式
+npm run cypress:open  # 在已启动 dev:test 时交互运行 Cypress
+npm run test:e2e      # 启动 dev:test 后无头运行 E2E
 npm run test:e2e:headless  # Cypress 无头模式
 
 # 质量检查
@@ -174,6 +175,7 @@ npm run lint:check    # ESLint 仅检查
 npm run format        # Prettier 格式化
 npm run format:check  # Prettier 检查
 npm run type-check    # TypeScript 类型检查
+npm run ai:check      # 核心 AI 迭代校验
 
 # 构建
 npm run build         # 生产构建

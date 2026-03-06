@@ -1,0 +1,22 @@
+{
+  "name": "opc-starter-workspace",
+  "private": true,
+  "description": "Root proxy scripts for OPC-Starter AI workflows",
+  "scripts": {
+    "dev": "npm --prefix app run dev",
+    "dev:test": "npm --prefix app run dev:test",
+    "build": "npm --prefix app run build",
+    "lint": "npm --prefix app run lint",
+    "lint:check": "npm --prefix app run lint:check",
+    "format": "npm --prefix app run format",
+    "format:check": "npm --prefix app run format:check",
+    "type-check": "npm --prefix app run type-check",
+    "test": "npm --prefix app run test",
+    "coverage": "npm --prefix app run coverage",
+    "test:e2e": "npm --prefix app run test:e2e",
+    "test:e2e:headless": "npm --prefix app run test:e2e:headless",
+    "cypress:open": "npm --prefix app run cypress:open",
+    "cypress:run": "npm --prefix app run cypress:run",
+    "ai:check": "npm --prefix app run ai:check"
+  }
+}

@@ -22,35 +22,49 @@
 
 ## 🚀 快速开始
 
+### AI / Cursor Cloud 最短路径（推荐）
+
+默认推荐 **MSW Mock 模式**，不依赖真实 Supabase，最适合 AI Coding 工具快速启动、复现和回归：
+
+```bash
+git clone https://github.com/your-username/opc-starter.git
+cd opc-starter
+npm --prefix app install
+npm run dev:test
+```
+
+说明：
+
+- 常用 npm 命令可直接在仓库根目录运行，适合从 `/workspace` 起步的 AI 工具。
+- 需要真实后端时，再配置 `app/.env.local` 并执行 `npm run dev`。
+- MSW 测试账号统一来自 `app/cypress/fixtures/users.json`：`test@example.com` / `888888`。
+
 ### 环境要求
 
 - Node.js >= 20.x
 - npm >= 10.x
-- Supabase 账户 (用于 Auth 和 Storage)
+- Supabase 账户（仅真实后端模式需要）
 
 ### 安装
 
 ```bash
-# 克隆仓库
 git clone https://github.com/your-username/opc-starter.git
 cd opc-starter
 
-# 进入应用目录
-cd app
+# 安装应用依赖
+npm --prefix app install
 
-# 安装依赖
-npm install
+# 推荐：本地 mock 模式
+npm run dev:test
 
-# 复制环境变量
-cp env.local.example .env.local
-
-# 启动开发服务器
+# 可选：真实 Supabase 模式
+cp app/env.local.example app/.env.local
 npm run dev
 ```
 
 ### 环境变量
 
-在 `.env.local` 中配置：
+真实 Supabase 模式下，在 `app/.env.local` 中配置：
 
 ```bash
 VITE_SUPABASE_URL=your_supabase_url
@@ -110,6 +124,28 @@ opc-starter/
 - **BMAD 方法论** - 结构化的 AI 辅助开发流程
 - **类型安全** - 完整的 TypeScript 类型定义，便于 AI 理解
 - **模块化架构** - 清晰的目录结构和职责划分
+- **根目录代理脚本** - 可直接在仓库根目录执行 `npm run dev:test`、`npm run ai:check`
+
+### AI 迭代地图
+
+| 想做什么 | 从哪里开始 | 下一步通常改哪里 | 推荐验证 |
+|---------|-----------|----------------|---------|
+| 启动应用 / 切换 mock | `app/src/main.tsx` | `app/.env.test`、`app/vite.config.ts` | `npm run dev:test` |
+| 查看应用入口 | `app/src/App.tsx` | `app/src/config/routes.tsx` | `npm run build` |
+| 新增页面 / 路由 | `app/src/config/routes.tsx` | `app/src/pages/`、`app/src/components/layout/MainLayout/` | `npm run type-check` |
+| 改数据访问 | `app/src/services/data/DataService.ts` | `app/src/services/data/adapters/`、`app/src/stores/` | `npm test` |
+| 改 Agent Studio | `app/src/components/agent/` | `app/src/lib/agent/`、`app/supabase/functions/ai-assistant/` | `npm run test:tools` |
+| 改 E2E 测试 | `app/cypress/e2e/` | `app/cypress/fixtures/users.json`、`app/cypress/support/` | `npm run test:e2e:headless` |
+
+### AI 质量入口
+
+```bash
+# 核心校验（lint + type-check + unit test + build）
+npm run ai:check
+
+# 完整校验（额外包含 E2E）
+./scripts/quality_check.sh
+```
 
 ### 使用 Cursor
 

@@ -434,6 +434,9 @@ describe('ExampleService', () => {
 # 一键质量验证
 ./scripts/quality_check.sh
 
+# 核心校验（不含 E2E）
+npm run ai:check
+
 # 或手动执行
 npm run lint:check        # ESLint 检查
 npm run format:check      # Prettier 格式检查
@@ -526,7 +529,8 @@ npm run test:watch    # 监听模式（开发时推荐）
 npm run coverage      # 生成覆盖率报告
 
 # E2E 测试
-npm run test:e2e      # Cypress 交互模式
+npm run cypress:open  # 在已启动 dev:test 时交互运行 Cypress
+npm run test:e2e      # 启动 dev:test 后无头运行 E2E
 npm run test:e2e:headless  # Cypress 无头模式 (CI)
 
 # 质量检查
@@ -536,6 +540,7 @@ npm run type-check    # TypeScript 类型检查
 npm run build         # 生产构建
 
 # 一键质量验证
+npm run ai:check
 ./scripts/quality_check.sh
 ```
 
