@@ -313,7 +313,286 @@
 
 ---
 
-## 四、建议的近期实现顺序
+## 四、建议补充：确定性代码检查/扫描脚本工具
+
+为避免不同 Provider 在“仓库探索、能力识别、建议生成”阶段产生差异，建议将高信号检查前置为一组固定脚本工具，让 Provider 只消费结构化结果，而不是直接面对整个仓库自由发挥。
+
+原则：
+
+1. 脚本优先，LLM 只做汇总与裁决
+2. 所有脚本默认输出稳定 JSON
+3. 输出路径、数组顺序、键顺序、状态枚举全部固定
+4. 同一仓库、同一提交、同一命令，产出必须可复现
+5. Provider 之间共享同一份 `inventory/evidence/findings`，避免各扫各的
+
+### 4.1 推荐脚本清单
+
+#### 1. `scripts/swarm_audit/repo_inventory.py`
+
+用途：
+
+- 扫描仓库事实清单，替代“让 scout 猜仓库里有什么”。
+
+建议输出：
+
+- `inventory.json`
+
+建议采集字段：
+
+- 仓库基础信息：branch、commit、workspace_root
+- package manager / lock files
+- `package.json` scripts
+- lint / format / type-check / test / coverage / build 配置
+- `AGENTS.md`
+- `.cursor/rules/*`
+- `docs/*`
+- `.github/workflows/*`
+- `.husky/*`
+- 结构测试文件
+- IHS / benchmark / quality 脚本
+
+建议命令：
+
+- `python3 scripts/swarm_audit/repo_inventory.py --repo /workspace --out .swarm/cache/inventory.json`
+
+确定性要求：
+
+- 路径统一转为 repo-relative
+- 所有数组按字典序排序
+- 缺失字段输出空数组，不省略 key
+- 不读取 Provider 私有会话日志
+
+#### 2. `scripts/swarm_audit/config_facts.py`
+
+用途：
+
+- 解析关键配置的真实能力，避免只靠文件名猜测。
+
+建议输出：
+
+- `config_facts.json`
+
+重点解析：
+
+- `tsconfig*.json` 中的 `strict`、`paths`、`noEmit`
+- `vitest.config.*` 中的 coverage thresholds、reporter、test environment
+- `eslint.config.*` / `.eslintrc*`
+- `.prettierrc*`
+- GitHub Actions 中的 lint/test/build job
+- husky hooks 是否真实存在
+
+建议命令：
+
+- `python3 scripts/swarm_audit/config_facts.py --repo /workspace --out .swarm/cache/config_facts.json`
+
+确定性要求：
+
+- 布尔型能力必须来自 AST/JSON 解析，不来自字符串猜测
+- 每项事实都附 `source_file` 与 `source_key`
+
+#### 3. `scripts/swarm_audit/structure_checks.py`
+
+用途：
+
+- 提取“机械化不变量”资产，而不是只判断仓库是否有测试框架。
+
+建议输出：
+
+- `structure_checks.json`
+
+重点识别：
+
+- `architecture.test.*`
+- import boundary tests
+- file-size checks
+- forbidden dependency checks
+- JSDoc / docs presence checks
+- custom lint rules
+
+建议命令：
+
+- `python3 scripts/swarm_audit/structure_checks.py --repo /workspace --out .swarm/cache/structure_checks.json`
+
+#### 4. `scripts/swarm_audit/runtime_checks.sh`
+
+用途：
+
+- 用固定命令拿运行时证据，减少 Provider 自行选命令带来的波动。
+
+建议输出：
+
+- `runtime_checks.json`
+- `runtime_checks.log`
+
+建议执行矩阵：
+
+- `npm run lint:check`
+- `npm run format:check`
+- `npm run type-check`
+- `npm run test -- src/test/architecture.test.ts`
+- 可选：`npm run coverage`
+
+建议命令：
+
+- `bash scripts/swarm_audit/runtime_checks.sh /workspace .swarm/cache/runtime_checks.json`
+
+确定性要求：
+
+- 命令顺序固定
+- 每条命令单独记录 exit code、duration_ms、stdout_path、stderr_path
+- 对 warning / failure 使用固定状态枚举：`pass | warn | fail | skipped`
+
+#### 5. `scripts/swarm_audit/policy_guard.py`
+
+用途：
+
+- 将 `AGENTS.md`、仓库约定、禁令项转为机器可执行约束。
+
+建议输出：
+
+- `policy_rules.json`
+
+可提取规则示例：
+
+- 优先更新现有文档，不新建文档
+- SQL 统一落在 `app/supabase/setup.sql`
+- 禁止直接操作 IndexedDB / Supabase
+- 禁止 Tailwind v2/v3 语法
+
+建议命令：
+
+- `python3 scripts/swarm_audit/policy_guard.py --repo /workspace --out .swarm/cache/policy_rules.json`
+
+#### 6. `scripts/swarm_audit/recommendation_guard.py`
+
+用途：
+
+- 对 LLM 产出的建议做二次过滤，拦截明显错误与冲突。
+
+输入：
+
+- `inventory.json`
+- `config_facts.json`
+- `policy_rules.json`
+- `draft_findings.json`
+
+输出：
+
+- `guarded_findings.json`
+
+核心检查：
+
+- existence check
+- duplicate capability check
+- policy conflict check
+- evidence coverage check
+
+建议命令：
+
+- `python3 scripts/swarm_audit/recommendation_guard.py --draft .swarm/cache/draft_findings.json --repo /workspace --out .swarm/cache/guarded_findings.json`
+
+#### 7. `scripts/swarm_audit/normalize_report.py`
+
+用途：
+
+- 将上游多个脚本与 Provider 输出统一成固定结构，供 Dashboard、MCP、Resume 使用。
+
+建议输出：
+
+- `report.json`
+- `report.md`
+
+标准字段建议：
+
+- `task`
+- `repo`
+- `commit`
+- `summary`
+- `scores`
+- `verified_findings`
+- `inferred_findings`
+- `contradictions`
+- `recommendations`
+- `artifacts`
+
+### 4.2 推荐的固定流水线
+
+建议将审计类任务改为以下固定步骤：
+
+1. `repo_inventory.py`
+2. `config_facts.py`
+3. `structure_checks.py`
+4. `policy_guard.py`
+5. `runtime_checks.sh`
+6. Provider 读取上述 JSON，生成 `draft_findings.json`
+7. `recommendation_guard.py`
+8. `normalize_report.py`
+
+这样 Provider 的角色变成：
+
+- 解释证据
+- 合并发现
+- 生成排序后的建议
+
+而不是：
+
+- 自己探索仓库
+- 自己判断事实
+- 自己猜测建议
+
+### 4.3 输出格式约束建议
+
+所有脚本统一遵守：
+
+- stdout：只输出 JSON 或简短 machine-readable 状态
+- stderr：只输出调试信息
+- exit code：
+  - `0` 成功
+  - `1` 脚本自身错误
+  - `2` 输入参数错误
+  - `3` 仓库不满足预期结构
+
+JSON 约束建议：
+
+- 顶层必须带 `schema_version`
+- 顶层必须带 `generated_at`
+- 顶层必须带 `repo_root`
+- 顶层必须带 `commit_sha`
+- 顶层必须带 `tool_name`
+- 所有列表按字典序排序
+- 所有路径统一使用 `/`
+- 所有状态字段使用固定枚举
+
+### 4.4 降低 Provider 差异的具体方法
+
+要避免 Gemini / OpenAI / Anthropic / Qwen / opencode 等不同 Provider 对同一仓库得出不一致的“基础事实”，关键不是换模型，而是让它们只处理已经标准化的中间产物。
+
+建议机制：
+
+1. Provider 不直接读全仓库，优先读 `.swarm/cache/*.json`
+2. Provider 不能跳过 `recommendation_guard.py`
+3. Provider 输出只允许填写固定 schema 中的文本字段
+4. 分数计算优先由脚本完成，Provider 只做解释
+5. 允许多 Provider 复核同一份 `draft_findings.json`，而不是让它们各自扫描仓库
+
+### 4.5 最小可落地版本（MVP）
+
+如果你想先快速落地一版，建议先做这 4 个：
+
+1. `repo_inventory.py`
+2. `config_facts.py`
+3. `runtime_checks.sh`
+4. `recommendation_guard.py`
+
+这 4 个已经足够显著降低：
+
+- “仓库有但报告说没有”
+- “建议新增已存在文件”
+- “不同 Provider 给出不同基础判断”
+
+---
+
+## 五、建议的近期实现顺序
 
 ### 第一阶段（立即做）
 
@@ -335,7 +614,7 @@
 
 ---
 
-## 五、建议的验收标准
+## 六、建议的验收标准
 
 以下标准可作为后续改造是否有效的判断依据：
 
@@ -364,7 +643,7 @@
 
 ---
 
-## 六、最值得优先落地的 5 个 Backlog
+## 七、最值得优先落地的 5 个 Backlog
 
 1. `scanner-first inventory`
 2. `fact-check review`
@@ -374,6 +653,6 @@
 
 ---
 
-## 七、一句话总结
+## 八、一句话总结
 
 Swarm 下一阶段最重要的，不是“让 Agent 更会写报告”，而是“让 Agent 先拿到可信事实，再基于事实稳定地产出结论”，把多 Agent 编排升级为真正的 Harness Engineering 系统。
