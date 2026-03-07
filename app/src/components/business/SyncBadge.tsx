@@ -1,3 +1,7 @@
+/**
+ * SyncBadge - 云同步状态徽标组件
+ * @description 以图标 + 文字形式展示数据同步状态（已同步/同步中/待同步/失败/离线）
+ */
 import { CheckCircle2, RefreshCw, Clock, AlertCircle, WifiOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

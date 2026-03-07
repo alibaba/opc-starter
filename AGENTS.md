@@ -77,8 +77,9 @@
 | 文档 | 用途 |
 |------|------|
 | `docs/Architecture.md` | 系统架构 |
+| `docs/API.md` | AI Assistant API 接口文档 |
 | `docs/Epics.yaml` | 项目进度 |
-| `docs/Epic-25-OPC-Starter.md` | 开源化计划 |
+| `docs/DESIGN_TOKENS.md` | 设计令牌规范 |
 | `app/supabase/SUPABASE_COOKBOOK.md` | 数据库操作 |
 | `app/supabase/setup.sql` | 数据库脚本 |
 
@@ -115,11 +116,11 @@
 | `src/lib/agent/toolExecutor.ts` | 本地工具执行器 |
 | `src/components/agent/a2ui/A2UIRenderer.tsx` | A2UI 组件渲染器 |
 | `src/components/agent/a2ui/registry.ts` | 组件白名单注册表 |
-| `supabase/functions/ai-assistant/` | AI 助手后端（单文件） |
+| `supabase/functions/ai-assistant/` | AI 助手后端（多模块：index/agentLoop/tools/sse/types） |
 
 ### 添加新 Agent Tool
 
-1. **后端**: 在 `ai-assistant/index.ts` 的 TOOLS 数组添加工具定义
+1. **后端**: 在 `ai-assistant/tools.ts` 的 TOOLS 数组添加工具定义
 2. **前端**: 在 `src/lib/agent/tools/` 创建工具目录
 3. **注册**: 在 `src/lib/agent/tools/registry.ts` 注册
 

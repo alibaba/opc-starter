@@ -516,6 +516,61 @@ def check_dimensions(repo_path: str, project: dict) -> dict:
         "mock_or_isolation": bool(dims["test_system"]["mock_fixtures"]),
     }
 
+    # --- 11. Outer Loop & 反馈闭环 (v3.0) ---
+    dims["outer_loop"] = {
+        "structural_tests": check_file_exists(repo_path, [
+            "**/architecture.test.*",
+            "**/structural.test.*",
+            "**/arch-test*",
+            "**/ArchTest*",
+            "**/archunit*",
+            "**/import-boundaries*",
+        ]),
+        "quality_scripts": check_file_exists(repo_path, [
+            "**/ai:check*",
+            "**/quality_check*",
+            "**/quality-check*",
+            "**/.github/workflows/ci*",
+            "**/Makefile",
+            "**/tox.ini",
+            "**/noxfile.py",
+        ]),
+        "coverage_thresholds": False,
+        "regression_tracking": check_file_exists(repo_path, [
+            "**/IHS.md",
+            "**/ihs*",
+            "**/.sonarcloud.properties",
+            "**/sonar-project.properties",
+        ]),
+        "ihs_or_health_script": check_file_exists(repo_path, [
+            "**/generate_ihs_report*",
+            "**/health_check*",
+            "**/repo_health*",
+        ]),
+    }
+
+    for vconf in repo.rglob("vitest.config.*"):
+        if "node_modules" in vconf.parts:
+            continue
+        try:
+            content = vconf.read_text()
+            if "thresholds" in content:
+                dims["outer_loop"]["coverage_thresholds"] = True
+                break
+        except Exception:
+            pass
+    if not dims["outer_loop"]["coverage_thresholds"]:
+        for jconf in repo.rglob("jest.config.*"):
+            if "node_modules" in jconf.parts:
+                continue
+            try:
+                content = jconf.read_text()
+                if "coverageThreshold" in content:
+                    dims["outer_loop"]["coverage_thresholds"] = True
+                    break
+            except Exception:
+                pass
+
     return dims
 
 
@@ -621,6 +676,7 @@ def print_report(project: dict, dimensions: dict, repo_path: str):
         "code_readability": "8. 代码自述性",
         "ai_sdd": "9. AI 工具与 SDD 支持",
         "dependency_isolation": "10. 依赖隔离与可复现性",
+        "outer_loop": "11. Outer Loop & 反馈闭环",
     }
 
     print("\n" + "=" * 60)

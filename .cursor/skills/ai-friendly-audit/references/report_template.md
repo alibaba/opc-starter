@@ -46,6 +46,7 @@
 | 8. 代码自述性 | 8% | {d8_score}/4 | {d8_weighted} | {d8_status} |
 | 9. AI 工具与 SDD 支持 | 8% | {d9_score}/4 | {d9_weighted} | {d9_status} |
 | 10. 依赖隔离与可复现性 | 5% | {d10_score}/4 | {d10_weighted} | {d10_status} |
+| 11. Outer Loop & 反馈闭环 | 9% | {d11_score}/4 | {d11_weighted} | {d11_status} |
 
 **状态图例**: ✅ 优秀 (4) | ⚡ 良好 (3) | ⚠️ 及格 (2) | ❌ 不足 (0-1)
 
@@ -193,6 +194,20 @@
 
 ---
 
+### 11. Outer Loop & 反馈闭环
+
+**当前状态**: {d11_status}
+
+**发现**:
+- {d11_finding_1}
+- {d11_finding_2}
+
+**建议**:
+- {d11_suggestion_1}
+- {d11_suggestion_2}
+
+---
+
 ## 🚀 改进建议
 
 ### 高优先级（影响大，ROI 高）
@@ -261,4 +276,4 @@
 ---
 
 *报告生成时间: {timestamp}*
-*审计工具版本: ai-friendly-audit v2.0*
+*审计工具版本: ai-friendly-audit v3.0*

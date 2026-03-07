@@ -1,3 +1,7 @@
+/**
+ * Header - 顶部导航栏组件
+ * @description 包含通知、设置、用户头像、移动端菜单等操作入口
+ */
 import { Bell, Settings, LogOut, Shield, Menu } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/useAuthStore'

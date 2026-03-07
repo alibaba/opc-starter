@@ -1,16 +1,20 @@
-import { useState, useCallback, useEffect } from 'react';
+/**
+ * useInfiniteScroll Hook - 无限滚动分页
+ * @description 监听滚动位置，当接近底部时自动触发下一页数据加载
+ */
+import { useState, useCallback, useEffect } from 'react'
 
 interface UseInfiniteScrollOptions {
-  threshold?: number; // 触发加载的距离阈值（像素）
-  enabled?: boolean; // 是否启用无限滚动
+  threshold?: number // 触发加载的距离阈值（像素）
+  enabled?: boolean // 是否启用无限滚动
 }
 
 interface UseInfiniteScrollResult {
-  hasMore: boolean;
-  isLoading: boolean;
-  loadMore: () => void;
-  setHasMore: (hasMore: boolean) => void;
-  setIsLoading: (loading: boolean) => void;
+  hasMore: boolean
+  isLoading: boolean
+  loadMore: () => void
+  setHasMore: (hasMore: boolean) => void
+  setIsLoading: (loading: boolean) => void
 }
 
 /**
@@ -20,50 +24,50 @@ export function useInfiniteScroll(
   fetchMore: () => Promise<void>,
   options: UseInfiniteScrollOptions = {}
 ): UseInfiniteScrollResult {
-  const { threshold = 300, enabled = true } = options;
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const { threshold = 300, enabled = true } = options
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   /**
    * 加载更多数据
    */
   const loadMore = useCallback(async () => {
     if (isLoading || !hasMore || !enabled) {
-      return;
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await fetchMore();
+      await fetchMore()
     } catch (error) {
-      console.error('加载更多数据失败:', error);
+      console.error('加载更多数据失败:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [isLoading, hasMore, enabled, fetchMore]);
+  }, [isLoading, hasMore, enabled, fetchMore])
 
   /**
    * 监听滚动事件
    */
   useEffect(() => {
     if (!enabled) {
-      return;
+      return
     }
 
     const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = window.innerHeight;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = window.innerHeight
 
       // 判断是否滚动到底部附近
       if (scrollHeight - scrollTop - clientHeight < threshold) {
-        loadMore();
+        loadMore()
       }
-    };
+    }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [enabled, threshold, loadMore]);
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [enabled, threshold, loadMore])
 
   return {
     hasMore,
@@ -71,5 +75,5 @@ export function useInfiniteScroll(
     loadMore,
     setHasMore,
     setIsLoading,
-  };
+  }
 }

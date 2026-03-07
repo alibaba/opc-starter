@@ -1,3 +1,7 @@
+/**
+ * useToast Hook - Toast 通知管理
+ * @description 基于 Zustand 的全局 Toast 队列，支持多种通知类型和自动消失
+ */
 import { create } from 'zustand'
 
 export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info'
@@ -64,11 +68,9 @@ export const useToast = () => {
     dismissAll: removeAll,
     success: (title: string, description?: string) =>
       add({ title, description, variant: 'success' }),
-    error: (title: string, description?: string) =>
-      add({ title, description, variant: 'error' }),
+    error: (title: string, description?: string) => add({ title, description, variant: 'error' }),
     warning: (title: string, description?: string) =>
       add({ title, description, variant: 'warning' }),
-    info: (title: string, description?: string) =>
-      add({ title, description, variant: 'info' }),
+    info: (title: string, description?: string) => add({ title, description, variant: 'info' }),
   }
 }

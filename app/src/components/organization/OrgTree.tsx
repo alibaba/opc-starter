@@ -1,22 +1,26 @@
-import { useState } from 'react';
-import { ChevronRight, ChevronDown, FolderClosed, FolderOpen, Building2, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { OrganizationTreeNode } from '@/lib/supabase/organizationTypes';
+/**
+ * OrgTree - 组织架构树组件
+ * @description 递归渲染组织层级树，支持节点展开/折叠和选中交互
+ */
+import { useState } from 'react'
+import { ChevronRight, ChevronDown, FolderClosed, FolderOpen, Building2, Users } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import type { OrganizationTreeNode } from '@/lib/supabase/organizationTypes'
 
 interface OrgTreeProps {
-  tree: OrganizationTreeNode[];
-  selectedId: string | null;
-  onSelect: (node: OrganizationTreeNode) => void;
-  className?: string;
+  tree: OrganizationTreeNode[]
+  selectedId: string | null
+  onSelect: (node: OrganizationTreeNode) => void
+  className?: string
 }
 
 interface OrgTreeNodeProps {
-  node: OrganizationTreeNode;
-  level: number;
-  selectedId: string | null;
-  onSelect: (node: OrganizationTreeNode) => void;
-  expandedIds: Set<string>;
-  onToggleExpand: (id: string) => void;
+  node: OrganizationTreeNode
+  level: number
+  selectedId: string | null
+  onSelect: (node: OrganizationTreeNode) => void
+  expandedIds: Set<string>
+  onToggleExpand: (id: string) => void
 }
 
 function OrgTreeNodeComponent({
@@ -27,20 +31,20 @@ function OrgTreeNodeComponent({
   expandedIds,
   onToggleExpand,
 }: OrgTreeNodeProps) {
-  const isExpanded = expandedIds.has(node.id);
-  const isSelected = selectedId === node.id;
-  const hasChildren = node.children && node.children.length > 0;
+  const isExpanded = expandedIds.has(node.id)
+  const isSelected = selectedId === node.id
+  const hasChildren = node.children && node.children.length > 0
 
   const handleToggleExpand = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation()
     if (hasChildren) {
-      onToggleExpand(node.id);
+      onToggleExpand(node.id)
     }
-  };
+  }
 
   const handleSelect = () => {
-    onSelect(node);
-  };
+    onSelect(node)
+  }
 
   return (
     <div>
@@ -106,39 +110,39 @@ function OrgTreeNodeComponent({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export function OrgTree({ tree, selectedId, onSelect, className }: OrgTreeProps) {
   // 默认展开所有根节点
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
-    const rootIds = new Set<string>();
-    tree.forEach(node => {
+    const rootIds = new Set<string>()
+    tree.forEach((node) => {
       if (node.level === 0) {
-        rootIds.add(node.id);
+        rootIds.add(node.id)
       }
-    });
-    return rootIds;
-  });
+    })
+    return rootIds
+  })
 
   const handleToggleExpand = (id: string) => {
     setExpandedIds((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(id)) {
-        next.delete(id);
+        next.delete(id)
       } else {
-        next.add(id);
+        next.add(id)
       }
-      return next;
-    });
-  };
+      return next
+    })
+  }
 
   if (tree.length === 0) {
     return (
       <div className={cn('flex items-center justify-center py-8 text-muted-foreground', className)}>
         <p className="text-sm">暂无组织架构数据</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -155,5 +159,5 @@ export function OrgTree({ tree, selectedId, onSelect, className }: OrgTreeProps)
         />
       ))}
     </div>
-  );
+  )
 }

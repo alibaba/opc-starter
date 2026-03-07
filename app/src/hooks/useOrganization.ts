@@ -1,3 +1,7 @@
+/**
+ * useOrganization Hook - 组织架构数据管理
+ * @description 提供组织树加载、CRUD 操作和成员管理等功能，集成乐观更新
+ */
 import { useState, useCallback, useEffect } from 'react'
 import { organizationService } from '@/services/organization'
 import type {

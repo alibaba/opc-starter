@@ -26,7 +26,9 @@ TRACKED_DOC_FILES = [
     "AGENTS.md",
     "README.md",
     "docs/Architecture.md",
+    "docs/API.md",
     "docs/Epics.yaml",
+    "docs/DESIGN_TOKENS.md",
     "app/README.md",
     "app/supabase/SUPABASE_COOKBOOK.md",
 ]

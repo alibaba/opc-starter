@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Search, UserPlus, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+/**
+ * AddMemberDialog - 添加成员对话框
+ * @description 搜索并邀请用户加入当前组织/团队，支持角色选择
+ */
+import { useState, useEffect } from 'react'
+import { Search, UserPlus, ChevronDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,37 +12,37 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import type { Profile } from '@/lib/supabase/organizationTypes';
+} from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
+import type { Profile } from '@/lib/supabase/organizationTypes'
 
 interface AddMemberDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  organizationId: string;
-  organizationName: string;
-  currentMembers: Profile[];
-  onSearchUsers: (query: string) => Promise<Profile[]>;
-  onAddMember: (userId: string, role: 'manager' | 'member') => Promise<void>;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  organizationId: string
+  organizationName: string
+  currentMembers: Profile[]
+  onSearchUsers: (query: string) => Promise<Profile[]>
+  onAddMember: (userId: string, role: 'manager' | 'member') => Promise<void>
 }
 
 const roleLabels = {
   manager: '经理',
   member: '成员',
-};
+}
 
 const roleDescriptions = {
   manager: '🔐 团队管理员 - 可管理本团队及子团队的组织架构和成员（限当前组织树）',
   member: '👤 普通成员 - 只能管理自己的资源（默认角色）',
-};
+}
 
 export function AddMemberDialog({
   open,
@@ -48,60 +52,60 @@ export function AddMemberDialog({
   onSearchUsers,
   onAddMember,
 }: AddMemberDialogProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Profile[]>([]);
-  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-  const [selectedRole, setSelectedRole] = useState<'manager' | 'member'>('member');
-  const [isSearching, setIsSearching] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Profile[]>([])
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null)
+  const [selectedRole, setSelectedRole] = useState<'manager' | 'member'>('member')
+  const [isSearching, setIsSearching] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (!open) {
-      setSearchQuery('');
-      setSearchResults([]);
-      setSelectedUser(null);
-      setSelectedRole('member');
+      setSearchQuery('')
+      setSearchResults([])
+      setSelectedUser(null)
+      setSelectedRole('member')
     }
-  }, [open]);
+  }, [open])
 
   useEffect(() => {
     const searchTimer = setTimeout(async () => {
       if (searchQuery.trim().length >= 2) {
-        setIsSearching(true);
+        setIsSearching(true)
         try {
-          const results = await onSearchUsers(searchQuery.trim());
-          const currentMemberIds = new Set(currentMembers.map(m => m.id));
-          const filteredResults = results.filter(user => !currentMemberIds.has(user.id));
-          setSearchResults(filteredResults);
+          const results = await onSearchUsers(searchQuery.trim())
+          const currentMemberIds = new Set(currentMembers.map((m) => m.id))
+          const filteredResults = results.filter((user) => !currentMemberIds.has(user.id))
+          setSearchResults(filteredResults)
         } catch (error) {
-          console.error('Failed to search users:', error);
-          setSearchResults([]);
+          console.error('Failed to search users:', error)
+          setSearchResults([])
         } finally {
-          setIsSearching(false);
+          setIsSearching(false)
         }
       } else {
-        setSearchResults([]);
+        setSearchResults([])
       }
-    }, 300);
+    }, 300)
 
-    return () => clearTimeout(searchTimer);
-  }, [searchQuery, onSearchUsers, currentMembers]);
+    return () => clearTimeout(searchTimer)
+  }, [searchQuery, onSearchUsers, currentMembers])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedUser) return;
+    e.preventDefault()
+    if (!selectedUser) return
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      await onAddMember(selectedUser.id, selectedRole);
-      onOpenChange(false);
+      await onAddMember(selectedUser.id, selectedRole)
+      onOpenChange(false)
     } catch (error) {
-      console.error('Failed to add member:', error);
-      alert(error instanceof Error ? error.message : '添加成员失败');
+      console.error('Failed to add member:', error)
+      alert(error instanceof Error ? error.message : '添加成员失败')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -109,9 +113,7 @@ export function AddMemberDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>添加成员到 {organizationName}</DialogTitle>
-            <DialogDescription>
-              搜索用户并将其添加到当前组织
-            </DialogDescription>
+            <DialogDescription>搜索用户并将其添加到当前组织</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -129,9 +131,7 @@ export function AddMemberDialog({
               </div>
             </div>
 
-            {isSearching && (
-              <p className="text-sm text-muted-foreground">搜索中...</p>
-            )}
+            {isSearching && <p className="text-sm text-muted-foreground">搜索中...</p>}
 
             {searchQuery.trim().length >= 2 && !isSearching && searchResults.length === 0 && (
               <p className="text-sm text-muted-foreground">未找到符合条件的用户</p>
@@ -198,9 +198,7 @@ export function AddMemberDialog({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <p className="text-xs text-muted-foreground">
-                    {roleDescriptions[selectedRole]}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{roleDescriptions[selectedRole]}</p>
                   <p className="text-xs text-amber-600">
                     💡 提示: 系统管理员(admin)权限较高，请直接在 Supabase Dashboard 修改数据库
                   </p>
@@ -219,7 +217,9 @@ export function AddMemberDialog({
               取消
             </Button>
             <Button type="submit" disabled={!selectedUser || isSubmitting}>
-              {isSubmitting ? '添加中...' : (
+              {isSubmitting ? (
+                '添加中...'
+              ) : (
                 <>
                   <UserPlus className="h-4 w-4 mr-2" />
                   添加成员
@@ -230,5 +230,5 @@ export function AddMemberDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

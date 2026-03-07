@@ -192,7 +192,7 @@ opc-starter/
 1. **后端**: 在 `ai-assistant/tools.ts` 添加工具定义 (OpenAI 格式)
 2. **前端**: 在 `app/src/lib/agent/tools/` 创建工具目录
 3. **注册**: 在 `app/src/lib/agent/tools/registry.ts` 注册
-4. **System Prompt**: 在 `ai-assistant/prompts/` 添加使用说明
+4. **System Prompt**: 在 `ai-assistant/sse.ts` 的 `buildSystemPrompt()` 中添加使用说明
 
 ```typescript
 // 工具定义示例 (OpenAI 格式)
