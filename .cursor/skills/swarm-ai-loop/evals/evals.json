@@ -1,0 +1,49 @@
+{
+  "skill_name": "swarm-ai-loop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我刚完成了一轮外循环开发，新增了 src/agents/scout-direct.ts 的重构和 src/backends/qwen-cli-executor.ts 的修改，还有一个新的 epic-g20。现在需要跑一轮内循环，确保一切稳定。帮我进行一轮完整的 AI Loop 迭代。",
+      "expected_output": "按照 Phase A → Phase B → Phase C 的流程执行完整迭代：先运行 git-delta-scan.sh 和 quick-status.sh 扫描变动，生成修复清单；然后逐个修复并验证；最后运行 health-check.sh，更新 report.md，打 Git Tag。",
+      "files": [],
+      "expectations": [
+        "运行了 git-delta-scan.sh 脚本",
+        "运行了 quick-status.sh 脚本",
+        "生成了不超过 15 行的修复清单",
+        "修复清单包含 [DELTA] 或 [DRIFT] 等来源标记",
+        "每次代码修复后运行了 typecheck 和 test",
+        "运行了 health-check.sh 进行最终验证",
+        "更新了 report.md",
+        "执行了 git commit 和 git tag 命令"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "swarm 的 report.md 里有好几个遗留问题，有些已经拖了 5 轮了。帮我检查一下迭代健康度，把该修的修了。",
+      "expected_output": "运行状态脚本分析 report.md 中的遗留项，识别出 age >= 3 的老化项和 age >= 6 的腐烂项，按优先级生成修复清单，然后逐个修复并验证。",
+      "files": [],
+      "expectations": [
+        "运行了 quick-status.sh 或 git-delta-scan.sh 获取项目状态",
+        "识别并列出了遗留项的 age 信息",
+        "age >= 6 的项被标记为必须修复",
+        "age 3-5 的项被标记为需要验证或处理",
+        "修复后运行了 typecheck 和 test 验证",
+        "更新了 report.md 中遗留项的 age 和状态"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我改了 src/config/schema.ts 加了一个新的配置字段，还改了 src/backends/registry.ts 加了一个新的 provider。帮我检查一下文档是不是都同步了，有没有什么地方漏了。",
+      "expected_output": "执行用户表面一致性检查，对比 schema.ts 和 registry.ts 的变更与 README.md、CONVENTIONS.md、AGENTS.md 等文档的一致性，发现漂移后按同步链修复。",
+      "files": [],
+      "expectations": [
+        "检查了 schema.ts 和 registry.ts 的实际内容",
+        "对比了 README.md 中 Backend System 和 Configuration 章节",
+        "对比了 CONVENTIONS.md 中的配置结构",
+        "发现的漂移被标记为 [DRIFT]",
+        "按同步链顺序修复：schema → init模板 → README → CONVENTIONS → AGENTS",
+        "修复后运行了验证命令"
+      ]
+    }
+  ]
+}
