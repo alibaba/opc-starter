@@ -48,3 +48,7 @@ RDS迁移记录.md
 .mcp.json
 .swarm
 opencode.json
+
+# swarm
+.swarm/worktrees/
+.swarm/logs/
