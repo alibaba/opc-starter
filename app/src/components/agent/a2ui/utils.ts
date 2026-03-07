@@ -4,8 +4,8 @@
  * @version 1.0.0
  */
 
-import type { BoundValue, A2UIDataModel } from '@/types/a2ui';
-import { isBoundValue } from '@/types/a2ui';
+import type { BoundValue, A2UIDataModel } from '@/types/a2ui'
+import { isBoundValue } from '@/types/a2ui'
 
 /**
  * 根据路径从对象中获取值
@@ -13,26 +13,23 @@ import { isBoundValue } from '@/types/a2ui';
  * @param path 点分隔的路径，如 "photos.0.url"
  * @returns 路径对应的值，如果不存在返回 undefined
  */
-export function getByPath(
-  obj: Record<string, unknown>,
-  path: string
-): unknown {
-  const segments = path.split('.');
-  let current: unknown = obj;
+export function getByPath(obj: Record<string, unknown>, path: string): unknown {
+  const segments = path.split('.')
+  let current: unknown = obj
 
   for (const segment of segments) {
     if (current === null || current === undefined) {
-      return undefined;
+      return undefined
     }
 
     if (typeof current === 'object') {
-      current = (current as Record<string, unknown>)[segment];
+      current = (current as Record<string, unknown>)[segment]
     } else {
-      return undefined;
+      return undefined
     }
   }
 
-  return current;
+  return current
 }
 
 /**
@@ -41,25 +38,21 @@ export function getByPath(
  * @param path 点分隔的路径
  * @param value 要设置的值
  */
-export function setByPath(
-  obj: Record<string, unknown>,
-  path: string,
-  value: unknown
-): void {
-  const segments = path.split('.');
-  let current: Record<string, unknown> = obj;
+export function setByPath(obj: Record<string, unknown>, path: string, value: unknown): void {
+  const segments = path.split('.')
+  let current: Record<string, unknown> = obj
 
   for (let i = 0; i < segments.length - 1; i++) {
-    const segment = segments[i];
+    const segment = segments[i]
     if (!(segment in current) || typeof current[segment] !== 'object') {
       // 判断下一个 segment 是否是数字索引
-      const nextSegment = segments[i + 1];
-      current[segment] = /^\d+$/.test(nextSegment) ? [] : {};
+      const nextSegment = segments[i + 1]
+      current[segment] = /^\d+$/.test(nextSegment) ? [] : {}
     }
-    current = current[segment] as Record<string, unknown>;
+    current = current[segment] as Record<string, unknown>
   }
 
-  current[segments[segments.length - 1]] = value;
+  current[segments[segments.length - 1]] = value
 }
 
 /**
@@ -67,22 +60,19 @@ export function setByPath(
  * @param obj 数据对象
  * @param path 点分隔的路径
  */
-export function deleteByPath(
-  obj: Record<string, unknown>,
-  path: string
-): void {
-  const segments = path.split('.');
-  let current: Record<string, unknown> = obj;
+export function deleteByPath(obj: Record<string, unknown>, path: string): void {
+  const segments = path.split('.')
+  let current: Record<string, unknown> = obj
 
   for (let i = 0; i < segments.length - 1; i++) {
-    const segment = segments[i];
+    const segment = segments[i]
     if (!(segment in current)) {
-      return; // 路径不存在，无需删除
+      return // 路径不存在，无需删除
     }
-    current = current[segment] as Record<string, unknown>;
+    current = current[segment] as Record<string, unknown>
   }
 
-  delete current[segments[segments.length - 1]];
+  delete current[segments[segments.length - 1]]
 }
 
 /**
@@ -95,20 +85,20 @@ export function resolveBindings(
   props: Record<string, unknown | BoundValue> | undefined,
   dataModel: A2UIDataModel
 ): Record<string, unknown> {
-  if (!props) return {};
+  if (!props) return {}
 
-  const resolved: Record<string, unknown> = {};
+  const resolved: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(props)) {
     if (isBoundValue(value)) {
       // 解析绑定
-      resolved[key] = getByPath(dataModel, value.binding);
+      resolved[key] = getByPath(dataModel, value.binding)
     } else {
-      resolved[key] = value;
+      resolved[key] = value
     }
   }
 
-  return resolved;
+  return resolved
 }
 
 /**
@@ -123,37 +113,34 @@ export function wrapActions(
   onAction: (componentId: string, actionId: string, value?: unknown) => void,
   componentId: string
 ): Record<string, (value?: unknown) => void> {
-  if (!actions) return {};
+  if (!actions) return {}
 
-  const handlers: Record<string, (value?: unknown) => void> = {};
+  const handlers: Record<string, (value?: unknown) => void> = {}
 
   for (const [eventName, actionId] of Object.entries(actions)) {
     // 转换事件名称：click → onClick, change → onChange
     // 如果已经有 on 前缀（如 onClick），则保持原样，避免变成 onOnClick
     const handlerName = eventName.startsWith('on')
       ? eventName
-      : `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
+      : `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`
     handlers[handlerName] = (value?: unknown) => {
-      onAction(componentId, actionId, value);
-    };
+      onAction(componentId, actionId, value)
+    }
   }
 
-  return handlers;
+  return handlers
 }
 
 /**
  * 深度合并两个对象
  */
-export function deepMerge<T extends Record<string, unknown>>(
-  target: T,
-  source: Partial<T>
-): T {
-  const result = { ...target };
+export function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
+  const result = { ...target }
 
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
-      const sourceValue = source[key];
-      const targetValue = result[key];
+      const sourceValue = source[key]
+      const targetValue = result[key]
 
       if (
         typeof sourceValue === 'object' &&
@@ -166,19 +153,19 @@ export function deepMerge<T extends Record<string, unknown>>(
         result[key] = deepMerge(
           targetValue as Record<string, unknown>,
           sourceValue as Record<string, unknown>
-        ) as T[Extract<keyof T, string>];
+        ) as T[Extract<keyof T, string>]
       } else {
-        result[key] = sourceValue as T[Extract<keyof T, string>];
+        result[key] = sourceValue as T[Extract<keyof T, string>]
       }
     }
   }
 
-  return result;
+  return result
 }
 
 /**
  * 生成唯一 ID
  */
 export function generateId(prefix = 'a2ui'): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }

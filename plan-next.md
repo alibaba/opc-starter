@@ -1,259 +1,244 @@
-# AI 亲和度审计报告（改造后）
+# AI 亲和度审计报告（改造后二次评估）
 
 ## 仓库信息
 
 | 项目 | 值 |
 |------|-----|
-| **仓库路径** | `opc-starter` |
-| **检查日期** | 2026-03-06 |
-| **项目类型** | 前端 (React SPA + Supabase BaaS) |
+| **仓库路径** | `/workspace/app` |
+| **检查日期** | 2026-03-07 |
+| **项目类型** | 前端 (SPA) |
 | **主要语言** | TypeScript |
-| **框架** | React 19.1 + Vite 7.1 + Tailwind CSS 4.1 + Supabase 2.80 |
+| **框架** | React 19.1 + Vite 7.1 + Tailwind CSS 4.1 + Supabase |
 
 ---
 
-## 总体评分
+## 📊 总体评分
 
-### **93.0 / 100**
+<div align="center">
 
-### 等级: **A（优秀）**
+### **88.5 / 100**（↑ +6.5）
+
+### 等级: **B**（接近 A）
+
+</div>
 
 | 等级 | 说明 |
 |------|------|
-| **A (90-100)** | **优秀，AI 可高效协作** |
-| B (75-89) | 良好，大部分场景适用 |
+| A (90-100) | 优秀，AI 可高效协作 |
+| **B (75-89)** | **良好，大部分场景适用 ← 当前 (88.5)** |
 | C (60-74) | 及格，需要改进 |
 | D (40-59) | 较差，需系统性改造 |
 | F (<40) | 极低，不适合 AI 协作 |
 
-### 与上一次审计对比
-
-| 指标 | 改造前 | 改造后 | 变化 |
-|------|--------|--------|------|
-| **总分** | 85.5 | **93.0** | **+7.5** |
-| **等级** | B | **A** | **↑** |
-| 满分维度数 | 3/10 | **8/10** | +5 |
-| 警告文件数 | 4 | **2** | -2 |
-
 ---
 
-## 维度评分详情
+## 📊 前后对比
 
-| 维度 | 权重 | 得分 | 加权得分 | 状态 | 变化 |
-|------|------|------|----------|------|------|
-| 1. 最小可运行环境 | 12% | 4/4 | 12.0 | ✅ 优秀 | — |
-| 2. 类型系统与静态分析 | 12% | 4/4 | 12.0 | ✅ 优秀 | ⬆ 3→4 |
-| 3. 测试体系 | 15% | 3/4 | 11.25 | ⚡ 良好 | — |
-| 4. 文档完备性 | 12% | 4/4 | 12.0 | ✅ 优秀 | ⬆ 3→4 |
-| 5. 代码规范与自动化 | 8% | 4/4 | 8.0 | ✅ 优秀 | ⬆ 3→4 |
-| 6. 模块化架构 | 10% | 4/4 | 10.0 | ✅ 优秀 | — |
-| 7. 上下文窗口友好性 | 10% | 4/4 | 10.0 | ✅ 优秀 | — |
-| 8. 代码自述性 | 8% | 3/4 | 6.0 | ⚡ 良好 | — |
-| 9. AI 工具与 SDD 支持 | 8% | 4/4 | 8.0 | ✅ 优秀 | ⬆ 3→4 |
-| 10. 依赖隔离与可复现性 | 5% | 3/4 | 3.75 | ⚡ 良好 | — |
+| 维度 | 权重 | 改造前 | 改造后 | 变化 |
+|------|------|--------|--------|------|
+| 1. 最小可运行环境 | 11% | 4/4 | 4/4 | — |
+| 2. 类型系统与静态分析 | 11% | 3/4 | 3/4 | — |
+| 3. 测试体系 | 14% | 2/4 | 2/4 | — |
+| 4. 文档完备性 | 10% | 4/4 | 4/4 | — |
+| 5. 代码规范与自动化 | 7% | 4/4 | 4/4 | — |
+| **6. 模块化架构** | **9%** | **3/4** | **4/4** | **↑ +1** |
+| 7. 上下文窗口友好性 | 9% | 4/4 | 4/4 | — |
+| 8. 代码自述性 | 7% | 3/4 | 3/4 | — |
+| **9. AI 工具与 SDD 支持** | **8%** | **3/4** | **4/4** | **↑ +1** |
+| 10. 依赖隔离与可复现性 | 5% | 4/4 | 4/4 | — |
+| **11. Outer Loop & 反馈闭环** | **9%** | **3/4** | **4/4** | **↑ +1** |
+| **总分** | | **82.0** | **88.5** | **↑ +6.5** |
 
 **状态图例**: ✅ 优秀 (4) | ⚡ 良好 (3) | ⚠️ 及格 (2) | ❌ 不足 (0-1)
 
 ---
 
-## 详细分析
+## 📋 维度评分详情
 
-### 1. 最小可运行环境 — ✅ 4/4（保持）
-
-**发现**:
-- `npm run dev:test` 一键启动 MSW Mock 模式，零配置可用
-- 完善的 MSW Mock 体系覆盖 Auth、REST、Agent 等全部 API
-- `env.local.example` 环境变量模板
-- `package-lock.json` 锁定依赖版本
-
----
-
-### 2. 类型系统与静态分析 — ✅ 4/4（⬆ 从 3 提升）
-
-**改进内容**:
-- 移除了服务层 (`src/services/`, `src/stores/`) ESLint `@typescript-eslint/no-explicit-any` 从 `warn` 到 `error` 的降级
-- 全部生产代码统一使用 `error` 级别的 `no-explicit-any` 规则
-- 剩余 `any` 仅在 registry 文件中（zodToJsonSchema 兼容和 React.ComponentType 泛型），均有 `eslint-disable` 注释
-
-**验证**: `npx tsc --noEmit` 和 `npx eslint . --no-fix` 均通过，零类型错误
+| 维度 | 权重 | 得分 | 加权得分 | 状态 |
+|------|------|------|----------|------|
+| 1. 最小可运行环境 | 11% | 4/4 | 11.00 | ✅ 优秀 |
+| 2. 类型系统与静态分析 | 11% | 3/4 | 8.25 | ⚡ 良好 |
+| 3. 测试体系 | 14% | 2/4 | 7.00 | ⚠️ 及格 |
+| 4. 文档完备性 | 10% | 4/4 | 10.00 | ✅ 优秀 |
+| 5. 代码规范与自动化 | 7% | 4/4 | 7.00 | ✅ 优秀 |
+| 6. 模块化架构 | 9% | 4/4 | 9.00 | ✅ 优秀 |
+| 7. 上下文窗口友好性 | 9% | 4/4 | 9.00 | ✅ 优秀 |
+| 8. 代码自述性 | 7% | 3/4 | 5.25 | ⚡ 良好 |
+| 9. AI 工具与 SDD 支持 | 8% | 4/4 | 8.00 | ✅ 优秀 |
+| 10. 依赖隔离与可复现性 | 5% | 4/4 | 5.00 | ✅ 优秀 |
+| 11. Outer Loop & 反馈闭环 | 9% | 4/4 | 9.00 | ✅ 优秀 |
 
 ---
 
-### 3. 测试体系 — ⚡ 3/4（保持）
+## 🔍 本次改造详情
 
-**改进内容**:
-- 覆盖率检查已集成到 `ai:check` 脚本（`npm run coverage` 替代 `npm run test`）
-- 覆盖率阈值设为基线值（lines/functions/statements: 20%, branches: 15%），防止退化
+### 改造项 1: AGENTS.md 目录化（D9 提升）
 
-**当前状态**:
-- 22 个测试文件，268 个测试用例全部通过
-- Vitest + @testing-library/react + Cypress E2E
-- 测试完全独立运行（MSW + fake-indexeddb）
+**改造前**: AGENTS.md 293 行，百科全书式，详细规范与 AI 入口混在一起。
+**改造后**: AGENTS.md 精简为 87 行目录入口，详细规范分散到 6 个 `.cursor/rules/` 文件。
 
-**待提升**: 实际覆盖率约 21%，需持续补充测试以达到 50%+ 目标
+| 规则文件 | 内容 | 行数 |
+|----------|------|------|
+| `typescript-strict.md` | TypeScript 严格类型 | 39 |
+| `tailwind-v4.md` | Tailwind CSS v4 语法 | 28 |
+| `agent-studio.md` | Agent Studio 开发 | 45 |
+| `supabase-patterns.md` | Supabase 数据模式 | 35 |
+| `testing.md` | 测试规范 | 37 |
+| `project-extension.md` | 项目扩展指南 (新增) | 30 |
 
----
+**效果**: Agent 按需加载规范（通过 globs 自动匹配），不再挤占上下文窗口。
 
-### 4. 文档完备性 — ✅ 4/4（⬆ 从 3 提升）
+### 改造项 2: 结构测试增强（D6, D11 提升）
 
-**改进内容**:
-- 新增 `docs/API.md` — AI Assistant Edge Function 完整接口文档（请求/响应/SSE 事件/工具定义）
-- 新增 `app/supabase/SUPABASE_COOKBOOK.md` — 数据库操作手册
+**改造前**: `architecture.test.ts` 包含 8 个测试（分层依赖、文件体积、JSDoc、Tailwind v4、@ts-ignore）。
+**改造后**: 增至 11 个测试，新增 3 个依赖方向约束：
 
-**完整文档清单**:
-| 文档 | 说明 |
-|------|------|
-| `README.md` | 快速开始、项目结构、AI 迭代地图 |
-| `docs/Architecture.md` | 系统架构、模块关系、数据库 Schema |
-| `docs/API.md` | AI Assistant API 接口文档 ✨新增 |
-| `AGENTS.md` | AI Coding 开发指南 |
-| `CONTRIBUTING.md` | 贡献指南、代码规范 |
-| `app/supabase/SUPABASE_COOKBOOK.md` | 数据库操作手册 ✨新增 |
+| 新增测试 | 约束 |
+|----------|------|
+| `stores/ 不应导入 pages/` | 防止 stores 逆向依赖页面层 |
+| `pages/ 不应被 services/lib/ 导入` | 防止底层模块引用页面层（循环依赖） |
+| `services/ 不应导入 components/` | 防止服务层依赖组件层 |
 
----
+**效果**: 6 个分层约束测试 + 5 个质量约束测试 = 11 项机械化不变量。
 
-### 5. 代码规范与自动化 — ✅ 4/4（⬆ 从 3 提升）
+### 改造项 3: 质量门禁强化（D11 提升）
 
-**改进内容**:
-- 新增 `commitlint` + `@commitlint/config-conventional` 依赖
-- 新增 `commitlint.config.js` 配置文件
-- 新增 `.husky/commit-msg` hook，自动校验提交信息格式
+**改造前**: `ai:check` = `lint:check + type-check + coverage + build`
+**改造后**: `ai:check` = `lint:check + format:check + type-check + coverage + build`
 
-**完整工具链**:
-| 工具 | 功能 | Hook |
-|------|------|------|
-| ESLint | Lint | pre-commit (lint-staged) |
-| Prettier | Format | pre-commit (lint-staged) |
-| commitlint | 提交规范 | commit-msg ✨新增 |
-| Husky | Git Hooks | — |
+- 添加 `format:check` 到质量门禁
+- 修复了 122 个文件的格式不一致问题
+- 覆盖率阈值从 20% 提升到 21%（对齐实际覆盖率，防止回归）
+- `testing.md` 文档对齐实际配置
+
+### 改造项 4: JSDoc 覆盖扩展（D8 改善）
+
+**改造前**: JSDoc 检查覆盖 5 个目录（pages, components/agent, components/layout, hooks, services/data）。
+**改造后**: 扩展到 7 个目录，新增 `lib/agent/tools/` 和 `stores/`。3 个文件补充了 JSDoc 文件头。
 
 ---
 
-### 6. 模块化架构 — ✅ 4/4（保持）
+## 🔍 各维度详细分析
 
-**改进内容**:
-- `ai-assistant/index.ts` (672 行) 拆分为 4 个模块：`types.ts` (54 行)、`tools.ts` (190 行)、`sse.ts` (178 行)、`agentLoop.ts` (134 行)、`index.ts` (109 行)
-- `organizationService.ts` (586 行) 拆分为 3 个模块：`organizationQueries.ts` (328 行)、`organizationMutations.ts` (207 行)、`index.ts` (79 行)
+### 1. 最小可运行环境 — ✅ 4/4（未变）
 
-**架构保持**:
-- 清晰分层：`pages/` → `components/` → `hooks/` → `services/` → `stores/` → `lib/`
-- 功能域隔离：`agent/`、`organization/`、`layout/`、`ui/`
+- `npm run dev:test` 一键 MSW mock 启动
+- `env.local.example` + `.env.test` 环境模板
+- Docker + docker-compose 容器化
+- `package-lock.json` 锁定依赖
 
----
+### 2. 类型系统与静态分析 — ⚡ 3/4（未变）
 
-### 7. 上下文窗口友好性 — ✅ 4/4（改善）
+- `strict: true` 启用
+- 仅 4 处生产代码 `any`（均有 ESLint disable 注释）
+- 需进一步消除 `any` 才能达到 4/4
 
-**改进内容**:
-- 警告文件从 4 个减少到 2 个
-- 已拆分：`ai-assistant/index.ts` (672→109 行)、`organizationService.ts` (586→已拆分)
-- 剩余警告文件均为测试文件（可接受）
+### 3. 测试体系 — ⚠️ 2/4（未变，主要瓶颈）
 
-**当前统计**: 218 个文件中 216 个 (99.1%) ≤500 行，0 个超过 1000 行
+- 23 个测试文件 + Cypress E2E
+- 覆盖率 ~21%（远低于 50% 的 3 分门槛）
+- 覆盖率阈值已对齐实际值（回归门禁）
+- **此维度是提升到 A 级的最大瓶颈**
 
-| 文件 | 行数 | 说明 |
-|------|------|------|
-| `sseClient.test.ts` | 590 | 测试文件，可接受 |
-| `A2UIRenderer.test.tsx` | 571 | 测试文件，可接受 |
+### 4. 文档完备性 — ✅ 4/4（未变）
 
----
+- README + Architecture + API + DESIGN_TOKENS + AGENTS.md
+- AGENTS.md 已优化为目录式结构
 
-### 8. 代码自述性 — ⚡ 3/4（改善中）
+### 5. 代码规范与自动化 — ✅ 4/4（未变）
 
-**改进内容**:
-- 为 10 个缺少文件头注释的核心文件添加了 JSDoc：
-  - `personDB.ts`、`networkManager.ts`、`syncManager.ts`、`offlineQueueManager.ts`
-  - `conflictResolver.ts`、`personAdapter.ts`、`personService.ts`
-  - `storage/index.ts`、`useUIStore.ts`、`organizationTypes.ts`
-- 新拆分的模块文件全部包含文件头 JSDoc
+- ESLint + Prettier + Husky + commitlint + lint-staged
+- 122 个文件格式修复
 
-**待提升**: 部分组件文件和 pages 文件仍缺少文件级注释
+### 6. 模块化架构 — ✅ 4/4（↑ 从 3/4）
 
----
+- 清晰分层：hooks / stores / components / services / utils / lib / pages
+- **新增**: 6 个分层约束结构测试，机械化执行依赖方向
+- 无循环依赖（通过 services→pages、services→components 反向检测验证）
 
-### 9. AI 工具与 SDD 支持 — ✅ 4/4（⬆ 从 3 提升）
+### 7. 上下文窗口友好性 — ✅ 4/4（未变）
 
-**改进内容**:
-- 新增 `.cursor/rules/` 目录，包含 5 个细粒度规则文件：
-  - `tailwind-v4.md` — Tailwind CSS v4 语法规范
-  - `supabase-patterns.md` — Supabase 数据操作模式
-  - `agent-studio.md` — Agent Studio 开发规范
-  - `typescript-strict.md` — TypeScript 严格类型规范
-  - `testing.md` — 测试规范
-- 新增 `docs/API.md` — 结构化 API 文档
+- 219 个源文件中 218 个 ≤500 行（99.5%），1 个警告文件（从 2 个减少）
+- 0 个超过 1000 行的文件
 
-**完整 AI 工具支持**:
-| 配置 | 文件 |
-|------|------|
-| AI 指南 | `AGENTS.md` |
-| Cursor 规则 | `.cursor/rules/*.md` (5 个) ✨新增 |
-| API 文档 | `docs/API.md` ✨新增 |
-| 架构文档 | `docs/Architecture.md` |
-| 开发规范 | `CONTRIBUTING.md` |
+### 8. 代码自述性 — ⚡ 3/4（未变，有改善）
 
----
+- JSDoc 检查扩展到 7 个关键目录
+- 3 个文件补充了 JSDoc 文件头
+- 核心文件和公开 API 有完整文档
+- 非关键目录（utils、types 子模块等）仍有部分文件缺少综述
 
-### 10. 依赖隔离与可复现性 — ⚡ 3/4（改善中）
+### 9. AI 工具与 SDD 支持 — ✅ 4/4（↑ 从 3/4）
 
-**改进内容**:
-- 新增 `.nvmrc` 文件，锁定 Node.js 版本 (20)
+- **AGENTS.md 目录化**: 87 行精简入口 + 6 个 `.cursor/rules/` 文件
+- `.cursor/skills/` + `.cursor/commands/` AI 技能和工作流
+- Architecture.md + API.md 架构规范
+- 11 项机械化不变量（结构测试）执行架构约束
 
-**当前状态**:
-- `package-lock.json` 锁定依赖版本 ✅
-- MSW 屏蔽 Supabase 后端依赖 ✅
-- `.nvmrc` 锁定 Node.js 版本 ✅ ✨新增
-- Docker 容器化 ❌（无 Dockerfile）
+### 10. 依赖隔离与可复现性 — ✅ 4/4（未变）
 
-**待提升**: 可选添加 Dockerfile 支持容器化开发环境
+- MSW 完整屏蔽 Supabase API
+- package-lock.json + Dockerfile
+
+### 11. Outer Loop & 反馈闭环 — ✅ 4/4（↑ 从 3/4）
+
+- **结构测试**: 11 项机械化不变量（8 → 11）
+- **评估门禁**: `ai:check` 含 lint + format + type-check + coverage + build
+- **覆盖率阈值**: 对齐实际覆盖率（回归门禁）
+- **回归检测**: IHS 报告（docs/IHS.md）
 
 ---
 
-## 剩余改进空间
+## 🚀 进一步改进建议（冲击 A 级 90+）
 
-### 未满分维度
+### 高优先级（影响最大）
 
-| 维度 | 当前 | 目标 | 差距 |
-|------|------|------|------|
-| D3 测试体系 | 3/4 | 4/4 | 覆盖率需达到 70%+ |
-| D8 代码自述性 | 3/4 | 4/4 | 更多组件/页面文件需添加 JSDoc |
-| D10 依赖隔离 | 3/4 | 4/4 | 添加 Dockerfile |
+1. **提升测试覆盖率到 50%+** (D3: 2→3, +3.5 分)
+   - 为 stores、services/api、utils 编写单元测试
+   - 这是冲击 A 级的最大杠杆
+   - 预计工作量: 3-5 天
 
-### 具体建议
+2. **消除所有生产代码 `any`** (D2: 3→4, +2.75 分)
+   - `a2ui/registry.ts` 中 `React.ComponentType<any>` → 泛型约束
+   - `tools/registry.ts` 中 `parameters as any` → 类型收窄
+   - 预计工作量: 0.5-1 天
 
-1. **提升测试覆盖率** (D3 → 4/4, +3.75 分)
-   - 为 `organizationService`、`useAuthStore`、`useProfileStore` 补充单元测试
-   - 为页面组件补充渲染测试
-   - 目标: 覆盖率从 21% 提升到 70%+
+### 中优先级
 
-2. **完善代码自述性** (D8 → 4/4, +2 分)
-   - 为 `src/components/` 和 `src/pages/` 下的主要文件添加 JSDoc
-   - 为公开 API 方法补充 `@param` 和 `@returns` 标注
+3. **扩展 JSDoc 到所有源文件** (D8: 3→4, +1.75 分)
+   - 为 utils/、types/ 下所有文件添加 JSDoc 文件头
+   - 在架构测试中扩展 CRITICAL_DIRS 覆盖范围
 
-3. **添加容器化支持** (D10 → 4/4, +1.25 分)
-   - 创建 `Dockerfile` 和 `docker-compose.dev.yml`
-   - 支持一键容器化启动开发环境
+### 低优先级
 
-**若完成以上全部**: 总分可达 **100 分（满分）**
-
----
-
-## 改造总结
-
-| 改进项 | 影响维度 | 得分变化 |
-|--------|----------|----------|
-| `.nvmrc` 文件 | D10 | +0 (仍需 Docker) |
-| commitlint + commit-msg hook | D5 | **3→4** (+2) |
-| `.cursor/rules/` (5 个规则文件) | D9 | **3→4** (+2) |
-| 服务层 ESLint any 升级为 error | D2 | **3→4** (+3) |
-| 覆盖率集成到 ai:check | D3 | +0 (基线) |
-| API 接口文档 (`docs/API.md`) | D4 | **3→4** (+3) |
-| SUPABASE_COOKBOOK.md | D4 | (含在 D4) |
-| 拆分 ai-assistant/index.ts (672→5个模块) | D6, D7 | 改善文件体积 |
-| 拆分 organizationService.ts (586→3个模块) | D6, D7 | 改善文件体积 |
-| 10 个核心文件添加 JSDoc | D8 | 改善 |
-
-**总计: 85.5 → 93.0 (+7.5 分)，等级 B → A**
+4. 添加覆盖率趋势自动追踪（CI 集成）
+5. 创建 `.cursorrules` 根目录入口文件
+6. 添加 `.github/copilot-instructions.md`
 
 ---
 
-*报告生成时间: 2026-03-06*
-*审计工具版本: ai-friendly-audit v2.0*
+## 📈 A 级路线图
+
+| 目标 | 当前分 | 目标分 | 提升 | 关键动作 |
+|------|--------|--------|------|----------|
+| D3 测试体系 | 2/4 | 3/4 | +3.5 | 覆盖率 50%+ |
+| D2 类型系统 | 3/4 | 4/4 | +2.75 | 消除 `any` |
+| D8 代码自述性 | 3/4 | 4/4 | +1.75 | 全面 JSDoc |
+| **合计** | **88.5** | **96.5** | **+8.0** | |
+
+达到 A 级（90+）最快路径: **提升 D3 到 3/4（覆盖率 50%+）+ 消除 D2 的 `any`**，即可达到 94.75 分。
+
+---
+
+## 📚 参考资源
+
+- [TypeScript 严格模式配置指南](https://www.typescriptlang.org/tsconfig#strict)
+- [AGENTS.md 编写指南](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [OpenAI Harness Engineering](https://openai.com/index/harness-engineering/)
+
+---
+
+*报告生成时间: 2026-03-07T02:20:00Z*
+*审计工具版本: ai-friendly-audit v3.0*
+*改造前评分: 82.0 (B) → 改造后评分: 88.5 (B, 接近 A)*

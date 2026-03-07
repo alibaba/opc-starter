@@ -4,7 +4,7 @@
  * Story: 8.1 - 照片裁剪功能
  */
 
-import type { CropArea } from '@/types/editor';
+import type { CropArea } from '@/types/editor'
 
 /**
  * 裁剪图像
@@ -19,22 +19,22 @@ export async function cropImage(
   quality: number = 0.95
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const image = new Image();
-    
+    const image = new Image()
+
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+          reject(new Error('Failed to get canvas context'))
+          return
         }
-        
+
         // 设置 canvas 尺寸为裁剪区域尺寸
-        canvas.width = cropArea.width;
-        canvas.height = cropArea.height;
-        
+        canvas.width = cropArea.width
+        canvas.height = cropArea.height
+
         // 绘制裁剪后的图像
         ctx.drawImage(
           image,
@@ -46,22 +46,22 @@ export async function cropImage(
           0,
           cropArea.width,
           cropArea.height
-        );
-        
+        )
+
         // 转换为 base64
-        const base64 = canvas.toDataURL('image/jpeg', quality);
-        resolve(base64);
+        const base64 = canvas.toDataURL('image/jpeg', quality)
+        resolve(base64)
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    };
-    
+    }
+
     image.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-    
-    image.src = imageSrc;
-  });
+      reject(new Error('Failed to load image'))
+    }
+
+    image.src = imageSrc
+  })
 }
 
 /**
@@ -70,17 +70,17 @@ export async function cropImage(
  * @returns CropArea
  */
 export function createCropArea(croppedAreaPixels: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x: number
+  y: number
+  width: number
+  height: number
 }): CropArea {
   return {
     x: Math.round(croppedAreaPixels.x),
     y: Math.round(croppedAreaPixels.y),
     width: Math.round(croppedAreaPixels.width),
     height: Math.round(croppedAreaPixels.height),
-  };
+  }
 }
 
 /**
@@ -96,21 +96,20 @@ export function calculateCropDimensions(
   aspect?: number
 ): { width: number; height: number } {
   if (!aspect) {
-    return { width: originalWidth, height: originalHeight };
+    return { width: originalWidth, height: originalHeight }
   }
-  
-  const originalAspect = originalWidth / originalHeight;
-  
+
+  const originalAspect = originalWidth / originalHeight
+
   if (originalAspect > aspect) {
     // 原始图像更宽，以高度为基准
-    const height = originalHeight;
-    const width = height * aspect;
-    return { width, height };
+    const height = originalHeight
+    const width = height * aspect
+    return { width, height }
   } else {
     // 原始图像更高，以宽度为基准
-    const width = originalWidth;
-    const height = width / aspect;
-    return { width, height };
+    const width = originalWidth
+    const height = width / aspect
+    return { width, height }
   }
 }
-

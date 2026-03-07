@@ -42,7 +42,7 @@
     "test:e2e:headless": "start-server-and-test dev:test http://localhost:5173 cypress:run",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "ai:check": "npm run lint:check && npm run type-check && npm run coverage && npm run build",
+    "ai:check": "npm run lint:check && npm run format:check && npm run type-check && npm run coverage && npm run build",
     "prepare": "cd .. && husky app/.husky"
   },
   "dependencies": {

@@ -23,14 +23,14 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}>
+    <div
+      className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}
+    >
       <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mb-4">
         <Icon className="w-8 h-8 text-muted-foreground" />
       </div>
       <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
-      {description && (
-        <p className="text-sm text-muted-foreground max-w-sm mb-6">{description}</p>
-      )}
+      {description && <p className="text-sm text-muted-foreground max-w-sm mb-6">{description}</p>}
       {action && (
         <Button onClick={action.onClick}>
           {action.icon && <action.icon className="w-4 h-4 mr-2" />}
@@ -80,11 +80,7 @@ export function EmptyAlbums({ onCreate }: { onCreate?: () => void }) {
 
 export function EmptySearchResults() {
   return (
-    <EmptyState
-      icon={Search}
-      title="没有找到结果"
-      description="尝试使用不同的关键词或筛选条件"
-    />
+    <EmptyState icon={Search} title="没有找到结果" description="尝试使用不同的关键词或筛选条件" />
   )
 }
 

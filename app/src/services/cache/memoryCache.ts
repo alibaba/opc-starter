@@ -1,10 +1,10 @@
 /**
  * 内存缓存服务 (Epic-18: 减少 API 请求)
- * 
+ *
  * 用于缓存不频繁变化的数据，如：
  * - organizations（组织树）
  * - profiles（用户资料）
- * 
+ *
  * 特点：
  * - 支持 TTL（过期时间）
  * - 支持手动失效
@@ -20,16 +20,16 @@ interface CacheEntry<T> {
 class MemoryCache {
   private cache: Map<string, CacheEntry<unknown>> = new Map()
   private pendingPromises: Map<string, Promise<unknown>> = new Map()
-  
+
   /** 默认 TTL: 5 分钟 */
   private readonly DEFAULT_TTL = 5 * 60 * 1000
-  
+
   /** 组织数据 TTL: 10 分钟（变化较少） */
   readonly ORG_TTL = 10 * 60 * 1000
-  
+
   /** 用户资料 TTL: 5 分钟 */
   readonly PROFILE_TTL = 5 * 60 * 1000
-  
+
   /** 缓存键前缀 */
   readonly KEYS = {
     ORG_TREE: 'org:tree',
@@ -45,18 +45,18 @@ class MemoryCache {
    */
   get<T>(key: string): T | null {
     const entry = this.cache.get(key) as CacheEntry<T> | undefined
-    
+
     if (!entry) {
       return null
     }
-    
+
     // 检查是否过期
     if (Date.now() - entry.timestamp > entry.ttl) {
       this.cache.delete(key)
       console.log(`[MemoryCache] 缓存过期: ${key}`)
       return null
     }
-    
+
     console.log(`[MemoryCache] 缓存命中: ${key}`)
     return entry.data
   }
@@ -78,7 +78,11 @@ class MemoryCache {
    * 如果缓存存在则返回缓存，否则执行 fetcher 并缓存结果
    * 多个并发请求会复用同一个 Promise
    */
-  async getOrFetch<T>(key: string, fetcher: () => Promise<T>, ttl: number = this.DEFAULT_TTL): Promise<T> {
+  async getOrFetch<T>(
+    key: string,
+    fetcher: () => Promise<T>,
+    ttl: number = this.DEFAULT_TTL
+  ): Promise<T> {
     const cached = this.get<T>(key)
     if (cached !== null) {
       return cached
@@ -90,14 +94,16 @@ class MemoryCache {
       return pending
     }
 
-    const promise = fetcher().then(result => {
-      this.set(key, result, ttl)
-      this.pendingPromises.delete(key)
-      return result
-    }).catch(error => {
-      this.pendingPromises.delete(key)
-      throw error
-    })
+    const promise = fetcher()
+      .then((result) => {
+        this.set(key, result, ttl)
+        this.pendingPromises.delete(key)
+        return result
+      })
+      .catch((error) => {
+        this.pendingPromises.delete(key)
+        throw error
+      })
 
     this.pendingPromises.set(key, promise)
     return promise
@@ -177,7 +183,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('dataservice:org-change', () => {
     memoryCache.invalidateOrganizations()
   })
-  
+
   // 用户资料变更时失效缓存
   window.addEventListener('dataservice:profile-change', () => {
     memoryCache.invalidateProfiles()

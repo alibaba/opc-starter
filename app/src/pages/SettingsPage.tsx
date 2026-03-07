@@ -2,9 +2,9 @@
  * SettingsPage - 通用设置页面
  */
 
-import { Link } from 'react-router-dom';
-import { Settings, Cloud, Bell, Shield, Palette, ArrowRight } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Link } from 'react-router-dom'
+import { Settings, Cloud, Bell, Shield, Palette, ArrowRight } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 
 function SettingsPage() {
   const settingsGroups = [
@@ -39,7 +39,7 @@ function SettingsPage() {
       color: 'bg-purple-500/10 text-purple-500',
       disabled: true,
     },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,9 +50,7 @@ function SettingsPage() {
             <Settings className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">设置</h1>
           </div>
-          <p className="text-muted-foreground mt-1">
-            管理应用配置和偏好设置
-          </p>
+          <p className="text-muted-foreground mt-1">管理应用配置和偏好设置</p>
         </div>
       </div>
 
@@ -61,11 +59,13 @@ function SettingsPage() {
         <div className="grid gap-4">
           {settingsGroups.map((group) => {
             const content = (
-              <Card 
+              <Card
                 className={`p-6 ${group.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md transition-shadow cursor-pointer group'}`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-lg ${group.color} flex items-center justify-center flex-shrink-0`}>
+                  <div
+                    className={`w-12 h-12 rounded-lg ${group.color} flex items-center justify-center flex-shrink-0`}
+                  >
                     <group.icon className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
@@ -77,26 +77,24 @@ function SettingsPage() {
                         </span>
                       )}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {group.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{group.description}</p>
                   </div>
                   {!group.disabled && (
                     <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   )}
                 </div>
               </Card>
-            );
+            )
 
             if (group.disabled) {
-              return <div key={group.title}>{content}</div>;
+              return <div key={group.title}>{content}</div>
             }
 
             return (
               <Link key={group.title} to={group.href}>
                 {content}
               </Link>
-            );
+            )
           })}
         </div>
 
@@ -120,7 +118,7 @@ function SettingsPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
 
-export default SettingsPage;
+export default SettingsPage

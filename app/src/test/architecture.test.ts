@@ -133,6 +133,8 @@ describe('架构约束 (Architectural Invariants)', () => {
       'components/layout',
       'hooks',
       'services/data',
+      'lib/agent/tools',
+      'stores',
     ]
 
     it('关键目录下的主要文件应有 JSDoc 文件头', () => {
@@ -202,6 +204,86 @@ describe('架构约束 (Architectural Invariants)', () => {
       expect(
         violations,
         `应使用 bg-linear-to-* 替代 bg-gradient-to-*:\n${violations.map((v) => `  ${v.file}:${v.line}: ${v.text}`).join('\n')}`
+      ).toEqual([])
+    })
+  })
+
+  describe('依赖方向约束 - stores 层', () => {
+    it('stores/ 不应直接导入 pages/ 或 components/（共享 utils 除外）', () => {
+      const storesDir = path.join(SRC_ROOT, 'stores')
+      if (!fs.existsSync(storesDir)) return
+
+      const files = walkSync(storesDir, ['.ts', '.tsx'])
+      const violations: Array<{ file: string; line: number; text: string }> = []
+      const forbidden = /from\s+['"]@\/pages\//
+
+      for (const file of files) {
+        if (file.includes('.test.') || file.includes('.spec.')) continue
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          if (forbidden.test(lines[i])) {
+            violations.push({ file: relPath(file), line: i + 1, text: lines[i].trim() })
+          }
+        }
+      }
+
+      expect(
+        violations,
+        `Stores 不应导入 Pages（逆向依赖）:\n${violations.map((v) => `  ${v.file}:${v.line}: ${v.text}`).join('\n')}`
+      ).toEqual([])
+    })
+  })
+
+  describe('循环依赖检测 - 跨层导入', () => {
+    it('pages/ 不应被 services/ 或 lib/ 导入', () => {
+      const dirsToCheck = ['services', 'lib']
+      const violations: Array<{ file: string; line: number; text: string }> = []
+
+      for (const dir of dirsToCheck) {
+        const fullDir = path.join(SRC_ROOT, dir)
+        if (!fs.existsSync(fullDir)) continue
+
+        const files = walkSync(fullDir, ['.ts', '.tsx'])
+        for (const file of files) {
+          if (file.includes('.test.') || file.includes('.spec.')) continue
+          const content = fs.readFileSync(file, 'utf-8')
+          const lines = content.split('\n')
+          for (let i = 0; i < lines.length; i++) {
+            if (/from\s+['"]@\/pages\//.test(lines[i])) {
+              violations.push({ file: relPath(file), line: i + 1, text: lines[i].trim() })
+            }
+          }
+        }
+      }
+
+      expect(
+        violations,
+        `services/ 和 lib/ 不应导入 pages/（循环依赖风险）:\n${violations.map((v) => `  ${v.file}:${v.line}: ${v.text}`).join('\n')}`
+      ).toEqual([])
+    })
+
+    it('services/ 不应导入 components/', () => {
+      const servicesDir = path.join(SRC_ROOT, 'services')
+      if (!fs.existsSync(servicesDir)) return
+
+      const files = walkSync(servicesDir, ['.ts', '.tsx'])
+      const violations: Array<{ file: string; line: number; text: string }> = []
+
+      for (const file of files) {
+        if (file.includes('.test.') || file.includes('.spec.')) continue
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          if (/from\s+['"]@\/components\//.test(lines[i])) {
+            violations.push({ file: relPath(file), line: i + 1, text: lines[i].trim() })
+          }
+        }
+      }
+
+      expect(
+        violations,
+        `Services 不应导入 Components:\n${violations.map((v) => `  ${v.file}:${v.line}: ${v.text}`).join('\n')}`
       ).toEqual([])
     })
   })

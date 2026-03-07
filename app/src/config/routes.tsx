@@ -1,19 +1,19 @@
-import { lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { LoadingSpinner } from '@/components/ui/loading';
-import { ProtectedRoute } from '@/auth/components/ProtectedRoute';
+import { lazy, Suspense } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { MainLayout } from '@/components/layout/MainLayout'
+import { LoadingSpinner } from '@/components/ui/loading'
+import { ProtectedRoute } from '@/auth/components/ProtectedRoute'
 
 // 路由级别的代码分割：使用 React.lazy 动态导入页面组件
-const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
-const PersonsPage = lazy(() => import('@/pages/PersonsPage'));
-const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
-const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
-const CloudStorageSettingsPage = lazy(() => import('@/pages/CloudStorageSettingsPage'));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
+const PersonsPage = lazy(() => import('@/pages/PersonsPage'))
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
+const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
+const CloudStorageSettingsPage = lazy(() => import('@/pages/CloudStorageSettingsPage'))
 
 // 认证页面
-const LoginPage = lazy(() => import('@/auth/pages/LoginPage'));
-const RegisterPage = lazy(() => import('@/auth/pages/RegisterPage'));
+const LoginPage = lazy(() => import('@/auth/pages/LoginPage'))
+const RegisterPage = lazy(() => import('@/auth/pages/RegisterPage'))
 
 /**
  * 路由配置 - OPC-Starter
@@ -59,7 +59,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+])
 
 /**
  * App路由组件
@@ -70,5 +70,5 @@ export function AppRouter() {
     <Suspense fallback={<LoadingSpinner />}>
       <RouterProvider router={router} />
     </Suspense>
-  );
+  )
 }

@@ -1,8 +1,8 @@
 /**
  * 注册页面
  */
-import { RegisterForm } from '../components/RegisterForm';
-import { Camera } from 'lucide-react';
+import { RegisterForm } from '../components/RegisterForm'
+import { Camera } from 'lucide-react'
 
 export function RegisterPage() {
   return (
@@ -30,8 +30,7 @@ export function RegisterPage() {
         </p>
       </div>
     </div>
-  );
+  )
 }
 
-export default RegisterPage;
-
+export default RegisterPage

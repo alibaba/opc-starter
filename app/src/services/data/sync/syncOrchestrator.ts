@@ -62,7 +62,12 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
       }
 
       console.log('[DataService] 开始全量同步...')
-      deps.setSyncStatus('syncing', { current: 0, total: 1, table: 'persons', message: '正在同步人员...' })
+      deps.setSyncStatus('syncing', {
+        current: 0,
+        total: 1,
+        table: 'persons',
+        message: '正在同步人员...',
+      })
 
       await deps.syncPersonsFromCloud()
 
@@ -80,7 +85,11 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
     }
   }
 
-  const incrementalSync = async (): Promise<{ added: number; updated: number; deleted: number }> => {
+  const incrementalSync = async (): Promise<{
+    added: number
+    updated: number
+    deleted: number
+  }> => {
     const result = { added: 0, updated: 0, deleted: 0 }
 
     try {
@@ -102,7 +111,7 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
       }
 
       const localPersons = await personDB.getAll()
-      const localPersonIds = new Set(localPersons.map(p => p.id))
+      const localPersonIds = new Set(localPersons.map((p) => p.id))
 
       console.log(`[DataService] 本地有 ${localPersons.length} 个人员，开始增量同步...`)
 
@@ -113,11 +122,11 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
 
       if (error) throw error
 
-      const cloudPersonIds = new Set((cloudPersons || []).map(p => p.id))
+      const cloudPersonIds = new Set((cloudPersons || []).map((p) => p.id))
 
       console.log(`[DataService] 云端有 ${cloudPersons?.length || 0} 个人员`)
 
-      const personsToDelete = localPersons.filter(lp => !cloudPersonIds.has(lp.id))
+      const personsToDelete = localPersons.filter((lp) => !cloudPersonIds.has(lp.id))
 
       if (personsToDelete.length > 0) {
         console.log(`[DataService] 发现 ${personsToDelete.length} 个需要删除的人员`)
@@ -134,7 +143,7 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
       }
 
       if (cloudPersons && cloudPersons.length > 0) {
-        const newPersons = cloudPersons.filter(cp => !localPersonIds.has(cp.id))
+        const newPersons = cloudPersons.filter((cp) => !localPersonIds.has(cp.id))
 
         if (newPersons.length > 0) {
           console.log(`[DataService] 发现 ${newPersons.length} 个新人员`)
@@ -164,7 +173,9 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
       }
 
       if (result.added > 0 || result.updated > 0 || result.deleted > 0) {
-        console.log(`[DataService] ✅ 增量同步完成: 新增 ${result.added}, 更新 ${result.updated}, 删除 ${result.deleted}`)
+        console.log(
+          `[DataService] ✅ 增量同步完成: 新增 ${result.added}, 更新 ${result.updated}, 删除 ${result.deleted}`
+        )
       } else {
         console.log('[DataService] 数据已同步，无需更新')
       }

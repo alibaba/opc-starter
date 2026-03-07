@@ -11,12 +11,12 @@ interface TestPhoto extends BaseEntity {
 
 const createMockSupabaseClient = () => {
   const channelCallbacks: Map<string, (payload: unknown) => void> = new Map()
-  
+
   const mockChannel = {
     on: vi.fn().mockReturnThis(),
     subscribe: vi.fn().mockReturnThis(),
   }
-  
+
   const mockFrom = {
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
@@ -28,7 +28,7 @@ const createMockSupabaseClient = () => {
     limit: vi.fn().mockReturnThis(),
     single: vi.fn().mockResolvedValue({ data: null, error: null }),
   }
-  
+
   const mockClient = {
     from: vi.fn().mockReturnValue(mockFrom),
     channel: vi.fn().mockReturnValue(mockChannel),
@@ -45,7 +45,7 @@ const createMockSupabaseClient = () => {
       }
     },
   }
-  
+
   return mockClient as unknown as SupabaseClient & {
     _mockFrom: typeof mockFrom
     _mockChannel: typeof mockChannel
@@ -68,15 +68,15 @@ describe('SupabaseAdapter', () => {
         { id: '1', title: 'Photo 1', url: 'a.jpg' },
         { id: '2', title: 'Photo 2', url: 'b.jpg' },
       ]
-      
+
       mockClient._mockFrom.select.mockReturnValue({
         ...mockClient._mockFrom,
-        then: (resolve: (value: { data: unknown; error: null }) => void) => 
+        then: (resolve: (value: { data: unknown; error: null }) => void) =>
           resolve({ data: mockData, error: null }),
       })
 
       const result = await adapter.fetch()
-      
+
       expect(mockClient.from).toHaveBeenCalledWith('photos')
       expect(result).toEqual(mockData)
     })
@@ -84,33 +84,33 @@ describe('SupabaseAdapter', () => {
     it('应该支持过滤条件', async () => {
       mockClient._mockFrom.eq.mockReturnValue({
         ...mockClient._mockFrom,
-        then: (resolve: (value: { data: unknown[]; error: null }) => void) => 
+        then: (resolve: (value: { data: unknown[]; error: null }) => void) =>
           resolve({ data: [], error: null }),
       })
 
       await adapter.fetch({ filter: { albumId: 'album-1' } })
-      
+
       expect(mockClient._mockFrom.eq).toHaveBeenCalledWith('albumId', 'album-1')
     })
 
     it('应该支持排序', async () => {
       mockClient._mockFrom.order.mockReturnValue({
         ...mockClient._mockFrom,
-        then: (resolve: (value: { data: unknown[]; error: null }) => void) => 
+        then: (resolve: (value: { data: unknown[]; error: null }) => void) =>
           resolve({ data: [], error: null }),
       })
 
       await adapter.fetch({ sort: { field: 'title', order: 'asc' } })
-      
+
       expect(mockClient._mockFrom.order).toHaveBeenCalledWith('title', { ascending: true })
     })
 
     it('fetch 失败时应该抛出错误', async () => {
       const mockError = { message: 'Database error', code: 'ERROR' }
-      
+
       mockClient._mockFrom.select.mockReturnValue({
         ...mockClient._mockFrom,
-        then: (resolve: (value: { data: null; error: typeof mockError }) => void) => 
+        then: (resolve: (value: { data: null; error: typeof mockError }) => void) =>
           resolve({ data: null, error: mockError }),
       })
 
@@ -121,23 +121,23 @@ describe('SupabaseAdapter', () => {
   describe('fetchOne()', () => {
     it('应该返回单条记录', async () => {
       const mockPhoto = { id: '1', title: 'Photo 1', url: 'a.jpg' }
-      
+
       mockClient._mockFrom.single.mockResolvedValue({ data: mockPhoto, error: null })
 
       const result = await adapter.fetchOne('1')
-      
+
       expect(mockClient._mockFrom.eq).toHaveBeenCalledWith('id', '1')
       expect(result).toEqual(mockPhoto)
     })
 
     it('记录不存在时应该返回 undefined', async () => {
-      mockClient._mockFrom.single.mockResolvedValue({ 
-        data: null, 
-        error: { code: 'PGRST116', message: 'Not found' } 
+      mockClient._mockFrom.single.mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116', message: 'Not found' },
       })
 
       const result = await adapter.fetchOne('non-existent')
-      
+
       expect(result).toBeUndefined()
     })
   })
@@ -146,11 +146,11 @@ describe('SupabaseAdapter', () => {
     it('应该插入记录并返回结果', async () => {
       const newPhoto = { title: 'New Photo', url: 'new.jpg' }
       const insertedPhoto = { id: 'server-1', ...newPhoto }
-      
+
       mockClient._mockFrom.single.mockResolvedValue({ data: insertedPhoto, error: null })
 
       const result = await adapter.insert(newPhoto)
-      
+
       expect(mockClient._mockFrom.insert).toHaveBeenCalledWith(newPhoto)
       expect(result).toEqual(insertedPhoto)
     })
@@ -160,11 +160,11 @@ describe('SupabaseAdapter', () => {
     it('应该更新记录并返回结果', async () => {
       const changes = { title: 'Updated Title' }
       const updatedPhoto = { id: '1', title: 'Updated Title', url: 'a.jpg' }
-      
+
       mockClient._mockFrom.single.mockResolvedValue({ data: updatedPhoto, error: null })
 
       const result = await adapter.update('1', changes)
-      
+
       expect(mockClient._mockFrom.update).toHaveBeenCalledWith(changes)
       expect(mockClient._mockFrom.eq).toHaveBeenCalledWith('id', '1')
       expect(result).toEqual(updatedPhoto)
@@ -175,12 +175,11 @@ describe('SupabaseAdapter', () => {
     it('应该删除记录', async () => {
       mockClient._mockFrom.eq.mockReturnValue({
         ...mockClient._mockFrom,
-        then: (resolve: (value: { error: null }) => void) => 
-          resolve({ error: null }),
+        then: (resolve: (value: { error: null }) => void) => resolve({ error: null }),
       })
 
       await adapter.remove('1')
-      
+
       expect(mockClient._mockFrom.delete).toHaveBeenCalled()
       expect(mockClient._mockFrom.eq).toHaveBeenCalledWith('id', '1')
     })
@@ -189,7 +188,7 @@ describe('SupabaseAdapter', () => {
   describe('Realtime Subscription', () => {
     it('subscribe() 应该订阅 postgres_changes', () => {
       const callback = vi.fn()
-      
+
       adapter.subscribe(callback)
 
       expect(mockClient.channel).toHaveBeenCalled()
@@ -210,7 +209,7 @@ describe('SupabaseAdapter', () => {
         new: { id: '1', title: 'New', url: 'new.jpg' },
         old: {},
       }
-      
+
       mockClient._triggerRealtimeEvent(supabasePayload)
 
       expect(callback).toHaveBeenCalledWith({
@@ -228,7 +227,7 @@ describe('SupabaseAdapter', () => {
         new: { id: '1', title: 'Updated', url: 'a.jpg' },
         old: { id: '1', title: 'Original', url: 'a.jpg' },
       }
-      
+
       mockClient._triggerRealtimeEvent(supabasePayload)
 
       expect(callback).toHaveBeenCalledWith({
@@ -247,7 +246,7 @@ describe('SupabaseAdapter', () => {
         new: {},
         old: { id: '1', title: 'Deleted', url: 'a.jpg' },
       }
-      
+
       mockClient._triggerRealtimeEvent(supabasePayload)
 
       expect(callback).toHaveBeenCalledWith({

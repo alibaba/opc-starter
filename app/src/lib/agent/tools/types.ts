@@ -1,41 +1,44 @@
-import type { z } from 'zod';
-import type { A2UIComponent } from '@/types/a2ui';
+/**
+ * Agent Tool 类型定义 — 工具注册、执行结果和 OpenAI 函数调用格式的共享类型。
+ */
+import type { z } from 'zod'
+import type { A2UIComponent } from '@/types/a2ui'
 
-export type ToolCategory = 'edit' | 'ai' | 'context' | 'navigation';
+export type ToolCategory = 'edit' | 'ai' | 'context' | 'navigation'
 
 export interface ToolExecutionResult {
-  success: boolean;
-  message?: string;
-  error?: string;
-  data?: Record<string, unknown>;
-  ui?: A2UIComponent;
+  success: boolean
+  message?: string
+  error?: string
+  data?: Record<string, unknown>
+  ui?: A2UIComponent
 }
 
 export interface ToolDefinitionConfig<T extends z.ZodObject<z.ZodRawShape>> {
-  name: string;
-  description: string;
-  category: ToolCategory;
-  parameters: T;
-  execute: (params: z.infer<T>) => Promise<ToolExecutionResult>;
+  name: string
+  description: string
+  category: ToolCategory
+  parameters: T
+  execute: (params: z.infer<T>) => Promise<ToolExecutionResult>
 }
 
 export interface OpenAIToolDefinition {
-  type: 'function';
+  type: 'function'
   function: {
-    name: string;
-    description: string;
-    parameters: Record<string, unknown>;
-  };
+    name: string
+    description: string
+    parameters: Record<string, unknown>
+  }
 }
 
 export interface RegisteredTool<T extends z.ZodObject<z.ZodRawShape> = z.ZodObject<z.ZodRawShape>> {
-  definition: OpenAIToolDefinition;
-  execute: (params: z.infer<T>) => Promise<ToolExecutionResult>;
-  validateAndExecute: (args: unknown) => Promise<ToolExecutionResult>;
-  schema: T;
+  definition: OpenAIToolDefinition
+  execute: (params: z.infer<T>) => Promise<ToolExecutionResult>
+  validateAndExecute: (args: unknown) => Promise<ToolExecutionResult>
+  schema: T
   meta: {
-    name: string;
-    description: string;
-    category: ToolCategory;
-  };
+    name: string
+    description: string
+    category: ToolCategory
+  }
 }

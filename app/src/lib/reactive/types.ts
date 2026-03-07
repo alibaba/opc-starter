@@ -29,7 +29,7 @@ export interface LocalAdapter<T extends BaseEntity> {
   bulkUpsert(docs: T[]): Promise<void>
   remove(id: string): Promise<void>
   clear(): Promise<void>
-  
+
   observe?(): Observable<Change<T>>
 }
 
@@ -39,7 +39,7 @@ export interface RemoteAdapter<T extends BaseEntity> {
   insert(doc: Omit<T, 'id'>): Promise<T>
   update(id: string, changes: Partial<T>): Promise<T>
   remove(id: string): Promise<void>
-  
+
   subscribe(callback: (change: Change<T>) => void): () => void
 }
 

@@ -3,24 +3,24 @@
  * 个人中心页面
  */
 
-import { useEffect, useState, useRef } from 'react';
-import { Loader2, User, Building2, Edit3 } from 'lucide-react';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useOrganization } from '@/hooks/useOrganization';
-import { AvatarUploader } from '@/components/business/AvatarUploader';
-import { ProfileForm } from '@/components/business/ProfileForm';
-import { OrganizationBreadcrumb } from '@/components/organization/OrganizationBreadcrumb';
-import { AssignTeamDialog } from '@/components/organization/AssignTeamDialog';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState, useRef } from 'react'
+import { Loader2, User, Building2, Edit3 } from 'lucide-react'
+import { useProfileStore } from '@/stores/useProfileStore'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useOrganization } from '@/hooks/useOrganization'
+import { AvatarUploader } from '@/components/business/AvatarUploader'
+import { ProfileForm } from '@/components/business/ProfileForm'
+import { OrganizationBreadcrumb } from '@/components/organization/OrganizationBreadcrumb'
+import { AssignTeamDialog } from '@/components/organization/AssignTeamDialog'
+import { Button } from '@/components/ui/button'
 
 function ProfilePage() {
-  const { profile, isLoading, loadProfile, error } = useProfileStore();
-  const { user } = useAuthStore();
-  const userId = user?.id || '';
-  const profileFetchRef = useRef(false);
-  const orgFetchRef = useRef<string | null>(null);
-  
+  const { profile, isLoading, loadProfile, error } = useProfileStore()
+  const { user } = useAuthStore()
+  const userId = user?.id || ''
+  const profileFetchRef = useRef(false)
+  const orgFetchRef = useRef<string | null>(null)
+
   const {
     tree,
     userOrgInfo,
@@ -28,33 +28,33 @@ function ProfilePage() {
     loadTree,
     getUserOrgInfo,
     updateUserOrganization,
-  } = useOrganization(userId);
+  } = useOrganization(userId)
 
-  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false)
 
   useEffect(() => {
     // 避免 React StrictMode 下重复拉取 profile
-    if (profileFetchRef.current) return;
-    profileFetchRef.current = true;
-    loadProfile();
-  }, [loadProfile]);
+    if (profileFetchRef.current) return
+    profileFetchRef.current = true
+    loadProfile()
+  }, [loadProfile])
 
   useEffect(() => {
     // 避免同一 userId 多次拉取组织信息
-    if (!userId) return;
-    if (orgFetchRef.current === userId) return;
-    orgFetchRef.current = userId;
+    if (!userId) return
+    if (orgFetchRef.current === userId) return
+    orgFetchRef.current = userId
 
-    loadTree();
-    getUserOrgInfo(userId);
-  }, [userId, loadTree, getUserOrgInfo]);
+    loadTree()
+    getUserOrgInfo(userId)
+  }, [userId, loadTree, getUserOrgInfo])
 
   const handleAssignTeam = async (targetUserId: string, organizationId: string | null) => {
-    await updateUserOrganization(targetUserId, organizationId);
-    await getUserOrgInfo(userId);
-  };
+    await updateUserOrganization(targetUserId, organizationId)
+    await getUserOrgInfo(userId)
+  }
 
-  const isCurrentUserAdmin = userOrgInfo?.role === 'admin';
+  const isCurrentUserAdmin = userOrgInfo?.role === 'admin'
 
   // 加载状态
   if (isLoading && !profile) {
@@ -65,7 +65,7 @@ function ProfilePage() {
           <p className="text-muted-foreground">加载个人信息中...</p>
         </div>
       </div>
-    );
+    )
   }
 
   // 错误状态
@@ -76,9 +76,7 @@ function ProfilePage() {
           <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-8 h-8 text-destructive" />
           </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            加载失败
-          </h2>
+          <h2 className="text-xl font-semibold text-foreground mb-2">加载失败</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
           <button
             onClick={loadProfile}
@@ -88,7 +86,7 @@ function ProfilePage() {
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -100,9 +98,7 @@ function ProfilePage() {
             <User className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">个人中心</h1>
           </div>
-          <p className="text-muted-foreground mt-1">
-            管理您的个人信息和头像
-          </p>
+          <p className="text-muted-foreground mt-1">管理您的个人信息和头像</p>
         </div>
       </div>
 
@@ -116,17 +112,13 @@ function ProfilePage() {
               <h2 className="text-lg font-semibold">组织信息</h2>
             </div>
             {isCurrentUserAdmin && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAssignDialogOpen(true)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setAssignDialogOpen(true)}>
                 <Edit3 className="h-4 w-4 mr-2" />
                 修改团队
               </Button>
             )}
           </div>
-          
+
           {orgLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -183,7 +175,7 @@ function ProfilePage() {
         />
       )}
     </div>
-  );
+  )
 }
 
-export default ProfilePage;
+export default ProfilePage

@@ -3,10 +3,10 @@
  * OPC-Starter - 通用上下文获取
  */
 
-import { z } from 'zod';
-import { defineTool } from '../registry';
+import { z } from 'zod'
+import { defineTool } from '../registry'
 
-const getCurrentContextParamsSchema = z.object({});
+const getCurrentContextParamsSchema = z.object({})
 
 export const getCurrentContextTool = defineTool({
   name: 'getCurrentContext',
@@ -17,13 +17,13 @@ export const getCurrentContextTool = defineTool({
   async execute() {
     try {
       // 获取当前路由
-      const currentPath = window.location.pathname;
-      
+      const currentPath = window.location.pathname
+
       // 获取页面标题
-      const pageTitle = document.title;
+      const pageTitle = document.title
 
       // 获取当前时间
-      const now = new Date();
+      const now = new Date()
 
       return {
         success: true,
@@ -41,12 +41,12 @@ export const getCurrentContextTool = defineTool({
             content: `当前页面: ${currentPath}\n时间: ${now.toLocaleString('zh-CN')}`,
           },
         },
-      };
+      }
     } catch (error) {
       return {
         success: false,
         error: `获取上下文失败: ${(error as Error).message}`,
-      };
+      }
     }
   },
-});
+})

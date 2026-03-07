@@ -9,7 +9,7 @@ globs: ["app/src/**/*.test.ts", "app/src/**/*.test.tsx", "app/src/**/*.spec.ts",
 
 - 框架: Vitest + @testing-library/react
 - 配置: `app/vitest.config.ts`
-- 覆盖率阈值: 80% (lines/functions/branches/statements)
+- 覆盖率阈值: lines 21%, functions 21%, branches 15%, statements 21% (回归门禁，随覆盖率提升逐步调高)
 
 ```bash
 npm test              # 运行所有测试

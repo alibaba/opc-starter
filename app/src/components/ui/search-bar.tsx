@@ -66,12 +66,7 @@ export function SearchBar({
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {query && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClear}
-              className="h-7 w-7 p-0"
-            >
+            <Button variant="ghost" size="sm" onClick={handleClear} className="h-7 w-7 p-0">
               <X className="w-4 h-4" />
             </Button>
           )}
@@ -94,9 +89,7 @@ export function SearchBar({
           <div className="space-y-4">
             {/* 类型筛选 */}
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                搜索类型
-              </label>
+              <label className="text-sm font-medium text-foreground mb-2 block">搜索类型</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { value: 'all', label: '全部' },
@@ -143,14 +136,16 @@ export function SearchBar({
 
 // Utility function for highlighting text
 export function highlightText(text: string, query: string): React.ReactNode {
-  if (!query.trim()) return text;
-  
-  const parts = text.split(new RegExp(`(${query})`, 'gi'));
+  if (!query.trim()) return text
+
+  const parts = text.split(new RegExp(`(${query})`, 'gi'))
   return parts.map((part, index) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <mark key={index} className="bg-warning/30">{part}</mark>
+      <mark key={index} className="bg-warning/30">
+        {part}
+      </mark>
     ) : (
       part
     )
-  );
+  )
 }

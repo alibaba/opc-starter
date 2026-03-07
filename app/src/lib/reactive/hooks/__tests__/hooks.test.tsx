@@ -17,7 +17,7 @@ interface TestPhoto extends BaseEntity {
 const createMockCollection = () => {
   const dataSubject = new BehaviorSubject<TestPhoto[]>([])
   let idCounter = 0
-  
+
   const mockCollection = {
     find: vi.fn((options?: { filter?: Partial<TestPhoto> }) => {
       if (options?.filter) {
@@ -26,7 +26,7 @@ const createMockCollection = () => {
       return dataSubject.asObservable()
     }),
     findOne: vi.fn((id: string) => {
-      return new BehaviorSubject(dataSubject.getValue().find(p => p.id === id))
+      return new BehaviorSubject(dataSubject.getValue().find((p) => p.id === id))
     }),
     insert: vi.fn(async (doc: Omit<TestPhoto, 'id'>) => {
       const newDoc = { ...doc, id: `photo-${++idCounter}` } as TestPhoto
@@ -35,19 +35,19 @@ const createMockCollection = () => {
     }),
     update: vi.fn(async (id: string, changes: Partial<TestPhoto>) => {
       const current = dataSubject.getValue()
-      const updated = current.map(p => p.id === id ? { ...p, ...changes } : p)
+      const updated = current.map((p) => (p.id === id ? { ...p, ...changes } : p))
       dataSubject.next(updated)
-      return updated.find(p => p.id === id) as TestPhoto
+      return updated.find((p) => p.id === id) as TestPhoto
     }),
     remove: vi.fn(async (id: string) => {
-      dataSubject.next(dataSubject.getValue().filter(p => p.id !== id))
+      dataSubject.next(dataSubject.getValue().filter((p) => p.id !== id))
     }),
     _dataSubject: dataSubject,
     _addPhoto: (photo: TestPhoto) => {
       dataSubject.next([...dataSubject.getValue(), photo])
     },
   }
-  
+
   return mockCollection as unknown as ReactiveCollection<TestPhoto> & {
     _dataSubject: BehaviorSubject<TestPhoto[]>
     _addPhoto: (photo: TestPhoto) => void
@@ -62,9 +62,7 @@ describe('useQuery', () => {
   })
 
   it('应该返回响应式数据', async () => {
-    mockCollection._dataSubject.next([
-      { id: '1', title: 'Photo 1', url: 'a.jpg' },
-    ])
+    mockCollection._dataSubject.next([{ id: '1', title: 'Photo 1', url: 'a.jpg' }])
 
     const { result } = renderHook(() => useQuery(mockCollection))
 
@@ -78,7 +76,7 @@ describe('useQuery', () => {
 
   it('BehaviorSubject 有初始值时 loading 立即变为 false', async () => {
     const { result } = renderHook(() => useQuery(mockCollection))
-    
+
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
       expect(result.current.data).toHaveLength(0)
@@ -125,7 +123,9 @@ describe('useQuery', () => {
       result.current.refetch()
     })
 
-    expect((mockCollection.find as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(initialCallCount)
+    expect((mockCollection.find as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(
+      initialCallCount
+    )
   })
 })
 
@@ -134,9 +134,7 @@ describe('useQueryOne', () => {
 
   beforeEach(() => {
     mockCollection = createMockCollection()
-    mockCollection._dataSubject.next([
-      { id: '1', title: 'Photo 1', url: 'a.jpg' },
-    ])
+    mockCollection._dataSubject.next([{ id: '1', title: 'Photo 1', url: 'a.jpg' }])
   })
 
   it('应该返回单条数据', async () => {

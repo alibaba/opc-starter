@@ -3,37 +3,37 @@
  * OPC-Starter 的主入口页面
  */
 
-import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Users, 
-  User, 
-  Settings, 
-  Cloud, 
+import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  Users,
+  User,
+  Settings,
+  Cloud,
   Bot,
   Sparkles,
   ArrowRight,
   CheckCircle2,
-  Circle
-} from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { dataService } from '@/services/data/DataService';
+  Circle,
+} from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useProfileStore } from '@/stores/useProfileStore'
+import { dataService } from '@/services/data/DataService'
 
 function DashboardPage() {
-  const { user } = useAuthStore();
-  const { profile, loadProfile } = useProfileStore();
-  const profileFetchRef = useRef(false);
+  const { user } = useAuthStore()
+  const { profile, loadProfile } = useProfileStore()
+  const profileFetchRef = useRef(false)
 
   useEffect(() => {
-    if (profileFetchRef.current) return;
-    profileFetchRef.current = true;
-    loadProfile();
-  }, [loadProfile]);
+    if (profileFetchRef.current) return
+    profileFetchRef.current = true
+    loadProfile()
+  }, [loadProfile])
 
-  const syncStats = dataService.getSyncStats();
+  const syncStats = dataService.getSyncStats()
 
   const quickActions = [
     {
@@ -64,7 +64,7 @@ function DashboardPage() {
       href: '/settings',
       color: 'bg-orange-500/10 text-orange-500',
     },
-  ];
+  ]
 
   const features = [
     { name: 'Supabase Auth 认证', done: true },
@@ -73,7 +73,7 @@ function DashboardPage() {
     { name: '数据同步 (IndexedDB + Realtime)', done: true },
     { name: 'Tailwind CSS v4', done: true },
     { name: 'TypeScript 严格模式', done: true },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,9 +83,7 @@ function DashboardPage() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="w-8 h-8 text-primary" />
-              <h1 className="text-4xl font-bold text-foreground">
-                OPC-Starter
-              </h1>
+              <h1 className="text-4xl font-bold text-foreground">OPC-Starter</h1>
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               一人公司启动器 - AI-Friendly React Boilerplate
@@ -101,22 +99,20 @@ function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Actions */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-foreground mb-6">
-            快速入口
-          </h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-6">快速入口</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {quickActions.map((action) => (
               <Link key={action.href} to={action.href}>
                 <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-                  <div className={`w-12 h-12 rounded-lg ${action.color} flex items-center justify-center mb-4`}>
+                  <div
+                    className={`w-12 h-12 rounded-lg ${action.color} flex items-center justify-center mb-4`}
+                  >
                     <action.icon className="w-6 h-6" />
                   </div>
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {action.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{action.description}</p>
                   <div className="mt-4 flex items-center text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                     进入 <ArrowRight className="w-4 h-4 ml-1" />
                   </div>
@@ -137,17 +133,25 @@ function DashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">网络状态</span>
-                <span className={`flex items-center gap-1 ${syncStats.isOnline ? 'text-green-500' : 'text-red-500'}`}>
-                  <div className={`w-2 h-2 rounded-full ${syncStats.isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span
+                  className={`flex items-center gap-1 ${syncStats.isOnline ? 'text-green-500' : 'text-red-500'}`}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full ${syncStats.isOnline ? 'bg-green-500' : 'bg-red-500'}`}
+                  />
                   {syncStats.isOnline ? '在线' : '离线'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">同步状态</span>
                 <span className="text-foreground">
-                  {syncStats.status === 'syncing' ? '同步中...' : 
-                   syncStats.status === 'synced' ? '已同步' : 
-                   syncStats.status === 'error' ? '同步异常' : '空闲'}
+                  {syncStats.status === 'syncing'
+                    ? '同步中...'
+                    : syncStats.status === 'synced'
+                      ? '已同步'
+                      : syncStats.status === 'error'
+                        ? '同步异常'
+                        : '空闲'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -195,12 +199,10 @@ function DashboardPage() {
               <Bot className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground mb-1">
-                💡 提示：使用 Agent Studio
-              </h3>
+              <h3 className="font-semibold text-foreground mb-1">💡 提示：使用 Agent Studio</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                点击右下角的 AI 助手按钮，可以使用自然语言与系统交互。
-                Agent 可以帮助你导航页面、回答问题等。
+                点击右下角的 AI 助手按钮，可以使用自然语言与系统交互。 Agent
+                可以帮助你导航页面、回答问题等。
               </p>
               <Button variant="outline" size="sm">
                 了解更多
@@ -210,7 +212,7 @@ function DashboardPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
 
-export default DashboardPage;
+export default DashboardPage

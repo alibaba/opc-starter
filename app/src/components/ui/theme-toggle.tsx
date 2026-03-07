@@ -20,20 +20,20 @@ interface ThemeToggleProps {
 
 /**
  * 主题切换组件
- * 
+ *
  * @example
  * ```tsx
  * // 简单切换（light <-> dark）
  * <ThemeToggle variant="simple" />
- * 
+ *
  * // 下拉菜单（包含 system 选项）
  * <ThemeToggle variant="dropdown" />
  * ```
  */
-export function ThemeToggle({ 
-  variant = 'dropdown', 
+export function ThemeToggle({
+  variant = 'dropdown',
   size = 'default',
-  className 
+  className,
 }: ThemeToggleProps) {
   const { theme, setTheme, isDark } = useTheme()
 
@@ -47,11 +47,7 @@ export function ThemeToggle({
         className={cn('transition-colors', className)}
         title={isDark ? '切换到浅色模式' : '切换到深色模式'}
       >
-        {isDark ? (
-          <Sun className="h-5 w-5" />
-        ) : (
-          <Moon className="h-5 w-5" />
-        )}
+        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         <span className="sr-only">切换主题</span>
       </Button>
     )
@@ -64,11 +60,14 @@ export function ThemeToggle({
     { value: 'system', label: '跟随系统', icon: <Monitor className="h-4 w-4" /> },
   ]
 
-  const currentIcon = theme === 'system' 
-    ? <Monitor className="h-5 w-5" />
-    : isDark 
-      ? <Moon className="h-5 w-5" /> 
-      : <Sun className="h-5 w-5" />
+  const currentIcon =
+    theme === 'system' ? (
+      <Monitor className="h-5 w-5" />
+    ) : isDark ? (
+      <Moon className="h-5 w-5" />
+    ) : (
+      <Sun className="h-5 w-5" />
+    )
 
   return (
     <DropdownMenu>

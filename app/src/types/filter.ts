@@ -17,19 +17,19 @@ export type FilterType =
   | 'warm'
   | 'cool'
   | 'vibrant'
-  | 'vintage'  // STORY-23-010: 复古滤镜
-  | 'film'     // STORY-23-010: 胶片滤镜
+  | 'vintage' // STORY-23-010: 复古滤镜
+  | 'film' // STORY-23-010: 胶片滤镜
   | 'dramatic' // STORY-23-010: 戏剧滤镜
-  | 'fade';    // STORY-23-010: 褪色滤镜
+  | 'fade' // STORY-23-010: 褪色滤镜
 
 /**
  * 滤镜配置
  */
 export interface FilterConfig {
-  id: FilterType;
-  name: string;
-  cssFilter: string;
-  icon?: string;
+  id: FilterType
+  name: string
+  cssFilter: string
+  icon?: string
 }
 
 /**
@@ -97,5 +97,4 @@ export const FILTERS: FilterConfig[] = [
     name: '鲜艳',
     cssFilter: 'saturate(150%) contrast(110%)',
   },
-];
-
+]

@@ -5,23 +5,23 @@
  * @see STORY-23-004
  */
 
-import { Bot, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAgentStore } from '@/stores/useAgentStore';
+import { Bot, Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useAgentStore } from '@/stores/useAgentStore'
 
 interface AgentButtonProps {
   /** 是否折叠模式（仅显示图标） */
-  isCollapsed?: boolean;
+  isCollapsed?: boolean
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 /**
  * 侧边栏 Agent 按钮
  */
 export function AgentButton({ isCollapsed = false, className }: AgentButtonProps) {
-  const togglePanel = useAgentStore((state) => state.togglePanel);
-  const isPanelOpen = useAgentStore((state) => state.isPanelOpen);
+  const togglePanel = useAgentStore((state) => state.togglePanel)
+  const isPanelOpen = useAgentStore((state) => state.isPanelOpen)
 
   return (
     <button
@@ -45,7 +45,7 @@ export function AgentButton({ isCollapsed = false, className }: AgentButtonProps
         )}
       >
         <Bot className="w-5 h-5" />
-        
+
         {/* 动态光效 */}
         {!isPanelOpen && (
           <Sparkles
@@ -78,15 +78,15 @@ export function AgentButton({ isCollapsed = false, className }: AgentButtonProps
         </div>
       )}
     </button>
-  );
+  )
 }
 
 /**
  * 浮动 Agent 按钮（移动端或无侧边栏场景）
  */
 export function FloatingAgentButton({ className }: { className?: string }) {
-  const togglePanel = useAgentStore((state) => state.togglePanel);
-  const isPanelOpen = useAgentStore((state) => state.isPanelOpen);
+  const togglePanel = useAgentStore((state) => state.togglePanel)
+  const isPanelOpen = useAgentStore((state) => state.isPanelOpen)
 
   return (
     <button
@@ -104,9 +104,9 @@ export function FloatingAgentButton({ className }: { className?: string }) {
       title="AI 助手"
     >
       <Bot className="w-6 h-6" />
-      
+
       {/* 脉冲动画 */}
       <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20" />
     </button>
-  );
+  )
 }

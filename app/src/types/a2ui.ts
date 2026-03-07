@@ -16,7 +16,7 @@ export type A2UIRenderTarget =
   | 'inline' // 默认：在对话消息内渲染
   | 'main-area' // 主内容区：覆盖当前页面内容
   | 'fullscreen' // 全屏模态：覆盖整个视口
-  | 'split'; // 分屏：主内容区 + 对话框联动
+  | 'split' // 分屏：主内容区 + 对话框联动
 
 /**
  * Portal 配置
@@ -25,15 +25,15 @@ export type A2UIRenderTarget =
  */
 export interface A2UIPortalConfig {
   /** 是否显示关闭按钮 */
-  showClose?: boolean;
+  showClose?: boolean
   /** 是否显示最小化按钮 */
-  showMinimize?: boolean;
+  showMinimize?: boolean
   /** 背景模式 */
-  backdrop?: 'blur' | 'dim' | 'none';
+  backdrop?: 'blur' | 'dim' | 'none'
   /** 退出时触发的 action */
-  onClose?: string;
+  onClose?: string
   /** Portal 标题 */
-  title?: string;
+  title?: string
 }
 
 // ============ 组件定义 ============
@@ -43,7 +43,7 @@ export interface A2UIPortalConfig {
  * @example { binding: "photos.0.url" }
  */
 export interface BoundValue {
-  binding: string; // "path.to.value"
+  binding: string // "path.to.value"
 }
 
 /**
@@ -52,26 +52,26 @@ export interface BoundValue {
  */
 export interface A2UIComponent {
   /** 组件唯一标识符 */
-  id: string;
+  id: string
   /** 组件类型 */
-  type: string;
+  type: string
   /** 组件属性，值可以是静态值或 BoundValue */
-  props?: Record<string, unknown | BoundValue>;
+  props?: Record<string, unknown | BoundValue>
   /** 事件映射：eventName → actionId */
-  actions?: Record<string, string>;
+  actions?: Record<string, string>
   /** 子组件列表 */
-  children?: A2UIComponent[];
+  children?: A2UIComponent[]
   /** 渲染目标位置 @story STORY-23-012 */
-  renderTarget?: A2UIRenderTarget;
+  renderTarget?: A2UIRenderTarget
   /** Portal 配置 @story STORY-23-012 */
-  portalConfig?: A2UIPortalConfig;
+  portalConfig?: A2UIPortalConfig
 }
 
 /**
  * A2UI 数据模型
  * @description 用于组件数据绑定的状态对象
  */
-export type A2UIDataModel = Record<string, unknown>;
+export type A2UIDataModel = Record<string, unknown>
 
 // ============ 服务端消息 ============
 
@@ -80,13 +80,13 @@ export type A2UIDataModel = Record<string, unknown>;
  * @description 创建一个新的 Surface 并渲染初始组件
  */
 export interface BeginRenderingMessage {
-  type: 'beginRendering';
+  type: 'beginRendering'
   /** Surface 唯一标识符 */
-  surfaceId: string;
+  surfaceId: string
   /** 要渲染的组件树 */
-  component: A2UIComponent;
+  component: A2UIComponent
   /** 可选的初始数据模型 */
-  dataModel?: A2UIDataModel;
+  dataModel?: A2UIDataModel
 }
 
 /**
@@ -94,9 +94,9 @@ export interface BeginRenderingMessage {
  * @description 替换 Surface 的组件树
  */
 export interface SurfaceUpdateMessage {
-  type: 'surfaceUpdate';
-  surfaceId: string;
-  component: A2UIComponent;
+  type: 'surfaceUpdate'
+  surfaceId: string
+  component: A2UIComponent
 }
 
 /**
@@ -104,14 +104,14 @@ export interface SurfaceUpdateMessage {
  * @description 对 Surface 的数据模型进行增量更新
  */
 export interface DataModelUpdateMessage {
-  type: 'dataModelUpdate';
-  surfaceId: string;
+  type: 'dataModelUpdate'
+  surfaceId: string
   /** JSON Path 格式的路径 */
-  path: string;
+  path: string
   /** 操作类型 */
-  op: 'replace' | 'add' | 'remove';
+  op: 'replace' | 'add' | 'remove'
   /** 新值（remove 操作时可为 undefined） */
-  value?: unknown;
+  value?: unknown
 }
 
 /**
@@ -119,8 +119,8 @@ export interface DataModelUpdateMessage {
  * @description 从渲染树中移除一个 Surface
  */
 export interface DeleteSurfaceMessage {
-  type: 'deleteSurface';
-  surfaceId: string;
+  type: 'deleteSurface'
+  surfaceId: string
 }
 
 /**
@@ -130,7 +130,7 @@ export type A2UIServerMessage =
   | BeginRenderingMessage
   | SurfaceUpdateMessage
   | DataModelUpdateMessage
-  | DeleteSurfaceMessage;
+  | DeleteSurfaceMessage
 
 // ============ 客户端消息 ============
 
@@ -139,15 +139,15 @@ export type A2UIServerMessage =
  * @description 用户在组件上触发的操作
  */
 export interface UserActionMessage {
-  type: 'userAction';
+  type: 'userAction'
   /** 目标 Surface ID */
-  surfaceId: string;
+  surfaceId: string
   /** 触发操作的组件 ID */
-  componentId: string;
+  componentId: string
   /** 操作标识符 */
-  actionId: string;
+  actionId: string
   /** 可选的操作携带值 */
-  value?: unknown;
+  value?: unknown
 }
 
 /**
@@ -155,16 +155,16 @@ export interface UserActionMessage {
  * @description 客户端向服务端报告的错误
  */
 export interface A2UIErrorMessage {
-  type: 'error';
-  surfaceId: string;
-  errorType: string;
-  message: string;
+  type: 'error'
+  surfaceId: string
+  errorType: string
+  message: string
 }
 
 /**
  * 客户端消息联合类型
  */
-export type A2UIClientMessage = UserActionMessage | A2UIErrorMessage;
+export type A2UIClientMessage = UserActionMessage | A2UIErrorMessage
 
 // ============ 组件类型枚举 ============
 
@@ -192,8 +192,8 @@ export type A2UIComponentType =
   // 业务组件
   | 'photo-preview'
   | 'photo-grid'
-  | 'photo-editor-preview'  // STORY-23-010: 编辑预览组件
-  | 'photo-edit-confirm'    // STORY-23-010: 编辑确认组件（预览 + 保存按钮）
+  | 'photo-editor-preview' // STORY-23-010: 编辑预览组件
+  | 'photo-edit-confirm' // STORY-23-010: 编辑确认组件（预览 + 保存按钮）
   | 'filter-selector'
   | 'ai-progress'
   | 'photo-compare'
@@ -203,7 +203,7 @@ export type A2UIComponentType =
   | 'video-preview'
   | 'video-task-progress'
   // 引导组件
-  | 'selection-guide';
+  | 'selection-guide'
 
 // ============ 辅助类型 ============
 
@@ -216,7 +216,7 @@ export function isBoundValue(value: unknown): value is BoundValue {
     value !== null &&
     'binding' in value &&
     typeof (value as BoundValue).binding === 'string'
-  );
+  )
 }
 
 /**
@@ -224,7 +224,7 @@ export function isBoundValue(value: unknown): value is BoundValue {
  * @description 单个 Surface 的完整状态
  */
 export interface SurfaceState {
-  id: string;
-  component: A2UIComponent;
-  dataModel: A2UIDataModel;
+  id: string
+  component: A2UIComponent
+  dataModel: A2UIDataModel
 }

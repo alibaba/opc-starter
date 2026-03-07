@@ -12,11 +12,11 @@ export interface GeneratedVideo {
   videoUrl?: string
   tempVideoUrl?: string
   errorMessage?: string
-  
+
   audioUrl?: string
   audioDuration?: number
   audioSize?: number
-  
+
   createdAt: number
   updatedAt: number
   completedAt?: number

@@ -4,55 +4,62 @@
  * @version 1.0.0
  */
 
-import React from 'react';
+import React from 'react'
 
 // ===== 基础 UI 组件 =====
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import { Input } from '@/components/ui/input'
+import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
 
 // A2UI 包装的基础组件（支持 AI 返回的 props 格式）
-import { A2UIButton } from './components/A2UIButton';
+import { A2UIButton } from './components/A2UIButton'
 
 // ===== A2UI 布局组件 =====
-import { A2UIContainer } from './components/A2UIContainer';
-import { A2UIList } from './components/A2UIList';
-import { A2UIText } from './components/A2UIText';
-import { A2UIImage } from './components/A2UIImage';
+import { A2UIContainer } from './components/A2UIContainer'
+import { A2UIList } from './components/A2UIList'
+import { A2UIText } from './components/A2UIText'
+import { A2UIImage } from './components/A2UIImage'
 
 // ===== A2UI 业务组件 =====
-import { ActionButtons } from './components/ActionButtons';
+import { ActionButtons } from './components/ActionButtons'
 
-import type { A2UIComponentType } from '@/types/a2ui';
+import type { A2UIComponentType } from '@/types/a2ui'
 
 /**
  * 组件 Props 类型映射
  */
 export type ComponentPropsMap = {
   // 基础组件
-  card: React.ComponentProps<typeof Card>;
-  'card-header': React.ComponentProps<typeof CardHeader>;
-  'card-content': React.ComponentProps<typeof CardContent>;
-  'card-title': React.ComponentProps<typeof CardTitle>;
-  'card-description': React.ComponentProps<typeof CardDescription>;
-  'card-footer': React.ComponentProps<typeof CardFooter>;
-  button: React.ComponentProps<typeof A2UIButton>;
-  slider: React.ComponentProps<typeof Slider>;
-  input: React.ComponentProps<typeof Input>;
-  progress: React.ComponentProps<typeof Progress>;
-  badge: React.ComponentProps<typeof Badge>;
+  card: React.ComponentProps<typeof Card>
+  'card-header': React.ComponentProps<typeof CardHeader>
+  'card-content': React.ComponentProps<typeof CardContent>
+  'card-title': React.ComponentProps<typeof CardTitle>
+  'card-description': React.ComponentProps<typeof CardDescription>
+  'card-footer': React.ComponentProps<typeof CardFooter>
+  button: React.ComponentProps<typeof A2UIButton>
+  slider: React.ComponentProps<typeof Slider>
+  input: React.ComponentProps<typeof Input>
+  progress: React.ComponentProps<typeof Progress>
+  badge: React.ComponentProps<typeof Badge>
 
   // 布局组件
-  container: React.ComponentProps<typeof A2UIContainer>;
-  list: React.ComponentProps<typeof A2UIList>;
-  text: React.ComponentProps<typeof A2UIText>;
-  image: React.ComponentProps<typeof A2UIImage>;
+  container: React.ComponentProps<typeof A2UIContainer>
+  list: React.ComponentProps<typeof A2UIList>
+  text: React.ComponentProps<typeof A2UIText>
+  image: React.ComponentProps<typeof A2UIImage>
 
   // 业务组件
-  'action-buttons': React.ComponentProps<typeof ActionButtons>;
-};
+  'action-buttons': React.ComponentProps<typeof ActionButtons>
+}
 
 /**
  * 组件注册表
@@ -81,13 +88,13 @@ export const componentRegistry: Record<string, React.ComponentType<any>> = {
 
   // ===== 业务组件 =====
   'action-buttons': ActionButtons,
-};
+}
 
 /**
  * 检查组件类型是否有效
  */
 export function isValidComponentType(type: string): type is A2UIComponentType {
-  return type in componentRegistry;
+  return type in componentRegistry
 }
 
 /**
@@ -97,7 +104,7 @@ export function getComponent(
   type: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): React.ComponentType<any> | undefined {
-  return componentRegistry[type];
+  return componentRegistry[type]
 }
 
 /**
@@ -109,14 +116,14 @@ export function registerComponent(
   component: React.ComponentType<any>
 ): void {
   if (componentRegistry[type]) {
-    console.warn(`[A2UI Registry] 覆盖已存在的组件类型: ${type}`);
+    console.warn(`[A2UI Registry] 覆盖已存在的组件类型: ${type}`)
   }
-  componentRegistry[type] = component;
+  componentRegistry[type] = component
 }
 
 /**
  * 获取所有已注册的组件类型
  */
 export function getRegisteredTypes(): string[] {
-  return Object.keys(componentRegistry);
+  return Object.keys(componentRegistry)
 }

@@ -2,7 +2,7 @@
  * 图片压缩工具函数
  * Epic: 11 - 照片云存储
  * Story: 11.2 - 照片上传服务
- * 
+ *
  * 功能:
  * - 将图片压缩为 WebP 格式
  * - 支持自定义尺寸和质量
@@ -22,74 +22,74 @@ export async function compressImageToWebP(
   quality: number = 0.85
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+    const reader = new FileReader()
 
     reader.onload = (e) => {
-      const img = new Image();
+      const img = new Image()
 
       img.onload = () => {
         try {
           // 计算缩放后的尺寸
-          let width = img.width;
-          let height = img.height;
+          let width = img.width
+          let height = img.height
 
           // 保持宽高比，缩放到 maxSize
           if (width > height) {
             if (width > maxSize) {
-              height = (height * maxSize) / width;
-              width = maxSize;
+              height = (height * maxSize) / width
+              width = maxSize
             }
           } else {
             if (height > maxSize) {
-              width = (width * maxSize) / height;
-              height = maxSize;
+              width = (width * maxSize) / height
+              height = maxSize
             }
           }
 
           // 创建 Canvas
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
 
-          const ctx = canvas.getContext('2d');
+          const ctx = canvas.getContext('2d')
           if (!ctx) {
-            reject(new Error('无法获取 Canvas 上下文'));
-            return;
+            reject(new Error('无法获取 Canvas 上下文'))
+            return
           }
 
           // 绘制图片
-          ctx.drawImage(img, 0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height)
 
           // 转换为 WebP Blob
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                resolve(blob);
+                resolve(blob)
               } else {
-                reject(new Error('无法生成 WebP Blob'));
+                reject(new Error('无法生成 WebP Blob'))
               }
             },
             'image/webp',
             quality
-          );
+          )
         } catch (error) {
-          reject(error);
+          reject(error)
         }
-      };
+      }
 
       img.onerror = () => {
-        reject(new Error('图片加载失败'));
-      };
+        reject(new Error('图片加载失败'))
+      }
 
-      img.src = e.target?.result as string;
-    };
+      img.src = e.target?.result as string
+    }
 
     reader.onerror = () => {
-      reject(new Error('文件读取失败'));
-    };
+      reject(new Error('文件读取失败'))
+    }
 
-    reader.readAsDataURL(file);
-  });
+    reader.readAsDataURL(file)
+  })
 }
 
 /**
@@ -105,64 +105,64 @@ export async function compressBase64ToWebP(
   quality: number = 0.85
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const img = new Image();
+    const img = new Image()
 
     img.onload = () => {
       try {
         // 计算缩放后的尺寸
-        let width = img.width;
-        let height = img.height;
+        let width = img.width
+        let height = img.height
 
         // 保持宽高比，缩放到 maxSize
         if (width > height) {
           if (width > maxSize) {
-            height = (height * maxSize) / width;
-            width = maxSize;
+            height = (height * maxSize) / width
+            width = maxSize
           }
         } else {
           if (height > maxSize) {
-            width = (width * maxSize) / height;
-            height = maxSize;
+            width = (width * maxSize) / height
+            height = maxSize
           }
         }
 
         // 创建 Canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d')
         if (!ctx) {
-          reject(new Error('无法获取 Canvas 上下文'));
-          return;
+          reject(new Error('无法获取 Canvas 上下文'))
+          return
         }
 
         // 绘制图片
-        ctx.drawImage(img, 0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height)
 
         // 转换为 WebP Blob
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              resolve(blob);
+              resolve(blob)
             } else {
-              reject(new Error('无法生成 WebP Blob'));
+              reject(new Error('无法生成 WebP Blob'))
             }
           },
           'image/webp',
           quality
-        );
+        )
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    };
+    }
 
     img.onerror = () => {
-      reject(new Error('图片加载失败'));
-    };
+      reject(new Error('图片加载失败'))
+    }
 
-    img.src = base64;
-  });
+    img.src = base64
+  })
 }
 
 /**
@@ -170,12 +170,12 @@ export async function compressBase64ToWebP(
  * @returns 是否支持 WebP
  */
 export function isWebPSupported(): boolean {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1;
-  canvas.height = 1;
-  
+  const canvas = document.createElement('canvas')
+  canvas.width = 1
+  canvas.height = 1
+
   // 检查 toDataURL 是否支持 WebP
-  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0
 }
 
 /**
@@ -184,13 +184,9 @@ export function isWebPSupported(): boolean {
  * @param quality 压缩质量 (0-1)
  * @returns 估算的压缩后大小（字节）
  */
-export function estimateCompressedSize(
-  originalSize: number,
-  quality: number = 0.85
-): number {
+export function estimateCompressedSize(originalSize: number, quality: number = 0.85): number {
   // WebP 通常能减少 30-50% 的文件大小
   // 根据质量参数调整估算
-  const compressionRatio = 0.5 + (1 - quality) * 0.3;
-  return Math.floor(originalSize * compressionRatio);
+  const compressionRatio = 0.5 + (1 - quality) * 0.3
+  return Math.floor(originalSize * compressionRatio)
 }
-

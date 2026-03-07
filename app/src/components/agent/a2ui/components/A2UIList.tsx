@@ -3,18 +3,18 @@
  * @description 用于渲染列表数据
  */
 
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React from 'react'
+import { cn } from '@/lib/utils'
 
 export interface A2UIListProps {
   /** 列表方向 */
-  direction?: 'horizontal' | 'vertical';
+  direction?: 'horizontal' | 'vertical'
   /** 间距 */
-  gap?: 'none' | 'sm' | 'md' | 'lg';
+  gap?: 'none' | 'sm' | 'md' | 'lg'
   /** 自定义类名 */
-  className?: string;
+  className?: string
   /** 子元素 */
-  children?: React.ReactNode;
+  children?: React.ReactNode
 }
 
 const gapMap = {
@@ -22,7 +22,7 @@ const gapMap = {
   sm: 'gap-2',
   md: 'gap-4',
   lg: 'gap-6',
-};
+}
 
 export const A2UIList: React.FC<A2UIListProps> = ({
   direction = 'vertical',
@@ -41,5 +41,5 @@ export const A2UIList: React.FC<A2UIListProps> = ({
     >
       {children}
     </div>
-  );
-};
+  )
+}

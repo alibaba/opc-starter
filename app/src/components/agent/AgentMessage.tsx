@@ -5,39 +5,29 @@
  * @see STORY-23-004
  */
 
-import { Bot, User, AlertCircle, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { AgentMessage as AgentMessageType } from '@/types/agent';
-import type { UserActionMessage } from '@/types/a2ui';
-import { A2UISurface } from './a2ui/A2UISurface';
+import { Bot, User, AlertCircle, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import type { AgentMessage as AgentMessageType } from '@/types/agent'
+import type { UserActionMessage } from '@/types/a2ui'
+import { A2UISurface } from './a2ui/A2UISurface'
 
 interface AgentMessageProps {
   /** 消息数据 */
-  message: AgentMessageType;
+  message: AgentMessageType
   /** 用于 A2UI 交互 */
-  onAction?: (
-    surfaceId: string,
-    componentId: string,
-    actionId: string,
-    value?: unknown
-  ) => void;
+  onAction?: (surfaceId: string, componentId: string, actionId: string, value?: unknown) => void
 }
 
 /**
  * 消息气泡组件
  */
 export function AgentMessage({ message, onAction }: AgentMessageProps) {
-  const isUser = message.role === 'user';
-  const isAssistant = message.role === 'assistant';
-  const isError = message.role === 'system' && message.content.includes('错误');
+  const isUser = message.role === 'user'
+  const isAssistant = message.role === 'assistant'
+  const isError = message.role === 'system' && message.content.includes('错误')
 
   return (
-    <div
-      className={cn(
-        'flex gap-3 px-4 py-3',
-        isUser && 'flex-row-reverse'
-      )}
-    >
+    <div className={cn('flex gap-3 px-4 py-3', isUser && 'flex-row-reverse')}>
       {/* 头像 */}
       <div
         className={cn(
@@ -59,12 +49,7 @@ export function AgentMessage({ message, onAction }: AgentMessageProps) {
       </div>
 
       {/* 消息内容 */}
-      <div
-        className={cn(
-          'flex-1 max-w-[85%] space-y-2',
-          isUser && 'flex flex-col items-end'
-        )}
-      >
+      <div className={cn('flex-1 max-w-[85%] space-y-2', isUser && 'flex flex-col items-end')}>
         {/* 文本内容 */}
         {message.content && (
           <div
@@ -102,7 +87,7 @@ export function AgentMessage({ message, onAction }: AgentMessageProps) {
           message.a2uiMessages?.map((a2uiMsg, index) => {
             // 只渲染 beginRendering 类型且有有效 component 的消息
             if (a2uiMsg.type !== 'beginRendering' || !a2uiMsg.component) {
-              return null;
+              return null
             }
 
             return (
@@ -114,12 +99,17 @@ export function AgentMessage({ message, onAction }: AgentMessageProps) {
                   onAction={
                     onAction
                       ? (message: UserActionMessage) =>
-                          onAction(message.surfaceId, message.componentId, message.actionId, message.value)
+                          onAction(
+                            message.surfaceId,
+                            message.componentId,
+                            message.actionId,
+                            message.value
+                          )
                       : undefined
                   }
                 />
               </div>
-            );
+            )
           })}
 
         {/* 工具调用显示 */}
@@ -154,15 +144,15 @@ export function AgentMessage({ message, onAction }: AgentMessageProps) {
         </span>
       </div>
     </div>
-  );
+  )
 }
 
 /**
  * 格式化时间
  */
 function formatTime(date: Date): string {
-  const now = new Date();
-  const messageDate = new Date(date);
+  const now = new Date()
+  const messageDate = new Date(date)
 
   // 同一天只显示时间
   if (
@@ -173,7 +163,7 @@ function formatTime(date: Date): string {
     return messageDate.toLocaleTimeString('zh-CN', {
       hour: '2-digit',
       minute: '2-digit',
-    });
+    })
   }
 
   // 不同天显示日期和时间
@@ -182,5 +172,5 @@ function formatTime(date: Date): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }

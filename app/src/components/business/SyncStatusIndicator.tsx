@@ -2,41 +2,41 @@
  * 同步状态指示器组件
  * Epic: 11 - 照片云存储
  * Story: 11.3 - 上传 UI 集成
- * 
+ *
  * 功能:
  * - 显示同步状态图标
  * - 显示上传进度
  * - 支持不同状态的视觉反馈
  */
 
-import { CloudOff, Loader2, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { CloudOff, Loader2, CheckCircle2, AlertCircle, Clock } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Progress } from '@/components/ui/progress'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 /**
  * 同步状态类型
  */
-export type SyncStatus = 'synced' | 'syncing' | 'pending' | 'error' | 'offline';
+export type SyncStatus = 'synced' | 'syncing' | 'pending' | 'error' | 'offline'
 
 /**
  * 组件 Props
  */
 export interface SyncStatusIndicatorProps {
   /** 同步状态 */
-  status: SyncStatus;
+  status: SyncStatus
   /** 上传进度 (0-100) */
-  progress?: number;
+  progress?: number
   /** 错误信息 */
-  error?: string;
+  error?: string
   /** 显示模式 */
-  mode?: 'icon' | 'full';
+  mode?: 'icon' | 'full'
   /** 大小 */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg'
   /** 自定义类名 */
-  className?: string;
+  className?: string
   /** 点击事件 */
-  onClick?: () => void;
+  onClick?: () => void
 }
 
 /**
@@ -84,9 +84,9 @@ function getStatusConfig(status: SyncStatus) {
       description: '网络连接断开，将在恢复后自动同步',
       animate: false,
     },
-  };
+  }
 
-  return configs[status];
+  return configs[status]
 }
 
 /**
@@ -97,8 +97,8 @@ function getIconSize(size: 'sm' | 'md' | 'lg') {
     sm: 'w-3 h-3',
     md: 'w-4 h-4',
     lg: 'w-5 h-5',
-  };
-  return sizes[size];
+  }
+  return sizes[size]
 }
 
 /**
@@ -113,9 +113,9 @@ export function SyncStatusIndicator({
   className,
   onClick,
 }: SyncStatusIndicatorProps) {
-  const config = getStatusConfig(status);
-  const Icon = config.icon;
-  const iconSize = getIconSize(size);
+  const config = getStatusConfig(status)
+  const Icon = config.icon
+  const iconSize = getIconSize(size)
 
   // 图标模式
   if (mode === 'icon') {
@@ -129,23 +129,15 @@ export function SyncStatusIndicator({
         )}
         onClick={onClick}
       >
-        <Icon
-          className={cn(
-            iconSize,
-            config.color,
-            config.animate && 'animate-spin'
-          )}
-        />
+        <Icon className={cn(iconSize, config.color, config.animate && 'animate-spin')} />
       </div>
-    );
+    )
 
     // 带 Tooltip
     return (
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild>
-            {iconElement}
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{iconElement}</TooltipTrigger>
           <TooltipContent>
             <div className="text-sm">
               <p className="font-medium">{config.label}</p>
@@ -157,7 +149,7 @@ export function SyncStatusIndicator({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    );
+    )
   }
 
   // 完整模式
@@ -171,29 +163,19 @@ export function SyncStatusIndicator({
       )}
       onClick={onClick}
     >
-      <Icon
-        className={cn(
-          iconSize,
-          config.color,
-          config.animate && 'animate-spin'
-        )}
-      />
+      <Icon className={cn(iconSize, config.color, config.animate && 'animate-spin')} />
       <div className="flex-1 min-w-0">
-        <p className={cn('text-sm font-medium', config.color)}>
-          {config.label}
-        </p>
+        <p className={cn('text-sm font-medium', config.color)}>{config.label}</p>
         {status === 'syncing' && progress !== undefined && (
           <div className="mt-1">
             <Progress value={progress} className="h-1" />
             <p className="text-xs text-muted-foreground mt-1">{progress}%</p>
           </div>
         )}
-        {error && (
-          <p className="text-xs text-destructive mt-1">{error}</p>
-        )}
+        {error && <p className="text-xs text-destructive mt-1">{error}</p>}
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -202,17 +184,17 @@ export function SyncStatusIndicator({
  */
 export interface GlobalSyncStatusProps {
   /** 是否正在同步 */
-  isSyncing: boolean;
+  isSyncing: boolean
   /** 待同步数量 */
-  pendingCount: number;
+  pendingCount: number
   /** 最后同步时间 */
-  lastSyncAt?: Date;
+  lastSyncAt?: Date
   /** 同步错误 */
-  syncError?: string;
+  syncError?: string
   /** 点击事件 */
-  onClick?: () => void;
+  onClick?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -230,29 +212,29 @@ export function GlobalSyncStatus({
   const status: SyncStatus = syncError
     ? 'error'
     : isSyncing
-    ? 'syncing'
-    : pendingCount > 0
-    ? 'pending'
-    : 'synced';
+      ? 'syncing'
+      : pendingCount > 0
+        ? 'pending'
+        : 'synced'
 
-  const config = getStatusConfig(status);
-  const Icon = config.icon;
+  const config = getStatusConfig(status)
+  const Icon = config.icon
 
   // 格式化最后同步时间
   const formatLastSync = (date?: Date) => {
-    if (!date) return '从未同步';
+    if (!date) return '从未同步'
 
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
 
-    if (minutes < 1) return '刚刚';
-    if (minutes < 60) return `${minutes} 分钟前`;
-    if (hours < 24) return `${hours} 小时前`;
-    return `${days} 天前`;
-  };
+    if (minutes < 1) return '刚刚'
+    if (minutes < 60) return `${minutes} 分钟前`
+    if (hours < 24) return `${hours} 小时前`
+    return `${days} 天前`
+  }
 
   return (
     <div
@@ -264,22 +246,12 @@ export function GlobalSyncStatus({
       )}
       onClick={onClick}
     >
-      <Icon
-        className={cn(
-          'w-5 h-5',
-          config.color,
-          config.animate && 'animate-spin'
-        )}
-      />
+      <Icon className={cn('w-5 h-5', config.color, config.animate && 'animate-spin')} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <p className={cn('text-sm font-medium', config.color)}>
-            {config.label}
-          </p>
+          <p className={cn('text-sm font-medium', config.color)}>{config.label}</p>
           {pendingCount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {pendingCount} 个待同步
-            </span>
+            <span className="text-xs text-muted-foreground">{pendingCount} 个待同步</span>
           )}
         </div>
         <p className="text-xs text-muted-foreground mt-0.5">
@@ -287,11 +259,8 @@ export function GlobalSyncStatus({
         </p>
       </div>
       {status === 'error' && (
-        <button className="text-xs text-primary hover:text-primary/80 font-medium">
-          重试
-        </button>
+        <button className="text-xs text-primary hover:text-primary/80 font-medium">重试</button>
       )}
     </div>
-  );
+  )
 }
-

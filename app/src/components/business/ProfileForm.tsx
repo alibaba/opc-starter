@@ -3,25 +3,25 @@
  * 个人信息表单组件 - 使用 react-hook-form + Zod 验证
  */
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
-import { Loader2, Edit, Save, X } from 'lucide-react';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { profileSchema, type ProfileFormData } from '@/types/validation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useUIStore } from '@/stores/useUIStore';
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { Loader2, Edit, Save, X } from 'lucide-react'
+import { useProfileStore } from '@/stores/useProfileStore'
+import { profileSchema, type ProfileFormData } from '@/types/validation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { useUIStore } from '@/stores/useUIStore'
 
 interface ProfileFormProps {
-  className?: string;
+  className?: string
 }
 
 export function ProfileForm({ className = '' }: ProfileFormProps) {
-  const { profile, isEditing, isLoading, updateProfile, setEditing } = useProfileStore();
-  const { showToast } = useUIStore();
+  const { profile, isEditing, isLoading, updateProfile, setEditing } = useProfileStore()
+  const { showToast } = useUIStore()
 
   const {
     register,
@@ -37,7 +37,7 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
       team: profile?.team || '',
       bio: profile?.bio || '',
     },
-  });
+  })
 
   // 当 profile 加载完成后，更新表单默认值
   useEffect(() => {
@@ -48,44 +48,44 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
         gender: profile.gender,
         team: profile.team || '',
         bio: profile.bio || '',
-      });
+      })
     }
-  }, [profile, reset]);
+  }, [profile, reset])
 
   /**
    * 处理表单提交
    */
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      await updateProfile(data);
-      showToast('个人信息更新成功', 'success');
-      setEditing(false);
+      await updateProfile(data)
+      showToast('个人信息更新成功', 'success')
+      setEditing(false)
     } catch (error) {
-      showToast(error instanceof Error ? error.message : '更新失败', 'error');
+      showToast(error instanceof Error ? error.message : '更新失败', 'error')
     }
-  };
+  }
 
   /**
    * 处理取消编辑
    */
   const handleCancel = () => {
-    reset();
-    setEditing(false);
-  };
+    reset()
+    setEditing(false)
+  }
 
   /**
    * 处理进入编辑模式
    */
   const handleEdit = () => {
-    setEditing(true);
-  };
+    setEditing(true)
+  }
 
   if (!profile) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
-    );
+    )
   }
 
   return (
@@ -104,22 +104,14 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* 邮箱（只读） */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            邮箱
-          </label>
-          <Input
-            value={profile.email}
-            disabled
-            className="bg-muted"
-          />
+          <label className="block text-sm font-medium text-foreground mb-2">邮箱</label>
+          <Input value={profile.email} disabled className="bg-muted" />
           <p className="text-xs text-muted-foreground mt-1">邮箱不可修改</p>
         </div>
 
         {/* 注册时间（只读） */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            注册时间
-          </label>
+          <label className="block text-sm font-medium text-foreground mb-2">注册时间</label>
           <Input
             value={format(profile.createdAt, 'yyyy-MM-dd HH:mm:ss')}
             disabled
@@ -145,9 +137,7 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
 
         {/* 花名（可选） */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            花名
-          </label>
+          <label className="block text-sm font-medium text-foreground mb-2">花名</label>
           <Input
             {...register('nickname')}
             disabled={!isEditing}
@@ -161,9 +151,7 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
 
         {/* 性别（可选） */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            性别
-          </label>
+          <label className="block text-sm font-medium text-foreground mb-2">性别</label>
           <div className="flex gap-4">
             <label className="flex items-center">
               <input
@@ -203,25 +191,19 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
 
         {/* 所在团队（可选） */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            所在团队
-          </label>
+          <label className="block text-sm font-medium text-foreground mb-2">所在团队</label>
           <Input
             {...register('team')}
             disabled={!isEditing}
             placeholder="请输入所在团队"
             className={!isEditing ? 'bg-muted' : ''}
           />
-          {errors.team && (
-            <p className="text-sm text-destructive mt-1">{errors.team.message}</p>
-          )}
+          {errors.team && <p className="text-sm text-destructive mt-1">{errors.team.message}</p>}
         </div>
 
         {/* 个人简介（可选） */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            个人简介
-          </label>
+          <label className="block text-sm font-medium text-foreground mb-2">个人简介</label>
           <Textarea
             {...register('bio')}
             disabled={!isEditing}
@@ -229,19 +211,13 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
             rows={4}
             className={!isEditing ? 'bg-muted' : ''}
           />
-          {errors.bio && (
-            <p className="text-sm text-destructive mt-1">{errors.bio.message}</p>
-          )}
+          {errors.bio && <p className="text-sm text-destructive mt-1">{errors.bio.message}</p>}
         </div>
 
         {/* 操作按钮 */}
         {isEditing && (
           <div className="flex gap-3 pt-4">
-            <Button
-              type="submit"
-              disabled={isLoading || !isDirty}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={isLoading || !isDirty} className="flex-1">
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -268,5 +244,5 @@ export function ProfileForm({ className = '' }: ProfileFormProps) {
         )}
       </form>
     </div>
-  );
+  )
 }

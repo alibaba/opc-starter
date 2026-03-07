@@ -4,13 +4,13 @@
  * @story STORY-23-012
  */
 
-import { useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { useAgentStore } from '@/stores/useAgentStore';
-import { A2UIRenderer } from './A2UIRenderer';
-import { Button } from '@/components/ui/button';
-import { X, Minimize2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
+import { useAgentStore } from '@/stores/useAgentStore'
+import { A2UIRenderer } from './A2UIRenderer'
+import { Button } from '@/components/ui/button'
+import { X, Minimize2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 /**
  * A2UI Portal 容器
@@ -19,55 +19,51 @@ import { cn } from '@/lib/utils';
  * - fullscreen: 全屏模态 (Portal 到 body)
  */
 export function A2UIPortalContainer() {
-  const portalContent = useAgentStore((s) => s.portalContent);
-  const portalTarget = useAgentStore((s) => s.portalTarget);
-  const portalDataModel = useAgentStore((s) => s.portalDataModel);
-  const closePortal = useAgentStore((s) => s.closePortal);
-  const handleUserAction = useAgentStore((s) => s.handleUserAction);
+  const portalContent = useAgentStore((s) => s.portalContent)
+  const portalTarget = useAgentStore((s) => s.portalTarget)
+  const portalDataModel = useAgentStore((s) => s.portalDataModel)
+  const closePortal = useAgentStore((s) => s.closePortal)
+  const handleUserAction = useAgentStore((s) => s.handleUserAction)
 
   // ESC 键关闭 Portal
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape' && portalContent) {
-        const config = portalContent.portalConfig;
+        const config = portalContent.portalConfig
         if (config?.showClose !== false) {
-          closePortal();
+          closePortal()
         }
       }
     },
     [portalContent, closePortal]
-  );
+  )
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
 
   // 无 Portal 内容或 inline 模式，不渲染
   if (!portalContent || portalTarget === 'inline') {
-    return null;
+    return null
   }
 
-  const config = portalContent.portalConfig ?? {};
+  const config = portalContent.portalConfig ?? {}
 
   // 处理用户 Action
   const handleAction = (componentId: string, actionId: string, value?: unknown) => {
     // 如果是关闭 action，关闭 Portal
     if (actionId === config.onClose) {
-      closePortal();
+      closePortal()
     }
     // 调用 Store 的 handleUserAction
-    handleUserAction(portalContent.id, componentId, actionId, value);
-  };
+    handleUserAction(portalContent.id, componentId, actionId, value)
+  }
 
   // 渲染内容
   const content = (
-    <A2UIRenderer
-      component={portalContent}
-      dataModel={portalDataModel}
-      onAction={handleAction}
-    />
-  );
+    <A2UIRenderer component={portalContent} dataModel={portalDataModel} onAction={handleAction} />
+  )
 
   // main-area: 覆盖主内容区 (通过 CSS absolute 定位)
   if (portalTarget === 'main-area') {
@@ -78,9 +74,7 @@ export function A2UIPortalContainer() {
       >
         {/* 顶部工具栏 */}
         <div className="flex-shrink-0 h-14 border-b flex items-center justify-between px-4 bg-background/95 backdrop-blur-sm">
-          <span className="text-sm font-medium">
-            {config.title || '预览'}
-          </span>
+          <span className="text-sm font-medium">{config.title || '预览'}</span>
           <div className="flex items-center gap-2">
             {config.showMinimize && (
               <Button
@@ -88,19 +82,14 @@ export function A2UIPortalContainer() {
                 size="icon"
                 onClick={() => {
                   // TODO: 实现最小化功能
-                  console.log('[Portal] 最小化');
+                  console.log('[Portal] 最小化')
                 }}
               >
                 <Minimize2 className="w-4 h-4" />
               </Button>
             )}
             {config.showClose !== false && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={closePortal}
-                aria-label="关闭"
-              >
+              <Button variant="ghost" size="icon" onClick={closePortal} aria-label="关闭">
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -110,7 +99,7 @@ export function A2UIPortalContainer() {
         {/* 内容区 */}
         <div className="flex-1 overflow-auto">{content}</div>
       </div>
-    );
+    )
   }
 
   // fullscreen: 全屏模态 (通过 Portal 渲染到 body)
@@ -136,28 +125,21 @@ export function A2UIPortalContainer() {
         <div className="relative z-10 w-full h-full max-w-[95vw] max-h-[95vh] m-4 bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col">
           {/* 顶部工具栏 */}
           <div className="flex-shrink-0 h-12 border-b flex items-center justify-between px-4">
-            <span className="text-sm font-medium">
-              {config.title || '全屏预览'}
-            </span>
+            <span className="text-sm font-medium">{config.title || '全屏预览'}</span>
             <div className="flex items-center gap-2">
               {config.showMinimize && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    console.log('[Portal] 最小化');
+                    console.log('[Portal] 最小化')
                   }}
                 >
                   <Minimize2 className="w-4 h-4" />
                 </Button>
               )}
               {config.showClose !== false && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={closePortal}
-                  aria-label="关闭"
-                >
+                <Button variant="ghost" size="icon" onClick={closePortal} aria-label="关闭">
                   <X className="w-5 h-5" />
                 </Button>
               )}
@@ -169,16 +151,16 @@ export function A2UIPortalContainer() {
         </div>
       </div>,
       document.body
-    );
+    )
   }
 
   // split 模式暂不实现
   if (portalTarget === 'split') {
-    console.warn('[Portal] split 模式暂未实现');
-    return null;
+    console.warn('[Portal] split 模式暂未实现')
+    return null
   }
 
-  return null;
+  return null
 }
 
-export default A2UIPortalContainer;
+export default A2UIPortalContainer

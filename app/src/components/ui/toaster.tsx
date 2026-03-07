@@ -61,12 +61,8 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
       <div className="flex items-start gap-3">
         <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
-          {toast.title && (
-            <div className="font-semibold text-sm mb-1">{toast.title}</div>
-          )}
-          {toast.description && (
-            <div className="text-sm opacity-90">{toast.description}</div>
-          )}
+          {toast.title && <div className="font-semibold text-sm mb-1">{toast.title}</div>}
+          {toast.description && <div className="text-sm opacity-90">{toast.description}</div>}
           {toast.action && (
             <button
               onClick={toast.action.onClick}
@@ -94,11 +90,7 @@ export function Toaster() {
     <div className="fixed top-0 right-0 z-50 p-4 pointer-events-none">
       <div className="flex flex-col gap-2">
         {toasts.map((toast) => (
-          <ToastItem
-            key={toast.id}
-            toast={toast}
-            onClose={() => remove(toast.id)}
-          />
+          <ToastItem key={toast.id} toast={toast} onClose={() => remove(toast.id)} />
         ))}
       </div>
     </div>

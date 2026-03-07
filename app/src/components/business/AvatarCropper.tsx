@@ -3,64 +3,67 @@
  * 头像裁剪组件 - 使用 react-easy-crop
  */
 
-import { useState, useCallback } from 'react';
-import Cropper, { type Area } from 'react-easy-crop';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { ZoomIn, ZoomOut } from 'lucide-react';
+import { useState, useCallback } from 'react'
+import Cropper, { type Area } from 'react-easy-crop'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
+import { ZoomIn, ZoomOut } from 'lucide-react'
 
 interface AvatarCropperProps {
-  image: string;
-  onComplete: (file: File) => void;
-  onCancel: () => void;
+  image: string
+  onComplete: (file: File) => void
+  onCancel: () => void
 }
 
 interface CroppedArea {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
 export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProps) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CroppedArea | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CroppedArea | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   /**
    * 处理裁剪区域变化
    */
-  const onCropComplete = useCallback(
-    (_croppedArea: Area, croppedAreaPixels: CroppedArea) => {
-      setCroppedAreaPixels(croppedAreaPixels);
-    },
-    []
-  );
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: CroppedArea) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
 
   /**
    * 创建裁剪后的图片
    */
   const createCroppedImage = async (): Promise<Blob> => {
     if (!croppedAreaPixels) {
-      throw new Error('No cropped area');
+      throw new Error('No cropped area')
     }
 
     return new Promise((resolve, reject) => {
-      const img = new Image();
+      const img = new Image()
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
 
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+          reject(new Error('Failed to get canvas context'))
+          return
         }
 
         // 设置画布大小为裁剪区域大小
-        canvas.width = croppedAreaPixels.width;
-        canvas.height = croppedAreaPixels.height;
+        canvas.width = croppedAreaPixels.width
+        canvas.height = croppedAreaPixels.height
 
         // 绘制裁剪后的图片
         ctx.drawImage(
@@ -73,48 +76,48 @@ export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProp
           0,
           croppedAreaPixels.width,
           croppedAreaPixels.height
-        );
+        )
 
         // 转换为 Blob
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              resolve(blob);
+              resolve(blob)
             } else {
-              reject(new Error('Failed to create blob'));
+              reject(new Error('Failed to create blob'))
             }
           },
           'image/jpeg',
           0.95
-        );
-      };
+        )
+      }
 
       img.onerror = () => {
-        reject(new Error('Failed to load image'));
-      };
+        reject(new Error('Failed to load image'))
+      }
 
-      img.src = image;
-    });
-  };
+      img.src = image
+    })
+  }
 
   /**
    * 处理确认裁剪
    */
   const handleConfirm = async () => {
     try {
-      setIsProcessing(true);
-      const croppedBlob = await createCroppedImage();
+      setIsProcessing(true)
+      const croppedBlob = await createCroppedImage()
       const croppedFile = new File([croppedBlob], 'avatar.jpg', {
         type: 'image/jpeg',
-      });
-      onComplete(croppedFile);
+      })
+      onComplete(croppedFile)
     } catch (error) {
-      console.error('Failed to crop image:', error);
-      alert('裁剪失败，请重试');
+      console.error('Failed to crop image:', error)
+      alert('裁剪失败，请重试')
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
@@ -164,5 +167,5 @@ export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProp
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

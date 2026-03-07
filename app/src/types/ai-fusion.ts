@@ -1,6 +1,6 @@
 /**
  * AI Fusion Task Types (Epic-17)
- * 
+ *
  * AI 图片融合任务相关类型定义
  * 基于阿里云 DashScope Image-to-Image API (wan2.5-i2i-preview)
  */
@@ -21,51 +21,51 @@ export type AIFusionTaskStatus = 'pending' | 'processing' | 'saving' | 'complete
 export interface AIFusionTask {
   /** 任务 ID */
   id: string
-  
+
   /** 用户 ID */
   user_id: string
-  
+
   // ===== 输入参数 =====
-  
+
   /** 源照片 ID 数组（2-10张） */
   source_photo_ids: string[]
-  
+
   /** 用户输入的融合描述 */
   prompt: string
-  
+
   /** 生成参数 */
   parameters: AIFusionParameters
-  
+
   // ===== 任务状态 =====
-  
+
   /** DashScope API 任务 ID */
   task_id: string | null
-  
+
   /** 任务状态 */
   status: AIFusionTaskStatus
-  
+
   /** 进度百分比 (0-100) */
   progress: number
-  
+
   // ===== 结果数据 =====
-  
+
   /** 生成结果的 OSS URL */
   result_url: string | null
-  
+
   /** 结果保存为新照片的 ID */
   result_photo_id: string | null
-  
+
   /** 错误信息（如果失败） */
   error_message: string | null
-  
+
   // ===== 时间戳 =====
-  
+
   /** 创建时间 */
   created_at: string
-  
+
   /** 更新时间 */
   updated_at: string
-  
+
   /** 完成时间 */
   completed_at: string | null
 }
@@ -81,7 +81,7 @@ export function isAIFusionTask(value: unknown): value is AIFusionTask {
 export interface AIFusionParameters {
   /** 输出分辨率，格式：宽*高，如 "1920*1080" */
   size?: string
-  
+
   /** 生成数量（1-4） */
   n?: number
 }
@@ -92,10 +92,10 @@ export interface AIFusionParameters {
 export interface CreateAIFusionTaskInput {
   /** 源照片 ID 数组（2-10张） */
   source_photo_ids: string[]
-  
+
   /** 用户输入的融合描述 */
   prompt: string
-  
+
   /** 生成参数（可选） */
   parameters?: AIFusionParameters
 }
@@ -106,22 +106,22 @@ export interface CreateAIFusionTaskInput {
 export interface UpdateAIFusionTaskInput {
   /** DashScope API 任务 ID */
   task_id?: string
-  
+
   /** 任务状态 */
   status?: AIFusionTaskStatus
-  
+
   /** 进度百分比 */
   progress?: number
-  
+
   /** 生成结果的 OSS URL */
   result_url?: string
-  
+
   /** 结果保存为新照片的 ID */
   result_photo_id?: string
-  
+
   /** 错误信息 */
   error_message?: string
-  
+
   /** 完成时间 */
   completed_at?: string
 }
@@ -132,13 +132,13 @@ export interface UpdateAIFusionTaskInput {
 export interface DashScopeSubmitResponse {
   /** 是否成功 */
   success: boolean
-  
+
   /** 任务 ID */
   task_id: string
-  
+
   /** 任务状态 */
   status: string
-  
+
   /** 错误信息 */
   error?: string
 }
@@ -149,40 +149,40 @@ export interface DashScopeSubmitResponse {
 export interface DashScopeQueryResponse {
   /** 是否成功 */
   success: boolean
-  
+
   /** 任务 ID */
   task_id: string
-  
+
   /** 任务状态 */
   status: string
-  
+
   /** 输出结果 */
   output?: {
     /** 任务 ID */
     task_id: string
-    
+
     /** 任务状态 */
     task_status: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'
-    
+
     /** 结果列表 */
     results?: Array<{
       /** 结果图片 URL */
       url: string
     }>
-    
+
     /** 错误码 */
     code?: string
-    
+
     /** 错误信息 */
     message?: string
   }
-  
+
   /** 使用量 */
   usage?: {
     /** 图片数量 */
     image_count: number
   }
-  
+
   /** 错误信息 */
   error?: string
 }
@@ -193,16 +193,16 @@ export interface DashScopeQueryResponse {
 export interface PromptTemplate {
   /** 模板 ID */
   id: string
-  
+
   /** 模板名称 */
   name: string
-  
+
   /** 模板分类 */
   category: 'fusion' | 'composite' | 'background' | 'artistic'
-  
+
   /** Prompt 文本 */
   prompt: string
-  
+
   /** 描述 */
   description?: string
 }
@@ -218,20 +218,19 @@ export type TaskFilterType = 'all' | 'active' | 'completed' | 'failed'
 export interface TaskStatistics {
   /** 总任务数 */
   total: number
-  
+
   /** 进行中任务数 */
   active: number
-  
+
   /** 已完成任务数 */
   completed: number
-  
+
   /** 失败任务数 */
   failed: number
-  
+
   /** 成功率 */
   success_rate: number
 }
 
 // 导出一个常量以确保模块不被完全擦除
 export const AI_FUSION_MODULE_VERSION = '1.0.0' as const
-

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ========================================
  * Tailwind CSS v4 - 主题配置
@@ -6,8 +6,8 @@
  * ======================================== */
 @theme inline {
   /* 字体 - Photo Wall 设计系统 */
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-  --font-display: "Nunito", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Nunito', 'Plus Jakarta Sans', system-ui, sans-serif;
 
   /* 圆角 */
   --radius-lg: 0.75rem;
@@ -17,45 +17,45 @@
   /* 颜色变量 - 使用 CSS 变量实现动态切换 */
   --color-background: var(--background-color);
   --color-foreground: var(--foreground-color);
-  
+
   --color-card: var(--card-color);
   --color-card-foreground: var(--card-foreground-color);
-  
+
   --color-popover: var(--popover-color);
   --color-popover-foreground: var(--popover-foreground-color);
-  
+
   --color-primary: var(--primary-color);
   --color-primary-foreground: var(--primary-foreground-color);
-  
+
   --color-secondary: var(--secondary-color);
   --color-secondary-foreground: var(--secondary-foreground-color);
-  
+
   --color-muted: var(--muted-color);
   --color-muted-foreground: var(--muted-foreground-color);
-  
+
   --color-accent: var(--accent-color);
   --color-accent-foreground: var(--accent-foreground-color);
-  
+
   --color-destructive: var(--destructive-color);
   --color-destructive-foreground: var(--destructive-foreground-color);
-  
+
   --color-success: var(--success-color);
   --color-success-foreground: var(--success-foreground-color);
-  
+
   --color-warning: var(--warning-color);
   --color-warning-foreground: var(--warning-foreground-color);
-  
+
   --color-border: var(--border-color);
   --color-input: var(--input-color);
   --color-ring: var(--ring-color);
-  
+
   /* 图表颜色 */
   --color-chart-1: var(--chart-1-color);
   --color-chart-2: var(--chart-2-color);
   --color-chart-3: var(--chart-3-color);
   --color-chart-4: var(--chart-4-color);
   --color-chart-5: var(--chart-5-color);
-  
+
   /* 头像渐变 */
   --color-avatar-from: var(--avatar-gradient-from);
   --color-avatar-to: var(--avatar-gradient-to);
@@ -182,13 +182,18 @@
     font-family: var(--font-sans);
     margin: 0;
     min-height: 100vh;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* 标题使用 Display 字体 */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
     font-weight: 700;
   }

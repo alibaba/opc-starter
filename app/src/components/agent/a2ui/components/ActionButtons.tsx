@@ -3,47 +3,47 @@
  * @description 用于显示一组操作按钮
  */
 
-import React from 'react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import React from 'react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export interface ActionButtonItem {
-  id: string;
-  label: string;
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  disabled?: boolean;
-  loading?: boolean;
-  icon?: React.ReactNode;
+  id: string
+  label: string
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
+  disabled?: boolean
+  loading?: boolean
+  icon?: React.ReactNode
 }
 
 export interface ActionButtonsProps {
   /** 按钮列表 */
-  buttons: ActionButtonItem[];
+  buttons: ActionButtonItem[]
   /** 布局方向 */
-  direction?: 'row' | 'column';
+  direction?: 'row' | 'column'
   /** 对齐方式 */
-  align?: 'start' | 'center' | 'end' | 'stretch';
+  align?: 'start' | 'center' | 'end' | 'stretch'
   /** 间距 */
-  gap?: 'sm' | 'md' | 'lg';
+  gap?: 'sm' | 'md' | 'lg'
   /** 按钮点击回调 */
-  onButtonClick?: (buttonId: string) => void;
+  onButtonClick?: (buttonId: string) => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 const gapMap = {
   sm: 'gap-2',
   md: 'gap-3',
   lg: 'gap-4',
-};
+}
 
 const alignMap = {
   start: 'justify-start',
   center: 'justify-center',
   end: 'justify-end',
   stretch: '',
-};
+}
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   buttons,
@@ -101,5 +101,5 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         </Button>
       ))}
     </div>
-  );
-};
+  )
+}

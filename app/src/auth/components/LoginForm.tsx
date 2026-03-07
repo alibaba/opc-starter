@@ -1,28 +1,28 @@
 /**
  * 登录表单组件
  */
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import type { LoginFormData } from '@/types/auth';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import type { LoginFormData } from '@/types/auth'
 
 export function LoginForm() {
-  const navigate = useNavigate();
-  const { signIn, error, isLoading } = useAuthStore();
+  const navigate = useNavigate()
+  const { signIn, error, isLoading } = useAuthStore()
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await signIn(formData.email, formData.password);
+    e.preventDefault()
+    await signIn(formData.email, formData.password)
     if (useAuthStore.getState().isAuthenticated) {
-      navigate('/');
+      navigate('/')
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,6 +71,5 @@ export function LoginForm() {
         </a>
       </div>
     </form>
-  );
+  )
 }
-

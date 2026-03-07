@@ -1,3 +1,7 @@
+/**
+ * Agent Tool 注册表 — 管理所有前端可执行工具的注册、查找和 OpenAI 格式转换。
+ * 工具通过 `defineTool()` 注册，运行时由 toolExecutor 按名称查找并执行。
+ */
 import { z } from 'zod'
 import zodToJsonSchema from 'zod-to-json-schema'
 import type {
