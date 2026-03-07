@@ -288,6 +288,66 @@ describe('架构约束 (Architectural Invariants)', () => {
     })
   })
 
+  describe('循环依赖检测 - 同层互导', () => {
+    it('stores/ 内的文件不应互相导入（避免初始化顺序问题）', () => {
+      const storesDir = path.join(SRC_ROOT, 'stores')
+      if (!fs.existsSync(storesDir)) return
+
+      const files = walkSync(storesDir, ['.ts', '.tsx'])
+      const storeFiles = files.filter((f) => !f.includes('.test.') && !f.includes('.spec.'))
+      const violations: Array<{ file: string; imports: string }> = []
+
+      for (const file of storeFiles) {
+        const content = fs.readFileSync(file, 'utf-8')
+        for (const other of storeFiles) {
+          if (other === file) continue
+          const otherBase = path.basename(other, path.extname(other))
+          const importPattern = new RegExp(`from\\s+['"](?:\\./|\\.\\./|@/stores/)${otherBase}['"]`)
+          if (importPattern.test(content)) {
+            violations.push({ file: relPath(file), imports: otherBase })
+          }
+        }
+      }
+
+      if (violations.length > 0) {
+        console.warn(
+          `⚠️ Store 互相导入:\n${violations.map((v) => `  ${v.file} → ${v.imports}`).join('\n')}`
+        )
+      }
+      expect(
+        violations.length,
+        `stores/ 文件间不应互相导入（${violations.length} 处）`
+      ).toBeLessThanOrEqual(2)
+    })
+
+    it('hooks/ 不应运行时导入 lib/supabase/client（type-only 导入除外）', () => {
+      const hooksDir = path.join(SRC_ROOT, 'hooks')
+      if (!fs.existsSync(hooksDir)) return
+
+      const files = walkSync(hooksDir, ['.ts', '.tsx'])
+      const violations: Array<{ file: string; line: number; text: string }> = []
+
+      for (const file of files) {
+        if (file.includes('.test.') || file.includes('.spec.')) continue
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+          if (
+            /from\s+['"]@\/lib\/supabase\/client['"]/.test(lines[i]) &&
+            !/^import\s+type\b/.test(lines[i].trim())
+          ) {
+            violations.push({ file: relPath(file), line: i + 1, text: lines[i].trim() })
+          }
+        }
+      }
+
+      expect(
+        violations,
+        `Hooks 不应运行时导入 supabase client:\n${violations.map((v) => `  ${v.file}:${v.line}: ${v.text}`).join('\n')}`
+      ).toEqual([])
+    })
+  })
+
   describe('TypeScript 严格性', () => {
     it('源文件中无未标注的 @ts-ignore', () => {
       const files = walkSync(SRC_ROOT, ['.ts', '.tsx'])

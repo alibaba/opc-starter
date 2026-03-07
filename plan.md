@@ -1,31 +1,27 @@
-# AI 亲和度审计报告（初次评估）
+# AI 亲和度审计报告
 
 ## 仓库信息
 
 | 项目 | 值 |
 |------|-----|
-| **仓库路径** | `/workspace/app` |
+| **仓库路径** | `/workspace` |
 | **检查日期** | 2026-03-07 |
-| **项目类型** | 前端 (SPA) |
+| **项目类型** | 前端（React SPA） |
 | **主要语言** | TypeScript |
-| **框架** | React 19.1 + Vite 7.1 + Tailwind CSS 4.1 + Supabase |
+| **框架** | React 19.1 · Vite 7.1 · Tailwind CSS 4.1 · Supabase · Zustand |
 
 ---
 
 ## 📊 总体评分
 
-<div align="center">
-
-### **82.0 / 100**
+### **78 / 100**
 
 ### 等级: **B**
-
-</div>
 
 | 等级 | 说明 |
 |------|------|
 | A (90-100) | 优秀，AI 可高效协作 |
-| **B (75-89)** | **良好，大部分场景适用 ← 当前** |
+| **B (75-89)** | **良好，大部分场景适用** |
 | C (60-74) | 及格，需要改进 |
 | D (40-59) | 较差，需系统性改造 |
 | F (<40) | 极低，不适合 AI 协作 |
@@ -36,7 +32,7 @@
 
 | 维度 | 权重 | 得分 | 加权得分 | 状态 |
 |------|------|------|----------|------|
-| 1. 最小可运行环境 | 11% | 4/4 | 11.00 | ✅ 优秀 |
+| 1. 最小可运行环境 | 11% | 3/4 | 8.25 | ⚡ 良好 |
 | 2. 类型系统与静态分析 | 11% | 3/4 | 8.25 | ⚡ 良好 |
 | 3. 测试体系 | 14% | 2/4 | 7.00 | ⚠️ 及格 |
 | 4. 文档完备性 | 10% | 4/4 | 10.00 | ✅ 优秀 |
@@ -45,7 +41,7 @@
 | 7. 上下文窗口友好性 | 9% | 4/4 | 9.00 | ✅ 优秀 |
 | 8. 代码自述性 | 7% | 3/4 | 5.25 | ⚡ 良好 |
 | 9. AI 工具与 SDD 支持 | 8% | 3/4 | 6.00 | ⚡ 良好 |
-| 10. 依赖隔离与可复现性 | 5% | 4/4 | 5.00 | ✅ 优秀 |
+| 10. 依赖隔离与可复现性 | 5% | 3/4 | 3.75 | ⚡ 良好 |
 | 11. Outer Loop & 反馈闭环 | 9% | 3/4 | 6.75 | ⚡ 良好 |
 
 **状态图例**: ✅ 优秀 (4) | ⚡ 良好 (3) | ⚠️ 及格 (2) | ❌ 不足 (0-1)
@@ -56,17 +52,18 @@
 
 ### 1. 最小可运行环境
 
-**当前状态**: ✅ 优秀 (4/4)
+**当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- `npm run dev:test` 可一键启动 MSW mock 模式，无需真实 Supabase
-- 提供 `env.local.example` 作为环境变量模板
-- `package-lock.json` 锁定依赖
-- Dockerfile + docker-compose.dev.yml 容器化支持
-- MSW handlers 覆盖完整的认证、REST API 调用
+- `npm run dev:test` 可一键启动 MSW Mock 模式，无需真实 Supabase 项目
+- MSW mock 体系完善，覆盖 handlers/data
+- Docker 支持完善（Dockerfile + docker-compose.dev.yml）
+- `package-lock.json` 依赖锁定存在
+- **缺失 `.env.example`**：仅有 `.env.test`，新开发者不清楚生产环境需要哪些环境变量
 
 **建议**:
-- 无需改进，已达满分
+- 创建 `app/.env.example` 作为环境变量文档模板，列出所有 `VITE_*` 变量及说明
+- 考虑添加 `.nvmrc` 锁定 Node.js 版本
 
 ---
 
@@ -75,14 +72,14 @@
 **当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- `tsconfig.app.json` 启用 `strict: true`，包含 `noUnusedLocals`、`noUnusedParameters` 等严格选项
+- `tsconfig.app.json` 和 `tsconfig.node.json` 均启用 `strict: true`
 - ESLint 配置 `@typescript-eslint/no-explicit-any: error`
-- 生产代码中仅有 4 处 `any` 使用，全部有 `eslint-disable` 注释说明
-- 缺少独立的静态分析工具（如 `@typescript-eslint/strict-type-checked` 规则集）
+- 仅 6 处 `any` 使用（3 处在生产代码：`registry.ts` × 2 处）
+- `noUnusedLocals`、`noUnusedParameters` 等严格选项已启用
 
 **建议**:
-- 升级 ESLint 配置到 `@typescript-eslint/strict-type-checked` 推荐规则集
-- 尝试消除 `a2ui/registry.ts` 中的 `React.ComponentType<any>`，用泛型约束替代
+- 消除 `app/src/components/agent/a2ui/registry.ts` 中的 3 处 `any`（可用泛型约束替代）
+- 消除 `app/src/lib/agent/tools/registry.ts` 中的 1 处 `any`
 
 ---
 
@@ -91,16 +88,16 @@
 **当前状态**: ⚠️ 及格 (2/4)
 
 **发现**:
-- Vitest 配置完整，23 个测试文件
-- Cypress E2E 框架已配置
-- 覆盖率阈值极低：lines/functions/statements 20%，branches 15%
-- `.cursor/rules/testing.md` 声称 80% 阈值，但实际配置仅 20%，文档与实现不一致
-- 缺少覆盖率趋势追踪
+- Vitest 测试框架配置完善，23 个测试文件
+- E2E 测试（Cypress）已配置
+- MSW mock 保证测试独立性
+- **覆盖率阈值过低**：lines 21%, branches 15%（远低于行业标准 50-70%）
+- 有 `architecture.test.ts` 结构测试（分层约束、文件体积、JSDoc、Tailwind v4）
 
 **建议**:
-- 将覆盖率阈值提升至 lines: 35%, functions: 35%, branches: 25%, statements: 35%
-- 对齐 `testing.md` 文档与实际 `vitest.config.ts` 配置
-- 在 `ai:check` 中集成覆盖率检查（已有 `coverage` 脚本）
+- 提高覆盖率阈值至 lines 40%+, branches 30%+
+- 为关键模块补充单元测试：`SyncEngine`、`ReactiveCollection`、`SupabaseAdapter`
+- 核心业务路径（认证、Agent 对话）增加集成测试
 
 ---
 
@@ -109,15 +106,15 @@
 **当前状态**: ✅ 优秀 (4/4)
 
 **发现**:
-- README.md 完整，包含快速开始、目录结构、技术栈
-- `docs/Architecture.md` 详细描述系统架构和模块关系
-- `docs/API.md` 定义 AI Assistant API 接口
-- `docs/DESIGN_TOKENS.md` 规范设计令牌
-- AGENTS.md 包含 AI 编码指南
+- `AGENTS.md` 目录式结构（86 行），符合 OpenAI Harness Engineering 最佳实践
+- `docs/Architecture.md` 完整，含 ASCII 架构图和模块关系
+- `docs/API.md` 有接口定义和 TypeScript 类型
+- `docs/DESIGN_TOKENS.md` 设计令牌规范
+- `.cursor/rules/` 6 个规范文件按需加载
+- `CONTRIBUTING.md` 贡献指南
 
 **建议**:
-- AGENTS.md 当前 293 行，超出推荐的 ~100 行目录式结构
-- 建议将详细内容抽取到 `.cursor/rules/` 下独立文件，AGENTS.md 作为精简目录入口
+- 当前已是优秀水平，持续维护即可
 
 ---
 
@@ -126,14 +123,13 @@
 **当前状态**: ✅ 优秀 (4/4)
 
 **发现**:
-- ESLint flat config + typescript-eslint
-- Prettier（`.prettierrc` 在仓库根目录）
-- Husky pre-commit 钩子 + lint-staged
-- commitlint conventional commits 规范
-- `lint:check` 和 `format:check` 脚本可用
+- ESLint flat config + TypeScript 插件 + React hooks 插件
+- Prettier 格式化（`.prettierrc`）
+- Husky pre-commit（lint-staged）+ commit-msg（commitlint）
+- `.editorconfig` 统一编辑器配置
 
 **建议**:
-- 无需改进，已达满分
+- 当前已是优秀水平，持续维护即可
 
 ---
 
@@ -142,14 +138,14 @@
 **当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- 清晰的分层：hooks / stores / components / services / utils / api / pages / config
-- `architecture.test.ts` 已验证 pages/components/hooks 不直接导入 Supabase client
-- 缺少循环依赖检测机制
-- stores 层与 services 层的边界有时模糊
+- 清晰分层：pages → components → hooks → services → lib → stores → types → utils
+- `architecture.test.ts` 强制分层导入约束（禁止跨层引用 supabase client）
+- Store 层禁止导入 pages 和 components
+- **缺少自动化循环依赖检测**（无 madge / dependency-cruiser）
 
 **建议**:
-- 在 `architecture.test.ts` 中添加循环依赖检测（或集成 `madge`）
-- 添加 stores → services 的依赖方向约束测试
+- 在 `architecture.test.ts` 中添加循环依赖检测
+- 或添加 `madge` / `dependency-cruiser` 到 dev 依赖
 
 ---
 
@@ -158,12 +154,13 @@
 **当前状态**: ✅ 优秀 (4/4)
 
 **发现**:
-- 219 个源文件中 217 个 ≤500 行（99%）
-- 仅 2 个警告文件（测试文件）：`sseClient.test.ts` (590行)、`A2UIRenderer.test.tsx` (571行)
-- 0 个超过 1000 行的文件
+- `app/src/` 中 202/203 文件 ≤ 500 行（99.5%）
+- 仅 1 个警告文件：`sseClient.test.ts`（572 行，测试文件可接受）
+- 无超过 1000 行的文件
+- `architecture.test.ts` 自动检查文件体积
 
 **建议**:
-- 无需改进，已达满分
+- 当前已是优秀水平，持续监控即可
 
 ---
 
@@ -172,14 +169,16 @@
 **当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- 核心文件（DataService, useAgentChat, sseClient, AgentWindow, stores）均有 JSDoc 文件头
-- `architecture.test.ts` 已验证关键目录的 JSDoc 覆盖率（允许 ≤5 个文件缺失）
-- 语义化命名一致，变量和函数名具有描述性
-- 部分次要文件（utils、config 子模块）缺少文件头注释
+- `DataService.ts`：完整 JSDoc（设计原则、作者信息）✅
+- `sseClient.ts`：完整 JSDoc（版本号、STORY 引用）✅
+- `useUIStore.ts`：有文件综述 ✅
+- `SyncEngine.ts`：**缺少文件综述和方法 JSDoc** ⚠️
+- `architecture.test.ts` 检查关键目录的 JSDoc 覆盖率（允许最多 5 个缺失）
 
 **建议**:
-- 为缺少 JSDoc 的关键文件补充文件头注释
-- 将 JSDoc 检查扩展到更多目录（如 `lib/agent/tools/`、`stores/`）
+- 为 `SyncEngine.ts` 添加文件综述和关键方法 JSDoc
+- 检查其他 `lib/reactive/` 文件的 JSDoc 覆盖情况
+- 为 `stores/` 下所有 store 文件确保有文件综述
 
 ---
 
@@ -188,33 +187,32 @@
 **当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- `.cursor/rules/` 包含 5 个规则文件（typescript-strict、agent-studio、supabase-patterns、testing、tailwind-v4），共 183 行
-- `.cursor/skills/` 包含 AI 技能文件
-- `.cursor/commands/` 包含 BMAD 工作流命令
-- AGENTS.md 内容丰富但过长（293行），不符合"目录式 ~100 行"最佳实践
-- 缺少根目录 `.cursorrules` 文件
-- 缺少 `.github/copilot-instructions.md`
-- 架构约束部分由 `architecture.test.ts` 机械化执行
+- `AGENTS.md` 目录式入口 + `.cursor/rules/` 按需加载 ✅
+- `.cursor/skills/` 多个技能文件（ai-friendly-audit, swarm-ai-loop, swarm-side-effects 等）✅
+- `.claude/skills/` 额外技能支持 ✅
+- `architecture.test.ts` 作为机械化不变量 ✅
+- **缺少 OpenAPI/Swagger 机器可读 API 规范**
+- **缺少 `CONVENTIONS.md` 独立编码规范文档**
 
 **建议**:
-- 将 AGENTS.md 重构为目录式入口（~100 行），详细规范已在 `.cursor/rules/` 中
-- 在根目录创建 `.cursorrules` 指向 AGENTS.md 和规则文件
-- 在 `.cursor/rules/` 中添加更多机械化约束规范
+- 为 Edge Function API 生成 OpenAPI spec（或在 `docs/API.md` 中添加结构化 schema）
+- 考虑将编码约定从分散的 `.cursor/rules/` 中汇总一份 `CONVENTIONS.md`
 
 ---
 
 ### 10. 依赖隔离与可复现性
 
-**当前状态**: ✅ 优秀 (4/4)
+**当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- MSW 完整屏蔽所有 Supabase API 调用
-- `package-lock.json` 锁定依赖版本
-- Dockerfile + docker-compose.dev.yml 容器化
-- `.env.test` 配置 MSW mock 模式
+- MSW 全面屏蔽外部 Supabase API ✅
+- `package-lock.json` 依赖锁定 ✅
+- Docker 容器化支持 ✅
+- **缺少 `.nvmrc`** — 无法锁定 Node.js 版本
 
 **建议**:
-- 无需改进，已达满分
+- 添加 `.nvmrc` 文件（或 `.node-version`）锁定 Node.js 版本
+- 在 CI 中使用 `--frozen-lockfile` 确保依赖一致性
 
 ---
 
@@ -223,18 +221,15 @@
 **当前状态**: ⚡ 良好 (3/4)
 
 **发现**:
-- `architecture.test.ts` 提供结构测试（分层约束、文件体积、JSDoc、Tailwind v4）
-- `npm run ai:check` 一键质量脚本（lint:check + type-check + coverage + build）
-- `scripts/quality_check.sh` 全面质量检查（包含可选 E2E）
-- 覆盖率阈值存在但偏低（20%）
-- `docs/IHS.md` 存在 IHS 健康报告（77.1/100）
-- 缺少覆盖率趋势自动追踪
-- 缺少 `format:check` 在 `ai:check` 中的集成
+- `architecture.test.ts` 提供结构测试（分层约束、文件体积、JSDoc、Tailwind v4）✅
+- `npm run ai:check`（lint + format + type-check + coverage + build）✅
+- `scripts/quality_check.sh`（ai:check + E2E）✅
+- 覆盖率阈值已设置（虽然较低）✅
+- **缺少回归检测/趋势追踪**（无 IHS 定期报告、无 SonarQube）
 
 **建议**:
-- 将 `format:check` 加入 `ai:check` 脚本
-- 提升覆盖率阈值到合理水平
-- 在结构测试中添加更多不变量检测（如导入方向、API 命名规范）
+- 实施 IHS 定期报告或在 CI 中添加覆盖率趋势对比
+- 将 `architecture.test.ts` 的检查项扩展（如循环依赖检测）
 
 ---
 
@@ -242,28 +237,31 @@
 
 ### 高优先级（影响大，ROI 高）
 
-1. **提升测试覆盖率阈值并对齐文档**
-   - 影响维度: D3 测试体系, D11 Outer Loop
-   - 预计提升: +5.25 分
-   - 实施难度: 低（仅改配置 + 文档）
+1. **提高测试覆盖率阈值 + 补充核心测试**
+   - 影响维度: D3 测试体系
+   - 预计提升: +3.5 分（D3: 2→3）
+   - 实施难度: 中
 
-2. **重构 AGENTS.md 为目录式结构**
-   - 影响维度: D4 文档完备性, D9 AI 工具与 SDD 支持
-   - 预计提升: +2.0 分
-   - 实施难度: 中（需要重组文档）
+2. **创建 `.env.example` 环境变量模板**
+   - 影响维度: D1 最小可运行环境
+   - 预计提升: +2.75 分（D1: 3→4）
+   - 实施难度: 低
+
+3. **消除生产代码中的 `any` 类型**
+   - 影响维度: D2 类型系统
+   - 预计提升: +2.75 分（D2: 3→4）
+   - 实施难度: 低
 
 ### 中优先级
 
-1. 添加循环依赖检测到结构测试 → D6 模块化架构
-2. 将 `format:check` 加入 `ai:check` → D11 Outer Loop
-3. 扩展 JSDoc 检查覆盖范围 → D8 代码自述性
-4. 在结构测试中添加更多架构不变量 → D6, D11
+1. 为缺失 JSDoc 的文件补充文件综述（D8: 3→4, +1.75 分）
+2. 添加循环依赖检测到 architecture.test.ts（D6: 3→4, +2.25 分）
+3. 添加 `.nvmrc` 锁定 Node 版本（D10: 3→4, +1.25 分）
 
 ### 低优先级
 
-1. 创建 `.cursorrules` 根目录入口文件
-2. 消除剩余 `any` 类型使用
-3. 添加 `.github/copilot-instructions.md`
+1. 为 AI Assistant API 生成 OpenAPI spec（D9 改进）
+2. 实施 IHS 回归检测报告（D11: 3→4）
 
 ---
 
@@ -271,48 +269,37 @@
 
 | 改进项 | 预计耗时 | 预计提升 |
 |--------|----------|----------|
-| 提升 vitest 覆盖率阈值 (20% → 35%) | 10 分钟 | +3.5 分 |
-| 对齐 testing.md 与实际配置 | 5 分钟 | +0 分 (一致性) |
-| 将 format:check 加入 ai:check | 5 分钟 | +0.5 分 |
-| AGENTS.md 重构为目录式 | 30 分钟 | +2.0 分 |
-| 添加循环依赖检测到 architecture.test.ts | 20 分钟 | +2.25 分 |
-| 扩展 JSDoc 检查到更多目录 | 15 分钟 | +1.75 分 |
+| 创建 `app/.env.example` | 15 分钟 | +2.75 分 |
+| 消除 registry.ts 中 4 处 `any` | 30 分钟 | +2.75 分 |
+| 为 SyncEngine.ts 等添加 JSDoc | 30 分钟 | +1.75 分 |
+| 添加 `.nvmrc` | 5 分钟 | +1.25 分 |
+| 提高覆盖率阈值（当前 21%/15%，需先补充测试） | 持续 | 间接提升 |
+| architecture.test.ts 添加循环依赖检测 | 1 小时 | +2.25 分 |
+
+**Quick Wins 合计预计提升: 78 → ~89 分 (B→B+)**
 
 ---
 
 ## 📈 改进路线图
 
-### 阶段 1: Quick Wins（本次改造）
-- [ ] 提升 vitest 覆盖率阈值至 35%
-- [ ] 对齐 `.cursor/rules/testing.md` 与 `vitest.config.ts`
-- [ ] 将 `format:check` 加入 `ai:check` 脚本
-- [ ] 重构 AGENTS.md 为目录式结构（~100 行入口）
-- [ ] 添加循环依赖检测到 `architecture.test.ts`
-- [ ] 扩展 JSDoc 文件头检查到 `lib/agent/tools/`、`stores/` 等目录
-- [ ] 在结构测试中添加 stores → services 的依赖方向约束
-- [ ] 补充缺少 JSDoc 的关键文件头注释
+### 阶段 1: Quick Wins（立即可做）
+- [ ] 创建 `app/.env.example`
+- [ ] 消除 `a2ui/registry.ts` 和 `tools/registry.ts` 中的 `any` 类型
+- [ ] 添加 `.nvmrc` 文件
+- [ ] 为 `SyncEngine.ts` 及其他缺失文件补充 JSDoc 文件综述
+- [ ] `architecture.test.ts` 添加循环依赖检测（services/ 和 lib/ 互相导入检测）
 
-### 阶段 2: 持续优化（后续迭代）
-- [ ] 逐步提升覆盖率阈值到 50%+
-- [ ] 消除所有 `any` 类型使用
-- [ ] 添加覆盖率趋势追踪
-- [ ] 集成 `madge` 进行深度循环依赖分析
+### 阶段 2: 测试体系强化（1-2 周）
+- [ ] 提高覆盖率阈值（lines 40%, branches 30%）
+- [ ] 为 `SyncEngine`、`ReactiveCollection` 补充单元测试
+- [ ] 核心业务路径增加集成测试
 
-### 阶段 3: 卓越（长期目标）
-- [ ] 覆盖率达到 70%+
-- [ ] 完全机械化所有架构约束
-- [ ] Agent 可自验证（结构化日志 + 错误追踪）
+### 阶段 3: 持续优化（持续）
+- [ ] AI Assistant API 添加 OpenAPI spec
+- [ ] 实施 IHS 定期报告/覆盖率趋势追踪
+- [ ] 提高覆盖率阈值至 60%/50%
 
 ---
 
-## 📚 参考资源
-
-- [TypeScript 严格模式配置指南](https://www.typescriptlang.org/tsconfig#strict)
-- [AGENTS.md 编写指南](https://docs.anthropic.com/en/docs/claude-code/memory)
-- [Conventional Commits 规范](https://www.conventionalcommits.org/)
-- [OpenAI Harness Engineering](https://openai.com/index/harness-engineering/)
-
----
-
-*报告生成时间: 2026-03-07T02:10:00Z*
+*报告生成时间: 2026-03-07T07:40:00Z*
 *审计工具版本: ai-friendly-audit v3.0*

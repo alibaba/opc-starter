@@ -4,7 +4,7 @@
 # 给定关键词，扫描代码库找出相关源文件、类型、测试、依赖和约束，
 # 输出结构化调研报告供 LLM 做任务拆解决策。
 #
-# 用法：bash .cursor/skills/swarm-side-effort-loop/scripts/codebase-investigate.sh <keyword> [project-root]
+# 用法：bash .cursor/skills/swarm-side-effects/scripts/codebase-investigate.sh <keyword> [project-root]
 #
 # 示例：
 #   bash scripts/codebase-investigate.sh "provider"

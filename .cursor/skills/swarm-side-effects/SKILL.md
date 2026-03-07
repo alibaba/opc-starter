@@ -1,5 +1,5 @@
 ---
-name: swarm-side-effort-loop
+name: swarm-side-effects
 description: Swarm 外循环工作流。吞吐外部需求（Epic Story、Bug、重构、新技术栈），调研代码库现状，拆解为 Anti-Memory-Wall 的可执行任务，标注复杂度以支持混合 LLM SubAgent 并行开发，降低团队研发成本。与 swarm-ai-loop 内循环配合使用。当用户提到"新需求"、"Epic"、"Story"、"feature request"、"Bug"、"缺陷"、"重构"、"升级"、"迁移"、"拆解任务"、"任务规划"、"sprint planning"、"外循环"、"引入新框架"、"需求分析"时触发。
 ---
 
@@ -32,7 +32,7 @@ description: Swarm 外循环工作流。吞吐外部需求（Epic Story、Bug、
 ### 步骤 1：查看 Epic 全景
 
 ```bash
-bash .cursor/skills/swarm-side-effort-loop/scripts/epic-status.sh
+bash .cursor/skills/swarm-side-effects/scripts/epic-status.sh
 ```
 
 脚本输出：Active/Backlog/Archived 统计、活跃 Epic 详情、WIP 过载警告。
@@ -66,7 +66,7 @@ bash .cursor/skills/swarm-side-effort-loop/scripts/epic-status.sh
 ### 步骤 1：运行自动化调研
 
 ```bash
-bash .cursor/skills/swarm-side-effort-loop/scripts/codebase-investigate.sh "<关键词>"
+bash .cursor/skills/swarm-side-effects/scripts/codebase-investigate.sh "<关键词>"
 ```
 
 脚本自动完成：
@@ -133,7 +133,7 @@ bash .cursor/skills/swarm-side-effort-loop/scripts/codebase-investigate.sh "<关
 4. 运行验证脚本：
 
 ```bash
-bash .cursor/skills/swarm-side-effort-loop/scripts/validate-epic-plan.sh <epic-file>
+bash .cursor/skills/swarm-side-effects/scripts/validate-epic-plan.sh <epic-file>
 ```
 
 脚本检查每个 Task 的 6 项合规性指标，输出评分和改进建议。
@@ -270,7 +270,7 @@ Wave N 开始
 | `scripts/codebase-investigate.sh` | 自动化代码库调研 | ② |
 | `scripts/validate-epic-plan.sh` | Anti-Memory-Wall 合规验证 | ③ |
 
-> 所有脚本路径前缀：`.cursor/skills/swarm-side-effort-loop/`
+> 所有脚本路径前缀：`.cursor/skills/swarm-side-effects/`
 
 ---
 
@@ -278,16 +278,16 @@ Wave N 开始
 
 ```bash
 # ── Phase ① INTAKE ──
-bash .cursor/skills/swarm-side-effort-loop/scripts/epic-status.sh
+bash .cursor/skills/swarm-side-effects/scripts/epic-status.sh
 # LLM 分类定级
 
 # ── Phase ② INVESTIGATE ──
-bash .cursor/skills/swarm-side-effort-loop/scripts/codebase-investigate.sh "provider"
+bash .cursor/skills/swarm-side-effects/scripts/codebase-investigate.sh "provider"
 # LLM 补充分析，输出调研报告
 
 # ── Phase ③ DECOMPOSE ──
 # LLM 按模板拆解任务（模板: references/templates.md）
-bash .cursor/skills/swarm-side-effort-loop/scripts/validate-epic-plan.sh docs/epics/epic-26.md
+bash .cursor/skills/swarm-side-effects/scripts/validate-epic-plan.sh docs/epics/epic-26.md
 # 修正不合规项，重新验证直到 PASS
 
 # ── Phase ④ PLAN ──

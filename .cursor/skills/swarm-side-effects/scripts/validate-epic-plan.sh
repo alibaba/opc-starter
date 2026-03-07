@@ -10,7 +10,7 @@
 #   - 涉及文件 ≤ 5 个
 #   - 无跨 Task 内容依赖
 #
-# 用法：bash .cursor/skills/swarm-side-effort-loop/scripts/validate-epic-plan.sh <epic-file>
+# 用法：bash .cursor/skills/swarm-side-effects/scripts/validate-epic-plan.sh <epic-file>
 #
 # 输出：每个 Task 的评分 + 总体判定（PASS / ACCEPTABLE / NEEDS WORK）
 

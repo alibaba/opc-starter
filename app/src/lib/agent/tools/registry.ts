@@ -18,7 +18,7 @@ export function defineTool<T extends z.ZodObject<z.ZodRawShape>>(
 ): RegisteredTool<T> {
   const { name, description, category, parameters, execute } = config
 
-  // 使用类型断言解决 zod v4 与 zod-to-json-schema 的类型兼容问题
+  // zod v4 与 zod-to-json-schema 存在类型签名差异，需要类型断言桥接
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jsonSchema = zodToJsonSchema(parameters as any, { target: 'openAi' })
 

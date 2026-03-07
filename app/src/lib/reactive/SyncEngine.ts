@@ -1,3 +1,8 @@
+/**
+ * SyncEngine — 离线优先的双向数据同步引擎
+ * @description 管理 Local ↔ Remote 之间的数据同步，支持离线队列、冲突解决和增量同步。
+ * @see ReactiveCollection 用于响应式数据查询
+ */
 import type {
   BaseEntity,
   LocalAdapter,

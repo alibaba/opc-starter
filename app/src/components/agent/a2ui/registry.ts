@@ -35,6 +35,13 @@ import { ActionButtons } from './components/ActionButtons'
 import type { A2UIComponentType } from '@/types/a2ui'
 
 /**
+ * 动态组件类型 — 注册表存储异构 React 组件时的通用类型。
+ * 类型安全通过 ComponentPropsMap 在消费侧保证。
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DynamicComponent = React.ComponentType<any>
+
+/**
  * 组件 Props 类型映射
  */
 export type ComponentPropsMap = {
@@ -65,8 +72,7 @@ export type ComponentPropsMap = {
  * 组件注册表
  * 键为 A2UI 组件类型，值为对应的 React 组件
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const componentRegistry: Record<string, React.ComponentType<any>> = {
+export const componentRegistry: Record<string, DynamicComponent> = {
   // ===== 基础组件 =====
   card: Card,
   'card-header': CardHeader,
@@ -100,21 +106,14 @@ export function isValidComponentType(type: string): type is A2UIComponentType {
 /**
  * 获取组件
  */
-export function getComponent(
-  type: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): React.ComponentType<any> | undefined {
+export function getComponent(type: string): DynamicComponent | undefined {
   return componentRegistry[type]
 }
 
 /**
  * 注册自定义组件（扩展点）
  */
-export function registerComponent(
-  type: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: React.ComponentType<any>
-): void {
+export function registerComponent(type: string, component: DynamicComponent): void {
   if (componentRegistry[type]) {
     console.warn(`[A2UI Registry] 覆盖已存在的组件类型: ${type}`)
   }

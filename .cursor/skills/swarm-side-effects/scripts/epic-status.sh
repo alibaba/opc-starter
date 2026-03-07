@@ -4,7 +4,7 @@
 # 解析 docs/Epics.yaml + 活跃 Epic 文件，输出当前项目的 Epic 全景。
 # 用于外循环 Phase ① INTAKE 的需求接入决策。
 #
-# 用法：bash .cursor/skills/swarm-side-effort-loop/scripts/epic-status.sh [project-root]
+# 用法：bash .cursor/skills/swarm-side-effects/scripts/epic-status.sh [project-root]
 #
 # 输出：
 #   - Backlog / Active / Archived 统计

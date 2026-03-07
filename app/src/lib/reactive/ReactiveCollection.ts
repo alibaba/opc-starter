@@ -1,3 +1,8 @@
+/**
+ * ReactiveCollection — RxJS 驱动的响应式数据集合
+ * @description 将 Local/Remote Adapter 包装为可观察的集合，支持实时查询和变更监听。
+ * @see SyncEngine 用于离线同步调度
+ */
 import { BehaviorSubject, Observable, map } from 'rxjs'
 import type {
   BaseEntity,
