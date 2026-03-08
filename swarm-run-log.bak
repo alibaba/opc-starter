@@ -6,11 +6,10 @@ Mode: 📋 Audit pipeline (inventory → score → report)
 
 
 ──────────────────────────────────────────────────
-🔍 Triage Result (13743ms)
+🔍 Triage Result (17395ms)
 ──────────────────────────────────────────────────
   Complexity: 🟠 medium
-  Mode: 📖 Read-only analysis
-  Confidence: ✅ 100%
+  Confidence: ✅ 90%
   Project type: monorepo
   Tech stack: typescript, nodejs, react, vitest
   Convention files: AGENTS.md, .cursor/rules, CONTRIBUTING.md
@@ -19,7 +18,7 @@ Mode: 📋 Audit pipeline (inventory → score → report)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 Phase: Audit Mode Pipeline
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ℹ️  发现相同 commit 的历史审计: run-mmgzesbg-75ff19，可使用 --resume run-mmgzesbg-75ff19 复用
+{"level":30,"time":1772978241668,"pid":31627,"hostname":"U-VVPK266P-2340.local","providerMode":"evidence-first","fastPath":true,"msg":"G36-7: Audit mode routing"}
   [1/9] 📋 Inventory Scan...
   [1/9] ✅ Inventory Scan (0.0s)
   [2/9] 📋 Config Facts...
@@ -27,11 +26,12 @@ Mode: 📋 Audit pipeline (inventory → score → report)
   [3/9] 📋 Policy Rules...
   [3/9] ✅ Policy Rules (0.0s)
   [4/9] 📋 Runtime Checks...
-  [4/9] ✅ Runtime Checks (11.9s)
+  [4/9] ✅ Runtime Checks (11.8s)
   [5/9] 📋 Script Score...
   [5/9] ✅ Script Score (0.0s)
   [6/9] 📋 Provider Analysis...
-  [6/9] ✅ Provider Analysis (421.9s)
+{"level":50,"time":1772978859640,"pid":31627,"hostname":"U-VVPK266P-2340.local","durationMs":606078,"timeoutMs":600000,"stderr":"","msg":"OpenCode CLI timed out"}
+  [6/9] ✅ Provider Analysis (606.1s)
   [7/9] 📋 Recommendation Guard...
   [7/9] ✅ Recommendation Guard (0.0s)
   [8/9] 📋 Fact-Check...
@@ -43,9 +43,9 @@ Mode: 📋 Audit pipeline (inventory → score → report)
 ══════════════════════════════════════════════════
 🤖 AI 亲和度评估完成
 ══════════════════════════════════════════════════
-Duration: 7m 28s
-Grade: D (53.9/100)
-Summary: OPC-Starter 项目 AI 亲和度总体良好 (估算 75-80/100)。核心优势：完整的 AGENTS.md 指南、6 个 Cursor rules、BMAD 方法论、MSW Mock 模式、质量门禁完善。文档完备性和上下文友好性表现出色 (4/4)。主要改进空间：测试体系偏弱 (测试/源码比 0.15, 覆盖率阈值低)、类型安全未 100% 执行 (10 个 any, 8 个 eslint-disable)、缺少结构测试和 IHS CI 集成。优先改进：完善 Husky 钩子、提升测试覆盖、收敛类型豁免、将 IHS 集成到 CI。项目定位为 AI-Friendly React Boilerplate，当前实现与定位一致，具备优秀的 AI 协作基础。
+Duration: 10m 38s
+Grade: D (57.9/100)
+Summary: OPC-Starter 在 AI 亲和度上表现良好（综合评分 68/100），核心优势在于 BMAD 方法论支持、完整的文档体系、严格的 TypeScript 配置和清晰的架构分层。主要改进空间在：测试覆盖率门槛过低（21%）、代码自述性不足（缺少 JSDoc）、依赖管理可优化（迁移 pnpm）、大文件需拆分。建议优先实施 Phase 1 基础改进（容器化、类型覆盖率监控、JSDoc），可在 2 周内显著提升 AI 协作体验。
 Artifacts: 6 files
 📄 Report: /Users/pusongyang/Workspace/pusongyang/opc-starter/.swarm/cache/ai_friendliness_report.json
 
@@ -55,13 +55,14 @@ Score Breakdown:
   type_system             2.8/4 █░░░
   test_system             3.5/4 █░░░
   doc_completeness         10/4 ████
-  code_standards          3.5/4 █░░░
+  code_standards          5.3/4 ██░░
   modularity              4.5/4 ██░░
   context_friendliness      9/4 ████
   code_self_doc           3.5/4 █░░░
   ai_tool_sdd               8/4 ███░
   dep_isolation           1.3/4 █░░░
-  outer_loop              2.3/4 █░░░
+  outer_loop              4.5/4 ██░░
 ──────────────────────────────────────────────────
 
 ✅ Audit completed via Audit Mode pipeline (no code changes made).
+{"level":30,"time":1772978859655,"pid":31627,"hostname":"U-VVPK266P-2340.local","escalate":false,"reasons":[],"msg":"G36-1: Fast path escalation check"}

@@ -2,12 +2,12 @@
 
 - **Task**: ai-friendliness-audit
 - **Repo**: /Users/pusongyang/Workspace/pusongyang/opc-starter
-- **Commit**: `961541e32ebefb715dd677cd8c5b41a18028757b`
-- **Grade**: D (53.9/100)
+- **Commit**: `8d50677bfdcb25eabb1f7af4579f22f87fd86abf`
+- **Grade**: D (57.9/100)
 
 ## 执行摘要
 
-OPC-Starter 项目 AI 亲和度总体良好 (估算 75-80/100)。核心优势：完整的 AGENTS.md 指南、6 个 Cursor rules、BMAD 方法论、MSW Mock 模式、质量门禁完善。文档完备性和上下文友好性表现出色 (4/4)。主要改进空间：测试体系偏弱 (测试/源码比 0.15, 覆盖率阈值低)、类型安全未 100% 执行 (10 个 any, 8 个 eslint-disable)、缺少结构测试和 IHS CI 集成。优先改进：完善 Husky 钩子、提升测试覆盖、收敛类型豁免、将 IHS 集成到 CI。项目定位为 AI-Friendly React Boilerplate，当前实现与定位一致，具备优秀的 AI 协作基础。
+OPC-Starter 在 AI 亲和度上表现良好（综合评分 68/100），核心优势在于 BMAD 方法论支持、完整的文档体系、严格的 TypeScript 配置和清晰的架构分层。主要改进空间在：测试覆盖率门槛过低（21%）、代码自述性不足（缺少 JSDoc）、依赖管理可优化（迁移 pnpm）、大文件需拆分。建议优先实施 Phase 1 基础改进（容器化、类型覆盖率监控、JSDoc），可在 2 周内显著提升 AI 协作体验。
 
 ## 加权评分表
 
@@ -17,13 +17,13 @@ OPC-Starter 项目 AI 亲和度总体良好 (估算 75-80/100)。核心优势：
 | 2 | 类型系统与静态分析 | 11% | █░░░ 1/4 | 2.8/11 | 类型系统需加强 |
 | 3 | 测试体系 | 14% | █░░░ 1/4 | 3.5/14 | 测试体系需改进 |
 | 4 | 文档完备性 | 10% | ████ 4/4 | 10/10 | 文档完备 |
-| 5 | 代码规范与自动化 | 7% | ██░░ 2/4 | 3.5/7 | 代码规范需改进 |
+| 5 | 代码规范与自动化 | 7% | ███░ 3/4 | 5.3/7 | 代码规范良好 |
 | 6 | 模块化架构 | 9% | ██░░ 2/4 | 4.5/9 | 模块化需改进 |
 | 7 | 上下文窗口友好性 | 9% | ████ 4/4 | 9/9 | 上下文友好 |
 | 8 | 代码自述性 | 7% | ██░░ 2/4 | 3.5/7 | 代码自述性良好 |
 | 9 | AI 工具与 SDD 支持 | 8% | ████ 4/4 | 8/8 | AI 工具支持良好 |
 | 10 | 依赖隔离与可复现性 | 5% | █░░░ 1/4 | 1.3/5 | 依赖隔离需改进 |
-| 11 | Outer Loop & 反馈闭环 | 9% | █░░░ 1/4 | 2.3/9 | Outer Loop 需建设 |
+| 11 | Outer Loop & 反馈闭环 | 9% | ██░░ 2/4 | 4.5/9 | Outer Loop 需建设 |
 
 ## 各维度详细分析
 
@@ -58,12 +58,13 @@ OPC-Starter 项目 AI 亲和度总体良好 (估算 75-80/100)。核心优势：
 - 6 doc file(s)
 - 6 cursor rule(s)
 
-### 代码规范与自动化 (2/4)
+### 代码规范与自动化 (3/4)
 
-代码规范需改进
+代码规范良好
 
 **证据**:
 - Formatter configured
+- 2 git hook(s)
 - Lint passes
 
 ### 模块化架构 (2/4)
@@ -108,54 +109,51 @@ AI 工具支持良好
 **证据**:
 - CI workflows present
 
-### Outer Loop & 反馈闭环 (1/4)
+### Outer Loop & 反馈闭环 (2/4)
 
 Outer Loop 需建设
 
 **证据**:
 - 3 quality script(s)
+- 2 git hook(s)
 
 ## Quick Wins（快速改进）
 
-- ⚡ 完善 Husky pre-commit 钩子 (添加 commitlint)
-- ⚡ 为 5 个超大文件 (>400 行) 添加拆分计划
-- ⚡ 收敛 `any` 和 `eslint-disable` 使用
-- ⚡ 提升测试覆盖率阈值 (21%→30%)
-- ⚡ 为公共 API 添加 JSDoc 注释
-- ⚡ 将 IHS 评测集成到 CI
+- ⚡ 添加 .nvmrc 文件固化 Node.js 版本（5 分钟）
+- ⚡ 在 vitest.config.ts 中提高覆盖率门槛至 lines 40%（5 分钟）
+- ⚡ 为>300 行的文件添加文件顶部职责注释（30 分钟）
+- ⚡ 在 README 中添加 Docker 快速启动说明（1 小时）
+- ⚡ 为公共 API 函数批量添加 JSDoc 模板（2 小时）
+- ⚡ 拆分 types/agent.ts（348 行）为多个领域类型文件（3 小时）
 
 ## 分阶段改进行动计划
 
-### Phase 1: Foundation (1-2 weeks)
+### Phase 1: Foundation (1-2 周)
 
-- [ ] 完善 Husky 钩子链：commit-msg, pre-push
-- [ ] 启用 commitlint 提交规范检查
-- [ ] 添加 lockfile 完整性 CI 检查
-- [ ] 为 5 个超大文件制定拆分计划
-- [ ] 收敛 `any` 和 `eslint-disable` (目标：-50%)
+- [ ] 添加 Docker 容器化支持（Dockerfile + docker-compose.yml）
+- [ ] 迁移到 pnpm workspace 优化依赖管理
+- [ ] 引入 type-coverage 工具监控类型覆盖率
+- [ ] 提高测试覆盖率门槛至 lines 40%, branches 25%
+- [ ] 为所有公共 API 添加 JSDoc 注释
+- [ ] 添加依赖安全扫描到 CI 流程
 
-### Phase 2: Testing Enhancement (2-4 weeks)
+### Phase 2: Enhancement (3-4 周)
 
-- [ ] 提升测试/源码比到 0.25+ (新增 20+ 测试文件)
-- [ ] 优先覆盖核心服务：DataService, Agent Tools
-- [ ] 提升覆盖率阈值：lines 21%→30%, branches 15%→25%
-- [ ] 添加架构结构测试 (模块依赖约束)
+- [ ] 拆分大文件（>400 行）为可管理的小模块
+- [ ] 添加模块依赖图可视化（使用 dpdm 或 madge）
+- [ ] 为复杂业务流程添加时序图文档
+- [ ] 引入 Mutation Testing 验证测试有效性
+- [ ] 添加性能预算监控（Lighthouse CI）
+- [ ] 实现架构决策记录（ADR）系统
 
-### Phase 3: Documentation & Automation (2-3 weeks)
+### Phase 3: Advanced (5-6 周)
 
-- [ ] 为公共 API 和复杂函数添加 JSDoc
-- [ ] 将 IHS 评测集成到 CI 流程
-- [ ] 添加 IHS 分数回归门禁
-- [ ] 为常见任务提供 AI 提示词模板
-- [ ] 添加 AI 代码生成模板 (scaffolding)
-
-### Phase 4: Long-term Excellence (1-2 months)
-
-- [ ] 逐步提升覆盖率阈值至 lines 70%+, branches 60%+
-- [ ] 测试/源码比达到 0.35+
-- [ ] 拆分所有超大文件
-- [ ] 添加模块边界检查 (eslint-plugin-boundaries)
-- [ ] 自动化技术债追踪和报告
+- [ ] 添加视觉回归测试到 E2E 流程
+- [ ] 实现依赖更新自动化（Renovate）
+- [ ] 为 AI 生成代码添加自动化验证规则
+- [ ] 添加代码复杂度门禁（cyclomatic complexity<10）
+- [ ] 建立代码重复检测机制（jscpd）
+- [ ] 添加 AI 辅助开发指标仪表板
 
 ## Artifacts
 
