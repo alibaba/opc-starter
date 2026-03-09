@@ -1,4 +1,7 @@
 swarm autopilot "评估当前项目的AI亲和度,并且给出改进建议,将改进建议保存在 swarm-run.md 中"
+📦 First run detected — initializing AI-friendly docs...
+  Skipped (already exist): AGENTS.md, .opencode/instructions.md
+
 🔍 Triage: Assessing task complexity...
 👑 Swarm Autopilot — Audit Mode Pipeline
 ══════════════════════════════════════════════════
@@ -6,16 +9,17 @@ Mode: 📋 Audit pipeline (inventory → score → report)
 
 
 ──────────────────────────────────────────────────
-🔍 Triage Result (11287ms)
+🔍 Triage Result (12938ms)
 ──────────────────────────────────────────────────
   Complexity: 🟠 medium
-  Confidence: ✅ 90%
-  Project type: single-package
-  Tech stack: typescript, nodejs, vitest
-  Convention files: AGENTS.md, CLAUDE.md, README.md
+  Mode: 📖 Read-only analysis
+  Confidence: ✅ 100%
+  Project type: monorepo
+  Tech stack: typescript, nodejs, react, vitest
+  Convention files: AGENTS.md, .cursor/rules, CONTRIBUTING.md
   Swarm size: 2 scouts, 1 builders, 1 reviewers
-{"level":30,"time":1773028142148,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G35-5: No OpenCode Server found, starting one..."}
-{"level":30,"time":1773028143164,"pid":4899,"hostname":"U-VVPK266P-2340.local","url":"http://localhost:4096","startupMs":1014,"msg":"G35-5: OpenCode Server started successfully"}
+{"level":30,"time":1773067326288,"pid":12331,"hostname":"U-VVPK266P-2340.local","msg":"G35-5: No OpenCode Server found, starting one..."}
+{"level":30,"time":1773067327302,"pid":12331,"hostname":"U-VVPK266P-2340.local","url":"http://localhost:4096","startupMs":1013,"msg":"G35-5: OpenCode Server started successfully"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 Phase: Audit Mode Pipeline
@@ -27,14 +31,14 @@ Mode: 📋 Audit pipeline (inventory → score → report)
   [3/9] 📋 Policy Rules...
   [3/9] ✅ Policy Rules (0.0s)
   [4/9] 📋 Runtime Checks...
-  [4/9] ✅ Runtime Checks (47.0s)
+  [4/9] ✅ Runtime Checks (13.1s)
   [5/9] 📋 Script Score...
   [5/9] ✅ Script Score (0.0s)
   [6/9] 📋 Provider Analysis...
     💓 AF Provider heartbeat started
-{"level":30,"time":1773028143164,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G39-1: OpenCode Server connection established via ServerManager"}
-{"level":30,"time":1773028143174,"pid":4899,"hostname":"U-VVPK266P-2340.local","providerMode":"evidence-first","fastPath":true,"msg":"G36-7: Audit mode routing"}
-{"level":30,"time":1773028190257,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G35-2: OpenCode HTTP mode available"}
+{"level":30,"time":1773067327302,"pid":12331,"hostname":"U-VVPK266P-2340.local","msg":"G39-1: OpenCode Server connection established via ServerManager"}
+{"level":30,"time":1773067327312,"pid":12331,"hostname":"U-VVPK266P-2340.local","providerMode":"evidence-first","fastPath":true,"msg":"G36-7: Audit mode routing"}
+{"level":30,"time":1773067340504,"pid":12331,"hostname":"U-VVPK266P-2340.local","msg":"G35-2: OpenCode HTTP mode available"}
     💓 AF Provider heartbeat #1: 8.0s elapsed [reasoning]
     💓 AF Provider heartbeat #2: 16.0s elapsed [reasoning]
     💓 AF Provider heartbeat #3: 24.0s elapsed [reasoning]
@@ -43,50 +47,58 @@ Mode: 📋 Audit pipeline (inventory → score → report)
     🐌 AF Provider heartbeat #6: 48.0s elapsed [stalled]
     🐌 AF Provider heartbeat #7: 56.0s elapsed [stalled]
     🐌 AF Provider heartbeat #8: 64.0s elapsed [stalled]
+    ⚡ Circuit breaker triggered after 5 stalled heartbeats (64.0s)
+{"level":40,"time":1773067404502,"pid":12331,"hostname":"U-VVPK266P-2340.local","stallCount":5,"stallThreshold":5,"msg":"G43-1: Circuit breaker aborted AF provider call"}
+    💓 AF Provider heartbeat started
+{"level":30,"time":1773067404504,"pid":12331,"hostname":"U-VVPK266P-2340.local","msg":"G43-4: Retrying AF after circuit breaker with fresh HTTP session"}
+{"level":30,"time":1773067404512,"pid":12331,"hostname":"U-VVPK266P-2340.local","msg":"G35-2: OpenCode HTTP mode available"}
     🐌 AF Provider heartbeat #9: 72.0s elapsed [stalled]
     🐌 AF Provider heartbeat #10: 80.0s elapsed [stalled]
     🐌 AF Provider heartbeat #11: 88.0s elapsed [stalled]
     🐌 AF Provider heartbeat #12: 96.0s elapsed [stalled]
     🐌 AF Provider heartbeat #13: 104.0s elapsed [stalled]
-    🐌 AF Provider heartbeat #14: 112.0s elapsed [stalled]
-{"level":40,"time":1773028310253,"pid":4899,"hostname":"U-VVPK266P-2340.local","timeoutMs":120000,"msg":"G39-2: AF Provider analysis timed out"}
-  [6/9] ⏱️ Provider Analysis (120.0s) [timeout_salvaged]
+    ⚡ Circuit breaker triggered after 5 stalled heartbeats (104.0s)
+  [6/9] ⏱️ Provider Analysis (104.0s) [timeout_salvaged]
   [7/9] 📋 Recommendation Guard...
   [7/9] ✅ Recommendation Guard (0.0s)
   [8/9] 📋 Fact-Check...
   [8/9] ✅ Fact-Check (0.0s)
+{"level":30,"time":1773067444525,"pid":12331,"hostname":"U-VVPK266P-2340.local","escalate":false,"reasons":[],"msg":"G36-1: Fast path escalation check"}
   [9/9] 📋 Merge & Report...
-📄 Report saved to: /Users/pusongyang/Workspace/dbaas/swarm/swarm-run.md
+📄 Report saved to: /Users/pusongyang/Workspace/pusongyang/opc-starter/swarm-run.md
   [9/9] ✅ Merge & Report (0.0s)
 
 ══════════════════════════════════════════════════
 🤖 AI 亲和度评估完成
 ══════════════════════════════════════════════════
-Duration: 3m 3s
-Grade: C (69.9/100)
-Summary: AI 亲和度评估完成。总分: 69.9/100, 等级: C
+Duration: 2m 12s
+Grade: D (57.9/100)
+Summary: AI 亲和度评估完成。总分: 57.9/100, 等级: D
 Artifacts: 5 files
-📄 Report: /Users/pusongyang/Workspace/dbaas/swarm/.swarm/cache/ai_friendliness_report.json
+📄 Report: /Users/pusongyang/Workspace/pusongyang/opc-starter/.swarm/cache/ai_friendliness_report.json
 
 Score Breakdown:
 ──────────────────────────────────────────────────
-  min_runnable_env         11/4 ████
-  type_system              11/4 ████
-  test_system               7/4 ███░
-  doc_completeness        7.5/4 ███░
-  code_standards          3.5/4 █░░░
+  min_runnable_env        5.5/4 ██░░
+  type_system             2.8/4 █░░░
+  test_system             3.5/4 █░░░
+  doc_completeness         10/4 ████
+  code_standards          5.3/4 ██░░
   modularity              4.5/4 ██░░
-  context_friendliness    6.8/4 ███░
-  code_self_doc           5.3/4 ██░░
-  ai_tool_sdd               6/4 ██░░
-  dep_isolation             5/4 ██░░
-  outer_loop              2.3/4 █░░░
+  context_friendliness      9/4 ████
+  code_self_doc           3.5/4 █░░░
+  ai_tool_sdd               8/4 ███░
+  dep_isolation           1.3/4 █░░░
+  outer_loop              4.5/4 ██░░
 ──────────────────────────────────────────────────
 
-⏱️  LLM 分析超时，已抢救部分结果: AF Provider analysis timed out after 120s
+⏱️  LLM 分析超时，已抢救部分结果: Circuit breaker triggered after 5 stalled heartbeats (retry also failed)
    评分可能不完整，请关注缺失维度
 
 ✅ Audit completed via Audit Mode pipeline (no code changes made).
-{"level":30,"time":1773028310274,"pid":4899,"hostname":"U-VVPK266P-2340.local","escalate":false,"reasons":[],"msg":"G36-1: Fast path escalation check"}
-{"level":30,"time":1773028310292,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G35-5: Shutting down managed OpenCode Server"}
-{"level":40,"time":1773028316328,"pid":4899,"hostname":"U-VVPK266P-2340.local","error":"TypeError: fetch failed","msg":"G40-5: HTTP infrastructure error, falling back to CLI"}
+{"level":30,"time":1773067444547,"pid":12331,"hostname":"U-VVPK266P-2340.local","msg":"G35-5: Shutting down managed OpenCode Server"}
+{"level":40,"time":1773067450600,"pid":12331,"hostname":"U-VVPK266P-2340.local","error":"TypeError: fetch failed","httpFailCount":2,"msg":"G43-2: HTTP mode exhausted retries, falling back to CLI"}
+{"level":40,"time":1773067450603,"pid":12331,"hostname":"U-VVPK266P-2340.local","error":"TypeError: fetch failed","httpFailCount":2,"msg":"G43-2: HTTP mode exhausted retries, falling back to CLI"}
+{"level":40,"time":1773067451903,"pid":12331,"hostname":"U-VVPK266P-2340.local","promptLength":4071,"exitCode":1,"noTools":true,"durationMs":1302,"msg":"G43-3: CLI returned empty response"}
+{"level":40,"time":1773067452019,"pid":12331,"hostname":"U-VVPK266P-2340.local","promptLength":4071,"exitCode":1,"noTools":true,"durationMs":1416,"msg":"G43-3: CLI returned empty response"}
+➜  opc-starter git:(develop) ✗ 
