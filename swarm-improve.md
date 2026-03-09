@@ -388,3 +388,290 @@ Guard 至少应拦截以下错误：
 ## 七、一句话总结
 
 Swarm 下一轮最该做的，不是再发明更多阶段，而是**把 `[6/9] Provider Analysis` 从“长时间黑盒等待”改造成“有心跳、可恢复、可核验的 provider synthesis 阶段”**；对 Coding Agent 继续保留 OpenCode，对 headless audit 优先走更轻的 evidence-first 路径。
+
+---
+
+## 八、第二轮联合会诊（增量建议：蜂群协议层）
+
+> 本节是在“上一轮 `heartbeat / status model / audit fast path / SSOT / claim ledger / freshness / resume / monorepo inventory` 已进入修复或已基本修复”的前提下，进一步给 Swarm Agent 的后续改造提供增量 backlog。
+>
+> 额外说明两点：
+>
+> 1. 当前 `swarm-run-log.bak` 更像最终评估报告快照，而不是原始 phase 事件流，因此本节重点评估“对外产物 + 编排哲学”，而不是重复判断某条 runtime 日志是否存在。
+> 2. 在当前样本里，`Grade: C (69.9/100)` 与各维度加权分可以自洽复算，说明评分口径漂移问题在这个样本上已基本收敛；因此本节不再把 score 漂移作为主焦点，而转向更高阶的协议与架构问题。
+
+### 8.1 核心判断
+
+本轮新增判断只有一句话：
+
+**Swarm 下一阶段最值得补的，不是再加更多执行阶段，而是把 `Queen 主权`、`Pheromone 决策协议`、`Wax 工件封装`、`Provider 输出契约` 做成真正的一等能力。**
+
+换句话说：
+
+- 上一轮主要解决的是 provider 黑盒、错误语义和 report 可核验性；
+- 这一轮要解决的是蜂群内部“谁有权决策、信息如何流动、结果如何封装、Provider 怎样成为可替换部件”。
+
+---
+
+### 8.2 P0：先固化蜂群协议面
+
+#### P0-1. 建立统一 `ResultEnvelope`，让 provider/tool 输出先变成协议对象
+
+当前 audit 结果虽然已经能渲染成结构化 markdown，但本质上仍是“面向人阅读的最终报告”。
+
+下一轮建议统一所有 provider / tool / report 阶段的输出契约，最少包含：
+
+- `kind`
+- `status`
+- `payload`
+- `provenance`
+- `artifacts`
+- `cost`
+- `diagnostics`
+- `next_actions`
+
+设计原则：
+
+- markdown 只负责展示，不再承担事实真相源职责；
+- MCP / CLI / compare / renderer 全部消费同一份 envelope；
+- 后续 provider 替换时，只替换实现，不替换上层编排逻辑。
+
+这项改造的价值不是“再加一层 JSON”，而是把 provider 从“输出一份报告”升级为“交付一个可被 Queen 和其他阶段消费的标准结果对象”。
+
+#### P0-2. 建立 `Queen Authority Matrix`，收回任务晋级与 mergeable 判定主权
+
+当前角色哲学里，Coordinator / Queen 负责 plan -> dispatch -> evaluate -> merge，Scout / Builder / Reviewer 各自边界已经很清楚。
+
+但随着 auto-enqueue merge queue、partial success merge 等能力增强，系统存在一个隐患：
+
+- Builder 完成 ≠ 全局可合并
+- Reviewer 通过 ≠ Queen 已批准
+- 局部成功 ≠ 整体已经收敛
+
+因此建议把任务与分支的生命周期显式建模为：
+
+1. `draft`
+2. `reviewed`
+3. `ratified`
+4. `mergeable`
+5. `waxed`
+
+规则建议：
+
+- Builder 只能把产物推进到 `draft`
+- Reviewer 只能把产物推进到 `reviewed`
+- 只有 Queen 能把状态推进到 `ratified` / `mergeable`
+- Human override 只在高风险 checkpoint 上覆盖 Queen
+
+目标是防止自动 merge 逐步侵蚀蜂王的全局裁决权。
+
+#### P0-3. 引入 `Wax Capsule`，把 artifacts 从“本机路径”升级为“不可变执行胶囊”
+
+当前报告里 artifacts 仍以本机绝对路径形式出现：
+
+- `/Users/.../.swarm/cache/inventory.json`
+- `/Users/.../.swarm/cache/config_facts.json`
+
+这种形态适合本地调试，但不适合：
+
+- 跨机器复核
+- provider compare
+- MCP 调用
+- 历史重放
+- 事故追溯
+
+建议每次 run 结束后生成 `Wax Capsule`，最少包含：
+
+- `commit_sha`
+- `branch`
+- `schema_version`
+- `generated_at`
+- `artifact_hashes`
+- `decision_snapshot`
+- `constraint_snapshot`
+- `final_verdict`
+- `cost_latency_summary`
+
+同时要求：
+
+- artifact 使用相对 URI 或 content-addressed id，不再直接暴露本机绝对路径；
+- capsule 不覆盖、只追加；
+- 历史 capsule 可引用，但绝不直接伪装为当前真相。
+
+---
+
+### 8.3 P1：再补蜂群内部语义
+
+#### P1-1. 把 `Pheromone` 从“发现结果”升级为“正式决策协议”
+
+现在 Swarm 已经很重视 constraint discovery、constraint library、stakeholder report 和 adversarial planning，这说明“发现问题”这件事已经在变强。
+
+但系统仍缺少一个 run-scoped、可被所有角色消费的正式决策载体。
+
+建议建立 `Decision Pheromone Ledger`，每条记录至少有：
+
+- `decision_id`
+- `source_constraint_ids`
+- `scope`
+- `options`
+- `chosen`
+- `rationale`
+- `owner`
+- `expires_at`
+- `supersedes`
+
+核心规则：
+
+- Builder 不得自行脑补未决策约束；
+- Reviewer 需要基于 decision ledger 区分“实现偏差”与“前置决策未闭合”；
+- Queen 负责 seal 决策，未 seal 的决策不得跨 checkpoint 流入下游。
+
+#### P1-2. 给 Hive 信息流分层：`Stream / Pheromone / Checkpoint / Wax`
+
+现在系统已经拥有 logs、trace、mail、metrics、dashboard SSE、heartbeat、constraint artifacts 等多种信道。
+
+问题不是信息少，而是语义层次还不够清楚。
+
+建议明确四层：
+
+1. `Stream`：高频时序信号，只用于观测、调试、tail
+2. `Pheromone`：归一化语义对象，如 finding / decision / verdict
+3. `Checkpoint`：阶段性通过快照，作为准入门禁
+4. `Wax`：不可变归档胶囊，作为复盘、对比、训练与审计材料
+
+调度建议：
+
+- Queen 默认只读 `Pheromone + Checkpoint`
+- Dashboard / logs 主要消费 `Stream`
+- compare / eval / replay / incident review 优先消费 `Wax`
+
+这样才能避免随着能力变多，Queen 被原始时序噪声淹没。
+
+#### P1-3. 定义 `Convergence Contract`，把“何时停”变成协议
+
+V3 已经规划了重试、依赖失败策略、partial merge、手动 task 干预、模型降级和预算门禁。
+
+但这些更偏“流程控制”，还不等于“真正定义系统已经收敛”。
+
+建议统一为 4 个终态：
+
+- `converged`
+- `plateaued`
+- `contradicted`
+- `budget_exhausted`
+
+判断维度建议包括：
+
+- reviewer findings 是否单调减少
+- 是否出现新的 blocker / contradiction
+- 是否仍存在未 seal 的 decision
+- 额外一轮重试或复审带来的边际收益是否仍高于成本
+
+只有 `converged` 才允许推进到 `mergeable`；`plateaued` 应触发 Queen 重规划或人工裁决，而不是机械重试。
+
+---
+
+### 8.4 P2：最后把 OpenCode 放到最适合的位置
+
+#### P2-1. 把 provider 定位从“品牌绑定”升级为“能力类目”
+
+当前文档里已经逐步形成一个共识：
+
+- OpenCode 对 coding / interactive 场景仍有价值；
+- 对 headless audit / review / report，更适合 evidence-first、schema-first 的轻路径。
+
+因此下一轮建议不再围绕“OpenCode 特判”继续堆策略，而是抽象出能力类目，例如：
+
+- `interactive_shell`
+- `structured_batch_audit`
+- `second_opinion`
+- `cheap_draft`
+
+然后让 OpenCode、direct provider、其他兼容 provider 分别去实现这些能力位。
+
+收益是：
+
+- provider 可替换
+- role 与 vendor 解耦
+- routing 更清晰
+- compare 结果更容易落到同一维度
+
+#### P2-2. 建立 `Provider Qualification Harness`，把 compare 从功能升级为准入机制
+
+上一轮已经提出“同一组 artifacts 上做 provider compare”。
+
+这一轮建议再往前一步：把 compare 固化成正式准入赛道。
+
+建议维护一组冻结 artifacts corpus，并长期跟踪：
+
+- 矛盾率
+- artifact 完整度
+- 人工兜底率
+- 单位有效产出成本
+- 平均收敛轮数
+- timeout / salvage 比例
+
+最终用途不是“偶尔跑一下对比”，而是：
+
+- 决定默认 provider
+- 决定什么时候降级或切换 provider
+- 为不同 role 选择最合适的能力实现
+
+#### P2-3. 为长任务定义中途检查点交互协议
+
+即使 heartbeat、timeout 语义、resume 都补齐了，长任务依然可能有一个体验缺口：
+
+**用户只能等待最终结果，而不能在中途基于阶段性产物做判断。**
+
+建议在 provider 长任务中引入显式事件：
+
+- `checkpoint_ready`
+- `partial_report`
+- `needs_input`
+- `continue`
+- `skip`
+- `stop`
+
+这项能力尤其适合 OpenCode：
+
+- 它擅长交互式修正与多轮补充；
+- 不必被限制为“一次性吐出最终答案”的黑盒 provider。
+
+---
+
+### 8.5 建议的增量落地顺序（v2）
+
+#### 第 1 批：先把协议面立住
+
+1. `result_envelope`
+2. `queen_authority_matrix`
+3. `wax_capsule`
+
+#### 第 2 批：再补蜂群内部语义
+
+4. `decision_pheromone_ledger`
+5. `stream_pheromone_checkpoint_wax_layering`
+6. `convergence_contract`
+
+#### 第 3 批：最后完成 Provider 定位收束
+
+7. `provider_capability_taxonomy`
+8. `provider_qualification_harness`
+9. `checkpoint_interaction_protocol`
+
+---
+
+### 8.6 第二轮最值得优先落地的 6 个 backlog
+
+1. `result_envelope`
+2. `queen_authority_matrix`
+3. `wax_capsule`
+4. `decision_pheromone_ledger`
+5. `convergence_contract`
+6. `provider_qualification_harness`
+
+---
+
+### 8.7 一句话总结（第二轮）
+
+Swarm 在补齐 provider 黑盒、评分一致性和可恢复性之后，下一阶段最该做的，是**把蜂群的决策主权、信息流分层、执行工件封装和 provider 能力定位固化为协议**，让 OpenCode 成为可调度的能力实现，而不是继续充当默认万能 provider。
