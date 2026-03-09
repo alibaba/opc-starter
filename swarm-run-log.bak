@@ -1,129 +1,92 @@
-# AI 亲和度评估报告
+swarm autopilot "评估当前项目的AI亲和度,并且给出改进建议,将改进建议保存在 swarm-run.md 中"
+🔍 Triage: Assessing task complexity...
+👑 Swarm Autopilot — Audit Mode Pipeline
+══════════════════════════════════════════════════
+Mode: 📋 Audit pipeline (inventory → score → report)
 
-- **Task**: ai-friendliness-audit
-- **Repo**: /Users/pusongyang/Workspace/dbaas/swarm
-- **Commit**: `c6f58e28b33b28f384292ebb197f8858cbf11953`
-- **Grade**: C (69.9/100)
 
-## 执行摘要
+──────────────────────────────────────────────────
+🔍 Triage Result (11287ms)
+──────────────────────────────────────────────────
+  Complexity: 🟠 medium
+  Confidence: ✅ 90%
+  Project type: single-package
+  Tech stack: typescript, nodejs, vitest
+  Convention files: AGENTS.md, CLAUDE.md, README.md
+  Swarm size: 2 scouts, 1 builders, 1 reviewers
+{"level":30,"time":1773028142148,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G35-5: No OpenCode Server found, starting one..."}
+{"level":30,"time":1773028143164,"pid":4899,"hostname":"U-VVPK266P-2340.local","url":"http://localhost:4096","startupMs":1014,"msg":"G35-5: OpenCode Server started successfully"}
 
-AI 亲和度评估完成。总分: 69.9/100, 等级: C
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 Phase: Audit Mode Pipeline
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  [1/9] 📋 Inventory Scan...
+  [1/9] ✅ Inventory Scan (0.0s)
+  [2/9] 📋 Config Facts...
+  [2/9] ✅ Config Facts (0.0s)
+  [3/9] 📋 Policy Rules...
+  [3/9] ✅ Policy Rules (0.0s)
+  [4/9] 📋 Runtime Checks...
+  [4/9] ✅ Runtime Checks (47.0s)
+  [5/9] 📋 Script Score...
+  [5/9] ✅ Script Score (0.0s)
+  [6/9] 📋 Provider Analysis...
+    💓 AF Provider heartbeat started
+{"level":30,"time":1773028143164,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G39-1: OpenCode Server connection established via ServerManager"}
+{"level":30,"time":1773028143174,"pid":4899,"hostname":"U-VVPK266P-2340.local","providerMode":"evidence-first","fastPath":true,"msg":"G36-7: Audit mode routing"}
+{"level":30,"time":1773028190257,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G35-2: OpenCode HTTP mode available"}
+    💓 AF Provider heartbeat #1: 8.0s elapsed [reasoning]
+    💓 AF Provider heartbeat #2: 16.0s elapsed [reasoning]
+    💓 AF Provider heartbeat #3: 24.0s elapsed [reasoning]
+    🐌 AF Provider heartbeat #4: 32.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #5: 40.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #6: 48.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #7: 56.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #8: 64.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #9: 72.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #10: 80.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #11: 88.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #12: 96.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #13: 104.0s elapsed [stalled]
+    🐌 AF Provider heartbeat #14: 112.0s elapsed [stalled]
+{"level":40,"time":1773028310253,"pid":4899,"hostname":"U-VVPK266P-2340.local","timeoutMs":120000,"msg":"G39-2: AF Provider analysis timed out"}
+  [6/9] ⏱️ Provider Analysis (120.0s) [timeout_salvaged]
+  [7/9] 📋 Recommendation Guard...
+  [7/9] ✅ Recommendation Guard (0.0s)
+  [8/9] 📋 Fact-Check...
+  [8/9] ✅ Fact-Check (0.0s)
+  [9/9] 📋 Merge & Report...
+📄 Report saved to: /Users/pusongyang/Workspace/dbaas/swarm/swarm-run.md
+  [9/9] ✅ Merge & Report (0.0s)
 
-## 加权评分表
+══════════════════════════════════════════════════
+🤖 AI 亲和度评估完成
+══════════════════════════════════════════════════
+Duration: 3m 3s
+Grade: C (69.9/100)
+Summary: AI 亲和度评估完成。总分: 69.9/100, 等级: C
+Artifacts: 5 files
+📄 Report: /Users/pusongyang/Workspace/dbaas/swarm/.swarm/cache/ai_friendliness_report.json
 
-| # | 维度 | 权重 | 原始分 | 加权分 | 评估 |
-|---|------|------|--------|--------|------|
-| 1 | 最小可运行环境 | 11% | ████ 4/4 | 11/11 | 一键启动环境良好 |
-| 2 | 类型系统与静态分析 | 11% | ████ 4/4 | 11/11 | 强类型系统 |
-| 3 | 测试体系 | 14% | ██░░ 2/4 | 7/14 | 测试体系需改进 |
-| 4 | 文档完备性 | 10% | ███░ 3/4 | 7.5/10 | 文档完备 |
-| 5 | 代码规范与自动化 | 7% | ██░░ 2/4 | 3.5/7 | 代码规范需改进 |
-| 6 | 模块化架构 | 9% | ██░░ 2/4 | 4.5/9 | 模块化需改进 |
-| 7 | 上下文窗口友好性 | 9% | ███░ 3/4 | 6.8/9 | 上下文友好 |
-| 8 | 代码自述性 | 7% | ███░ 3/4 | 5.3/7 | 代码自述性良好 |
-| 9 | AI 工具与 SDD 支持 | 8% | ███░ 3/4 | 6/8 | AI 工具支持良好 |
-| 10 | 依赖隔离与可复现性 | 5% | ████ 4/4 | 5/5 | 依赖隔离良好 |
-| 11 | Outer Loop & 反馈闭环 | 9% | █░░░ 1/4 | 2.3/9 | Outer Loop 需建设 |
+Score Breakdown:
+──────────────────────────────────────────────────
+  min_runnable_env         11/4 ████
+  type_system              11/4 ████
+  test_system               7/4 ███░
+  doc_completeness        7.5/4 ███░
+  code_standards          3.5/4 █░░░
+  modularity              4.5/4 ██░░
+  context_friendliness    6.8/4 ███░
+  code_self_doc           5.3/4 ██░░
+  ai_tool_sdd               6/4 ██░░
+  dep_isolation             5/4 ██░░
+  outer_loop              2.3/4 █░░░
+──────────────────────────────────────────────────
 
-## 各维度详细分析
+⏱️  LLM 分析超时，已抢救部分结果: AF Provider analysis timed out after 120s
+   评分可能不完整，请关注缺失维度
 
-### 最小可运行环境 (4/4)
-
-一键启动环境良好
-
-**证据**:
-- Package manager: npm
-- Lockfile: package-lock.json
-- Has build/dev scripts
-- All runtime checks pass
-
-### 类型系统与静态分析 (4/4)
-
-强类型系统
-
-**证据**:
-- tsconfig.json exists
-- TypeScript strict mode enabled
-- typecheck passes
-- Static analysis tool configured
-
-### 测试体系 (2/4)
-
-测试体系需改进
-
-**证据**:
-- Test framework: vitest
-- Tests pass
-
-### 文档完备性 (3/4)
-
-文档完备
-
-**证据**:
-- AGENTS.md exists
-- 9 doc file(s)
-
-### 代码规范与自动化 (2/4)
-
-代码规范需改进
-
-**证据**:
-- Linter configured
-- Lint passes
-
-### 模块化架构 (2/4)
-
-模块化需改进
-
-**证据**:
-- Multiple docs suggest organized structure
-- 16 scripts suggest modular pipeline
-
-### 上下文窗口友好性 (3/4)
-
-上下文友好
-
-**证据**:
-- AGENTS.md provides navigation context
-- Distributed docs reduce per-file context load
-
-### 代码自述性 (3/4)
-
-代码自述性良好
-
-**证据**:
-- AGENTS.md serves as project-level self-documentation
-- TypeScript types serve as inline documentation
-- 9 doc file(s) supplement code documentation
-
-### AI 工具与 SDD 支持 (3/4)
-
-AI 工具支持良好
-
-**证据**:
-- AGENTS.md present
-- 2 quality script(s)
-- CI workflows with defined triggers
-
-### 依赖隔离与可复现性 (4/4)
-
-依赖隔离良好
-
-**证据**:
-- Lockfile: package-lock.json
-- Package manager: npm
-- CI workflows present
-
-### Outer Loop & 反馈闭环 (1/4)
-
-Outer Loop 需建设
-
-**证据**:
-- 2 quality script(s)
-
-## Artifacts
-
-- `/Users/pusongyang/Workspace/dbaas/swarm/.swarm/cache/inventory.json`
-- `/Users/pusongyang/Workspace/dbaas/swarm/.swarm/cache/config_facts.json`
-- `/Users/pusongyang/Workspace/dbaas/swarm/.swarm/cache/policy_rules.json`
-- `/Users/pusongyang/Workspace/dbaas/swarm/.swarm/cache/runtime_checks.json`
+✅ Audit completed via Audit Mode pipeline (no code changes made).
+{"level":30,"time":1773028310274,"pid":4899,"hostname":"U-VVPK266P-2340.local","escalate":false,"reasons":[],"msg":"G36-1: Fast path escalation check"}
+{"level":30,"time":1773028310292,"pid":4899,"hostname":"U-VVPK266P-2340.local","msg":"G35-5: Shutting down managed OpenCode Server"}
+{"level":40,"time":1773028316328,"pid":4899,"hostname":"U-VVPK266P-2340.local","error":"TypeError: fetch failed","msg":"G40-5: HTTP infrastructure error, falling back to CLI"}
