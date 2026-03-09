@@ -931,3 +931,352 @@ Provider 在 audit 模式中只负责：
 ### 9.6 一句话总结（第三轮）
 
 这次 `swarm-run-log.bak` 真正新增的信号是：**OpenCode 作为 Provider 之一时，问题已经不只是“慢”或“偶发超时”，而是 Swarm 还缺少围绕 stalled heartbeat、仓库拓扑事实、partial 结果门禁和 provider 生命周期的硬协议**；下一轮应把这些运行时机制补齐，让蜂群哲学真正落到 Queen 可裁决、Hive 可观察、Wax 可复放的系统行为上。
+
+---
+
+## 十、第四轮联合会诊（在“第三轮已修复”前提下，聚焦恢复协议）
+
+> 前提说明：用户已确认“## 九、第三轮联合会诊”中的建议都已修复。
+>
+> 因此本节不再重复 `stall_circuit_breaker / repo_topology_fingerprint / provider_lifecycle_contract / partial_result_gate / audit_evidence_pack / provider_slo_scoreboard`，而是只讨论**修完这些以后，`[6/9] Provider Analysis (104.0s) [timeout_salvaged]` 仍然揭示出的更深层问题**。
+
+### 10.1 本轮核心判断
+
+本轮最重要的结论只有两句：
+
+1. **`timeout_salvaged` 的问题，已经不再是“能不能发现 stalled”，而是“Swarm 能不能把 salvage 结果变成 Queen 可裁决、Hive 可恢复、Wax 可复放的正式协议对象”。**
+2. **OpenCode 的 session 可以复用，但它只能充当 continuation substrate（上下文/连接/暖状态载体），不能直接充当 Swarm 的权威 checkpoint。**
+
+换句话说：
+
+- 第三轮解决的是“运行时治理”；
+- 第四轮要解决的是“语义恢复治理”；
+- 真正的断点继续，不能只靠 provider 会话历史，必须由 Swarm 自己掌握 phase 级恢复状态。
+
+---
+
+### 10.2 对 `timeout_salvaged` 的新理解
+
+如果把第三轮建议视为已落地，那么这次样本最值得注意的，不再是：
+
+- 有没有 heartbeat
+- 有没有 circuit breaker
+- 有没有 partial gate
+
+而是下面这个事实：
+
+**`timeout_salvaged` 表示这次 Provider Analysis 没有健康收敛，而是 Hive 依靠残余可用产物完成了“降级收尾”。**
+
+这意味着它不是：
+
+- 正常成功
+- 普通失败
+- 简单重试一次就能恢复
+
+而是一种更复杂的中间态：
+
+- provider 本轮没有完整交付最终 verdict
+- 但 deterministic facts、已生成片段、schema 化残片、fallback 信息中，仍有一部分可以被抢救
+- 最终报告可能依赖“幸存信号 + 既有工件 + 后续门禁”共同拼装
+
+因此，第四轮要解决的不是“再多打一层日志”，而是：
+
+- 到底救回了什么
+- 哪些结论仍可信
+- 哪些维度其实缺失
+- 哪些内容允许继续流入下一阶段
+
+---
+
+### 10.3 关键问题直答：可以复用 OpenCode session 作为断点继续吗？
+
+答案分两层：
+
+#### 10.3.1 可以复用，但只能复用为“会话载体”
+
+从 OpenCode 的公开能力看，它具备 session 级 continuation / resume / fork / attach 的能力。
+
+这说明它**适合**做这些事情：
+
+- 复用最近一次会话上下文
+- 复用已建立好的 provider 连接和暖状态
+- 在指定 session 上继续追问或补充 prompt
+- 人工 attach 到已有 session 做诊断或接管
+- 从已有 session fork 出一个新分支做对比试验
+
+也就是说，OpenCode session 适合作为：
+
+- `transport handle`
+- `conversation memory`
+- `warm context`
+- `human takeover entry`
+
+#### 10.3.2 但不应直接当成 Swarm 的断点 checkpoint
+
+原因有 5 个：
+
+1. **session history ≠ phase checkpoint**
+   - 会话历史保存的是“说过什么”
+   - Swarm 断点恢复需要的是“这个 phase 已经做到哪一步、哪些维度已完成、哪些 claim 已 ratify、哪些 artifacts 已校验”
+
+2. **公开能力证明的是“继续对话”，不是“精确恢复一次已超时的 in-flight provider turn”**
+   - 可以继续某个 session
+   - 不等于可以从超时那一刻精准续跑同一轮内部执行点
+
+3. **如果直接在原 session 上继续，容易重复执行或引入语义污染**
+   - transport 超时不代表后端一定已经彻底停止
+   - 再补一轮 prompt 可能把恢复、补跑、二次解释混在一起
+
+4. **对 headless audit 来说，恢复正确性应依赖可哈希工件，而不是依赖聊天历史**
+   - audit 场景更需要 evidence pack + claim ledger + artifact hashes
+   - 而不是越积越长的上下文会话
+
+5. **蜂群哲学要求主权在 Queen，不在 provider 私有 session**
+   - Provider 可以保留记忆
+   - 但“是否允许继续”“继续到什么程度”“哪些 salvage 结果可入报告”必须由 Queen 裁决
+
+一句话归纳：
+
+**OpenCode session 可以复用，但应该被定义为“恢复辅助层”；真正的 checkpoint 必须是 Swarm 自己的 phase-level state。**
+
+---
+
+### 10.4 第四轮新增建议（只记录真正新增 backlog）
+
+#### P0-1. `salvage_provenance_matrix`
+
+建议把 `timeout_salvaged` 进一步拆成可判定的 provenance matrix，至少回答：
+
+- salvage 自哪一层而来：
+  - deterministic facts
+  - provider partial schema
+  - stream buffer
+  - retry residue
+  - fallback provider/CLI
+- salvage 覆盖了哪些维度
+- salvage 漏掉了哪些维度
+- salvage 的可信度和来源完整度如何
+
+目标：
+
+- 让 Queen 批准的是“有来源说明的 salvage”，而不是一个笼统状态词
+- 让最终报告能显式写出“哪些结论来自完整推理，哪些只来自幸存工件”
+
+#### P0-2. `semantic_phase_resume_cursor`
+
+建议新增 phase 内部的语义游标，而不是只保存 phase 成败：
+
+- `loaded_artifacts[]`
+- `completed_dimensions[]`
+- `verified_claim_ids[]`
+- `contradiction_pass_done`
+- `summary_draft_done`
+- `schema_validation_done`
+- `last_good_output_offset`
+
+这样 resume 的含义就不再是“把 `[6/9]` 再跑一次”，而是：
+
+- 从哪个语义节点恢复
+- 哪些工作不必重做
+- 哪些工作必须重新校验
+
+这才是真正符合 Hive checkpoint 思想的“断点继续”。
+
+#### P0-3. `degraded_verdict_quorum`
+
+建议在 provider 以 `partial / timeout_salvaged` 收尾时，引入一个更高层的裁决机制：
+
+- Provider 只提交 degraded verdict
+- Reviewer 对 surviving claims 做二次审核
+- Queen 只有在 quorum 通过后，才允许把结论 wax 化进入最终报告
+
+规则建议：
+
+- 无 quorum -> 只能输出“失败说明/重跑建议”
+- 有 quorum 但缺维度 -> 只允许输出 partial report
+- quorum 完整 -> 才允许升级为可引用的最终 verdict
+
+本质上，这是把“部分可用”变成“部分可裁决”。
+
+#### P1-1. `opencode_session_bridge_not_checkpoint`
+
+建议正式定义一个桥接层，明确：
+
+- `session_id`
+- `attach_url`
+- `fork_from_session_id`
+- `last_committed_turn`
+- `session_storage_scope`
+- `session_health`
+
+但同时在协议上明确写死：
+
+- session bridge 只提供“接回已有上下文”的能力
+- 不提供“绕过 Swarm checkpoint 直接恢复 phase 正确性”的能力
+
+也就是说：
+
+- Swarm checkpoint 决定 correctness
+- OpenCode session 决定 convenience
+
+#### P1-2. `recovery_mode_policy_matrix`
+
+建议让 Queen 对恢复方式做明确分流，而不是默认“继续原 session”：
+
+1. `continue_same_session`
+   - 仅适合低风险、无工具副作用、evidence hash 未变化的场景
+
+2. `fork_session_then_resume`
+   - 适合保留 lineage、避免污染原会话的场景
+
+3. `new_attempt_from_checkpoint`
+   - 默认推荐给 headless audit / review / report
+
+4. `switch_provider_from_same_checkpoint`
+   - 适合确认 provider/session 已经不健康的场景
+
+决策维度建议：
+
+- 是否存在 tool side effects
+- evidence pack 是否变更
+- 当前 session 是否健康
+- salvage 覆盖率是否足够
+- 是否需要可复放与可比对
+
+#### P1-3. `claim_missingness_map`
+
+建议对每个评分维度和每条核心建议增加缺失分布图，而不是只给总分和总结。
+
+最少状态建议：
+
+- `provider_complete`
+- `deterministic_only`
+- `salvaged_partial`
+- `stale_cache`
+- `absent`
+
+这样最终报告才不会给人一种“所有维度都完整分析过”的错觉。
+
+#### P1-4. `safe_spec_projection`
+
+如果 audit 结果要继续驱动：
+
+- 后续 `swarm plan`
+- 自动 backlog 生成
+- Builder 的 spec 下发
+
+那么必须增加一个投影规则：
+
+- 只有 `ratified claims` 才能进入 Builder spec
+- salvage hypothesis 只能进入“待验证假设”，不能静默升级为施工指令
+
+否则一次 `timeout_salvaged` 的半真相，就可能继续污染 Builder 的执行面。
+
+#### P2-1. `provider_attempt_lineage_dag`
+
+建议把 provider 的多次尝试固化成 attempt lineage，而不只是平铺日志：
+
+- attempt-1
+- retry-from-breaker
+- fresh-session-attempt
+- fork-session-attempt
+- cross-provider-attempt
+- final-ratified-attempt
+
+每个节点记录：
+
+- 输入哈希
+- session 关系
+- salvage 继承关系
+- 结束状态
+- 被谁 ratify / supersede
+
+这样 Wax 才能承载真正的“恢复谱系”，而不是只有结果快照。
+
+#### P2-2. `semantic_replay_diff`
+
+建议后续 replay 不只回放事件时间线，还要能回答：
+
+- 哪些 claim 是第一次 attempt 就成立的
+- 哪些 claim 是 salvage 后才进入结果
+- 哪些 claim 在 resume/fork 后被推翻
+- 最终 verdict 相比初始 verdict 到底变化了什么
+
+这比纯日志 replay 更符合“蜂群复盘”的价值。
+
+#### P2-3. `degraded_pheromone_ttl`
+
+建议对 degraded run 产生的 pheromone 设置较短 TTL 或 decay 规则。
+
+原因是：
+
+- 完整 run 的结论可以进入长期共享记忆
+- `timeout_salvaged` 的结论只能短期辅助下一轮判断
+- 如果不衰减，半真相会污染 Hive 的长期知识面
+
+---
+
+### 10.5 建议的恢复状态机（推荐实现）
+
+建议统一为以下状态机：
+
+1. `prepared`
+2. `checkpointed`
+3. `provider_healthy`
+4. `running`
+5. `stalled`
+6. `degrading`
+7. `timeout_salvaged | failed | success`
+8. `queen_gate`
+9. `accept_partial | retry_from_checkpoint | fork_session_resume | switch_provider`
+10. `ratified`
+11. `waxed`
+
+关键原则：
+
+- `timeout_salvaged` 之后，不直接默认继续原 session
+- 必须先进入 `queen_gate`
+- 由 Queen 根据 recovery policy 决定：
+  - 继续原 session
+  - fork session
+  - 从 checkpoint 新开 attempt
+  - 切换 provider
+
+---
+
+### 10.6 本轮建议的落地顺序（第四轮）
+
+#### 第 1 批：先把“恢复正确性”立住
+
+1. `salvage_provenance_matrix`
+2. `semantic_phase_resume_cursor`
+3. `degraded_verdict_quorum`
+
+#### 第 2 批：再把 OpenCode session 放到正确层级
+
+4. `opencode_session_bridge_not_checkpoint`
+5. `recovery_mode_policy_matrix`
+6. `claim_missingness_map`
+
+#### 第 3 批：最后补强复盘与长期记忆
+
+7. `safe_spec_projection`
+8. `provider_attempt_lineage_dag`
+9. `semantic_replay_diff`
+10. `degraded_pheromone_ttl`
+
+---
+
+### 10.7 第四轮最值得优先落地的 5 个 backlog
+
+1. `salvage_provenance_matrix`
+2. `semantic_phase_resume_cursor`
+3. `degraded_verdict_quorum`
+4. `opencode_session_bridge_not_checkpoint`
+5. `recovery_mode_policy_matrix`
+
+---
+
+### 10.8 一句话总结（第四轮）
+
+第三轮修完之后，Swarm 下一步最值得做的，不是继续围绕“发现 stalled”和“管理 provider 生命周期”打补丁，而是**把 `timeout_salvaged` 提升为正式的恢复协议：由 Swarm 自己掌握 checkpoint 与语义游标，把 OpenCode session 降位为可复用的会话载体/暖连接/人工接管入口，让 Queen 重新收回断点继续与最终裁决的主权**。
