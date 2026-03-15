@@ -30,7 +30,7 @@
 git clone https://github.com/your-username/opc-starter.git
 cd opc-starter
 npm --prefix app install
-npm run dev:test
+VITE_ENABLE_MSW=true npm run dev:test
 ```
 
 启动后浏览器打开 `http://localhost:5173`，你将看到**登录页面**。使用以下测试账号登录：
@@ -63,7 +63,7 @@ cd opc-starter
 npm --prefix app install
 
 # 推荐：本地 mock 模式
-npm run dev:test
+VITE_ENABLE_MSW=true npm run dev:test
 
 # 可选：真实 Supabase 模式
 cp app/env.local.example app/.env.local
@@ -169,7 +169,7 @@ opc-starter/
 
 | 想做什么 | 从哪里开始 | 下一步通常改哪里 | 推荐验证 |
 |---------|-----------|----------------|---------|
-| 启动应用 / 切换 mock | `app/src/main.tsx` | `app/.env.test`、`app/vite.config.ts` | `npm run dev:test` |
+| 启动应用 / 切换 mock(环境变量 VITE_ENABLE_MSW=true) | `app/src/main.tsx` | `app/.env.test`、`app/vite.config.ts` | `npm run dev:test` |
 | 查看应用入口 | `app/src/App.tsx` | `app/src/config/routes.tsx` | `npm run build` |
 | 新增页面 / 路由 | `app/src/config/routes.tsx` | `app/src/pages/`、`app/src/components/layout/MainLayout/` | `npm run type-check` |
 | 改数据访问 | `app/src/services/data/DataService.ts` | `app/src/services/data/adapters/`、`app/src/stores/` | `npm test` |
