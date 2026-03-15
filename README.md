@@ -33,11 +33,19 @@ npm --prefix app install
 npm run dev:test
 ```
 
-说明：
+启动后浏览器打开 `http://localhost:5173`，你将看到**登录页面**。使用以下测试账号登录：
 
-- 常用 npm 命令可直接在仓库根目录运行，适合从 `/workspace` 起步的 AI 工具。
-- 需要真实后端时，再配置 `app/.env.local` 并执行 `npm run dev`。
-- MSW 测试账号统一来自 `app/cypress/fixtures/users.json`：`test@example.com` / `888888`。
+| 邮箱 | 密码 |
+|------|------|
+| `test@example.com` | `888888` |
+
+登录成功后即可进入 OPC-Starter 仪表盘，开始体验所有功能。
+
+> **说明**
+>
+> - 常用 npm 命令可直接在仓库根目录运行，适合从 `/workspace` 起步的 AI 工具。
+> - 需要真实后端时，再配置 `app/.env.local` 并执行 `npm run dev`。
+> - MSW 测试账号统一来自 `app/cypress/fixtures/users.json`。
 
 ### 环境要求
 
@@ -71,6 +79,37 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_DASHSCOPE_API_KEY=your_dashscope_api_key  # 可选，用于 Agent LLM
 ```
+
+### 常见问题
+
+<details>
+<summary><strong>npm install 失败 (ECONNRESET)</strong></summary>
+
+如果 `package-lock.json` 引用了无法访问的内部镜像源，删除后重试：
+
+```bash
+cd app
+rm -rf node_modules package-lock.json
+npm install --registry https://registry.npmjs.org/
+```
+</details>
+
+<details>
+<summary><strong>浏览器白屏 / 控制台出现 ERR_NAME_NOT_RESOLVED</strong></summary>
+
+原因：浏览器 localStorage 中残留了上次会话的过期 Token，Supabase 客户端尝试向 `placeholder.supabase.co` 发起真实请求。
+
+修复方法：清除浏览器站点数据后刷新页面。
+
+- Chrome：`F12` → Application → Storage → Clear site data
+- 或访问 `chrome://settings/content/all?searchSubpage=localhost`，删除 localhost 数据
+</details>
+
+<details>
+<summary><strong>控制台出现 WebSocket 连接警告</strong></summary>
+
+MSW 模式下，Supabase Realtime 的 WebSocket 连接会因为没有对应的 Mock Handler 而产生警告，这属于**预期行为**，不影响任何功能。
+</details>
 
 ## 📁 项目结构
 
