@@ -1,3 +1,6 @@
+/**
+ * 数据导入模式、冲突策略及进度类型定义
+ */
 export type ImportMode = 'merge' | 'replace'
 export type ConflictStrategy = 'skip' | 'replace' | 'keep-both'
 

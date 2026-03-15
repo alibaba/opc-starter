@@ -1,3 +1,6 @@
+/**
+ * Label - 表单标签组件，用于关联表单控件
+ */
 import * as React from 'react'
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { cva, type VariantProps } from 'class-variance-authority'

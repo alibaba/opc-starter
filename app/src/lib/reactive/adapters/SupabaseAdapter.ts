@@ -1,3 +1,6 @@
+/**
+ * SupabaseAdapter - Supabase 远程数据适配器，实现 RemoteAdapter 接口并支持 Realtime
+ */
 import type {
   SupabaseClient,
   RealtimeChannel,

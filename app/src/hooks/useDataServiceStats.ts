@@ -1,3 +1,6 @@
+/**
+ * useDataServiceStats - DataService 同步统计 Hook，每秒轮询更新
+ */
 import { useEffect, useState } from 'react'
 import { dataService } from '@/services/data/DataService'
 

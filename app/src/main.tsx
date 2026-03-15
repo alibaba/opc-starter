@@ -1,3 +1,6 @@
+/**
+ * 应用入口 - 初始化主题、认证、MSW、数据服务并挂载 React 根组件
+ */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

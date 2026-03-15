@@ -1,3 +1,6 @@
+/**
+ * ThemeToggle - 主题切换组件，支持浅色/深色/跟随系统
+ */
 import { Sun, Moon, Monitor } from 'lucide-react'
 import { useTheme, type Theme } from '@/hooks/useTheme'
 import { Button } from './button'

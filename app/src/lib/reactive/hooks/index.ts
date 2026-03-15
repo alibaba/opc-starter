@@ -1,3 +1,6 @@
+/**
+ * Reactive 数据层 React Hooks（useQuery、useMutation、useSyncStatus）
+ */
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import type { Observable } from 'rxjs'
 import type { BaseEntity, QueryOptions, SyncStatus } from '../types'

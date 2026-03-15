@@ -1,3 +1,6 @@
+/**
+ * Card - 卡片容器组件，包含标题、内容、页脚等子组件
+ */
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'

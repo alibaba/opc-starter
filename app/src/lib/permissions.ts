@@ -1,3 +1,6 @@
+/**
+ * 用户角色与权限校验工具（组织、成员、照片等）
+ */
 export type UserRole = 'admin' | 'manager' | 'member'
 
 export interface PermissionConfig {

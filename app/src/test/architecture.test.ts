@@ -160,7 +160,7 @@ describe('架构约束 (Architectural Invariants)', () => {
           `⚠️ ${missing.length} file(s) missing JSDoc header:\n${missing.map((f) => `  ${f}`).join('\n')}`
         )
       }
-      expect(missing.length, `${missing.length} 个关键文件缺少 JSDoc 文件头`).toBeLessThanOrEqual(5)
+      expect(missing.length, `${missing.length} 个关键文件缺少 JSDoc 文件头`).toBeLessThanOrEqual(0)
     })
   })
 

@@ -1,3 +1,6 @@
+/**
+ * ZIP 导出选项与进度类型定义
+ */
 export type ZipExportRange = 'all' | 'album' | 'dateRange'
 export type ZipOrganizeBy = 'album' | 'date' | 'flat'
 

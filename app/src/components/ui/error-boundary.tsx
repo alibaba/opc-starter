@@ -1,3 +1,6 @@
+/**
+ * ErrorBoundary - 错误边界组件，捕获子组件渲染错误并展示降级 UI
+ */
 import type { ReactNode } from 'react'
 import React, { Component } from 'react'
 import { AlertTriangle, RefreshCw, WifiOff, ShieldAlert, Database } from 'lucide-react'

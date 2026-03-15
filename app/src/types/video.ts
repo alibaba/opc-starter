@@ -1,3 +1,6 @@
+/**
+ * 视频生成任务类型、状态及生成结果类型定义
+ */
 export type VideoTaskType = 'i2v-single' | 'i2v-keyframe' | 'emo'
 export type VideoTaskStatus = 'pending' | 'running' | 'succeeded' | 'failed'
 

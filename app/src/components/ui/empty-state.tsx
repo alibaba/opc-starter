@@ -1,3 +1,6 @@
+/**
+ * EmptyState - 空状态展示组件，用于无数据时的占位提示
+ */
 import type { LucideIcon } from 'lucide-react'
 import { ImageOff, FolderOpen, Search, User, Calendar, Inbox } from 'lucide-react'
 import { Button } from './button'

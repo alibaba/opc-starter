@@ -1,3 +1,6 @@
+/**
+ * Skeleton - 加载骨架屏占位组件
+ */
 import { cn } from '@/lib/utils'
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {

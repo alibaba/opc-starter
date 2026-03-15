@@ -1,3 +1,6 @@
+/**
+ * 应用路由配置与 AppRouter 组件
+ */
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { MainLayout } from '@/components/layout/MainLayout'

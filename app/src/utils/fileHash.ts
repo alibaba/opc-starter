@@ -1,3 +1,6 @@
+/**
+ * 文件与 Blob 的 SHA-256 哈希计算工具
+ */
 export async function calculateFileMD5(file: File): Promise<string> {
   const buffer = await file.arrayBuffer()
   const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)

@@ -1,3 +1,6 @@
+/**
+ * SearchBar - 搜索框组件，支持防抖和可选筛选面板
+ */
 import { useState, useEffect } from 'react'
 import { Search as SearchIcon, X, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/input'

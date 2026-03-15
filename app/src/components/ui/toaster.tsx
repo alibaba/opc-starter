@@ -1,3 +1,6 @@
+/**
+ * Toaster - 全局 Toast 通知容器
+ */
 import { useEffect } from 'react'
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react'
 import type { Toast, ToastVariant } from '@/hooks/useToast'

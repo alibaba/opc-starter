@@ -1,3 +1,6 @@
+/**
+ * DexieAdapter - IndexedDB (Dexie) 本地数据适配器，实现 LocalAdapter 接口
+ */
 import { type Table, type IndexableType } from 'dexie'
 import { Observable } from 'rxjs'
 import type { BaseEntity, LocalAdapter, QueryOptions, Change } from '../types'

@@ -1,3 +1,6 @@
+/**
+ * RadioGroup - 单选组组件，用于互斥选项选择
+ */
 import * as React from 'react'
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
 import { Circle } from 'lucide-react'

@@ -1,3 +1,6 @@
+/**
+ * Progress - 进度条组件
+ */
 import * as React from 'react'
 import * as ProgressPrimitive from '@radix-ui/react-progress'
 

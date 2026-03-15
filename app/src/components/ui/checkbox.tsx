@@ -1,3 +1,6 @@
+/**
+ * Checkbox - 复选框组件
+ */
 import * as React from 'react'
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
 import { Check } from 'lucide-react'

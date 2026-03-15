@@ -1,3 +1,6 @@
+/**
+ * 数据导出相关类型定义（统计、照片、相册、人员、标签及进度）
+ */
 export interface ExportStatistics {
   photoCount: number
   albumCount: number

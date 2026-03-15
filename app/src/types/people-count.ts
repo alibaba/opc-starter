@@ -1,3 +1,6 @@
+/**
+ * 人脸检测与人数统计相关类型定义
+ */
 export interface DetectedFace {
   x: number
   y: number

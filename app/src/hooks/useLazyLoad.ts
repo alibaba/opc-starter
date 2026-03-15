@@ -1,3 +1,6 @@
+/**
+ * useLazyLoad / useLazyImage - 基于 Intersection Observer 的图片懒加载 Hook
+ */
 import { useEffect, useRef, useState } from 'react'
 
 /**

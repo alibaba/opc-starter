@@ -1,3 +1,6 @@
+/**
+ * Tabs - 标签页组件
+ */
 import * as React from 'react'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
 
