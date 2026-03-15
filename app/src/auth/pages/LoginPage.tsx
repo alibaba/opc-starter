@@ -1,8 +1,8 @@
 /**
  * 登录页面
  */
-import { LoginForm } from '../components/LoginForm';
-import { Camera } from 'lucide-react';
+import { LoginForm } from '../components/LoginForm'
+import { Camera } from 'lucide-react'
 
 export function LoginPage() {
   return (
@@ -30,8 +30,7 @@ export function LoginPage() {
         </p>
       </div>
     </div>
-  );
+  )
 }
 
-export default LoginPage;
-
+export default LoginPage

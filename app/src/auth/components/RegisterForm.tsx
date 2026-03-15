@@ -1,43 +1,43 @@
 /**
  * 注册表单组件
  */
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import type { RegisterFormData } from '@/types/auth';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import type { RegisterFormData } from '@/types/auth'
 
 export function RegisterForm() {
-  const navigate = useNavigate();
-  const { signUp, error, isLoading } = useAuthStore();
+  const navigate = useNavigate()
+  const { signUp, error, isLoading } = useAuthStore()
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
     confirmPassword: '',
     displayName: '',
-  });
-  const [validationError, setValidationError] = useState<string>('');
+  })
+  const [validationError, setValidationError] = useState<string>('')
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setValidationError('');
+    e.preventDefault()
+    setValidationError('')
 
     if (formData.password !== formData.confirmPassword) {
-      setValidationError('密码不匹配');
-      return;
+      setValidationError('密码不匹配')
+      return
     }
 
     if (formData.password.length < 6) {
-      setValidationError('密码至少需要6个字符');
-      return;
+      setValidationError('密码至少需要6个字符')
+      return
     }
 
-    await signUp(formData.email, formData.password, formData.displayName);
+    await signUp(formData.email, formData.password, formData.displayName)
     if (useAuthStore.getState().isAuthenticated) {
-      navigate('/');
+      navigate('/')
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -114,6 +114,5 @@ export function RegisterForm() {
         </a>
       </div>
     </form>
-  );
+  )
 }
-

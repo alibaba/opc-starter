@@ -1,19 +1,23 @@
-import { useEffect, useState, useRef } from 'react';
-import { Plus, Settings, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { OrgTree } from '@/components/organization/OrgTree';
-import { TeamMembersList } from '@/components/organization/TeamMembersList';
-import { CreateOrgDialog } from '@/components/organization/CreateOrgDialog';
-import { AddMemberDialog } from '@/components/organization/AddMemberDialog';
-import { ChangeRoleDialog } from '@/components/organization/ChangeRoleDialog';
-import { useOrganization } from '@/hooks/useOrganization';
-import { useAuthStore } from '@/stores/useAuthStore';
-import type { OrganizationTreeNode, Profile } from '@/lib/supabase/organizationTypes';
+/**
+ * PersonsPage - 人员/组织管理页面
+ * @description 展示组织树、团队成员列表，支持创建组织、添加成员、分配团队等操作
+ */
+import { useEffect, useState, useRef } from 'react'
+import { Plus, Settings, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { OrgTree } from '@/components/organization/OrgTree'
+import { TeamMembersList } from '@/components/organization/TeamMembersList'
+import { CreateOrgDialog } from '@/components/organization/CreateOrgDialog'
+import { AddMemberDialog } from '@/components/organization/AddMemberDialog'
+import { ChangeRoleDialog } from '@/components/organization/ChangeRoleDialog'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useAuthStore } from '@/stores/useAuthStore'
+import type { OrganizationTreeNode, Profile } from '@/lib/supabase/organizationTypes'
 
 function PersonsPage() {
-  const { user } = useAuthStore();
-  const userId = user?.id || '';
-  const initializedRef = useRef(false);
+  const { user } = useAuthStore()
+  const userId = user?.id || ''
+  const initializedRef = useRef(false)
 
   const {
     tree,
@@ -31,84 +35,84 @@ function PersonsPage() {
     removeMember,
     changeRole,
     searchUsers,
-  } = useOrganization(userId);
+  } = useOrganization(userId)
 
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [parentOrgForCreate, setParentOrgForCreate] = useState<OrganizationTreeNode | null>(null);
-  const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
-  const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
-  const [selectedMemberForRole, setSelectedMemberForRole] = useState<Profile | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [parentOrgForCreate, setParentOrgForCreate] = useState<OrganizationTreeNode | null>(null)
+  const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false)
+  const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false)
+  const [selectedMemberForRole, setSelectedMemberForRole] = useState<Profile | null>(null)
 
   useEffect(() => {
-    if (!userId || initializedRef.current) return;
-    initializedRef.current = true;
-    
-    loadTree();
-    getUserOrgInfo(userId);
-  }, [userId, loadTree, getUserOrgInfo]);
+    if (!userId || initializedRef.current) return
+    initializedRef.current = true
+
+    loadTree()
+    getUserOrgInfo(userId)
+  }, [userId, loadTree, getUserOrgInfo])
 
   const handleSelectOrg = (node: OrganizationTreeNode) => {
-    selectOrganization(node);
-  };
+    selectOrganization(node)
+  }
 
   const handleCreateOrg = () => {
-    setParentOrgForCreate(selectedOrg as OrganizationTreeNode | null);
-    setCreateDialogOpen(true);
-  };
+    setParentOrgForCreate(selectedOrg as OrganizationTreeNode | null)
+    setCreateDialogOpen(true)
+  }
 
   const handleDeleteOrg = async () => {
-    if (!selectedOrg) return;
-    
+    if (!selectedOrg) return
+
     if (!confirm(`确定要删除组织 "${selectedOrg.display_name}" 吗？此操作不可撤销。`)) {
-      return;
+      return
     }
 
     try {
-      await deleteOrganization(selectedOrg.id);
+      await deleteOrganization(selectedOrg.id)
     } catch (err) {
-      alert(err instanceof Error ? err.message : '删除失败');
+      alert(err instanceof Error ? err.message : '删除失败')
     }
-  };
+  }
 
   const handleAddMember = () => {
-    setAddMemberDialogOpen(true);
-  };
+    setAddMemberDialogOpen(true)
+  }
 
   const handleRemoveMember = async (member: Profile) => {
     if (!confirm(`确定要将 ${member.full_name} 从组织中移除吗？`)) {
-      return;
+      return
     }
 
     try {
-      await removeMember(member.id);
+      await removeMember(member.id)
     } catch (err) {
-      alert(err instanceof Error ? err.message : '移除失败');
+      alert(err instanceof Error ? err.message : '移除失败')
     }
-  };
+  }
 
   const handleChangeRole = (member: Profile) => {
-    setSelectedMemberForRole(member);
-    setChangeRoleDialogOpen(true);
-  };
+    setSelectedMemberForRole(member)
+    setChangeRoleDialogOpen(true)
+  }
 
   const handleAddMemberSubmit = async (targetUserId: string, role: 'manager' | 'member') => {
-    if (!selectedOrg) return;
-    await addMember(targetUserId, selectedOrg.id, role);
-  };
+    if (!selectedOrg) return
+    await addMember(targetUserId, selectedOrg.id, role)
+  }
 
   const handleChangeRoleSubmit = async (targetUserId: string, newRole: 'manager' | 'member') => {
-    await changeRole(targetUserId, newRole);
-  };
+    await changeRole(targetUserId, newRole)
+  }
 
-  const currentUserRole = userOrgInfo?.role || 'member';
-  const isAdmin = currentUserRole === 'admin';
+  const currentUserRole = userOrgInfo?.role || 'member'
+  const isAdmin = currentUserRole === 'admin'
 
   if (!userId) {
     return (
       <div className="max-w-7xl mx-auto p-4">
         <p className="text-muted-foreground">请先登录</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -116,9 +120,7 @@ function PersonsPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-3xl font-bold">组织架构与人员管理</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            管理团队组织结构和成员信息
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">管理团队组织结构和成员信息</p>
         </div>
         {isAdmin && (
           <div className="flex gap-2">
@@ -154,11 +156,7 @@ function PersonsPage() {
           {isLoading && !tree.length ? (
             <p className="text-sm text-muted-foreground">加载中...</p>
           ) : (
-            <OrgTree
-              tree={tree}
-              selectedId={selectedOrg?.id || null}
-              onSelect={handleSelectOrg}
-            />
+            <OrgTree tree={tree} selectedId={selectedOrg?.id || null} onSelect={handleSelectOrg} />
           )}
         </div>
 
@@ -185,7 +183,9 @@ function PersonsPage() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         parentOrg={parentOrgForCreate}
-        onSubmit={async (input) => { await createOrganization(input); }}
+        onSubmit={async (input) => {
+          await createOrganization(input)
+        }}
       />
 
       {selectedOrg && (
@@ -207,7 +207,7 @@ function PersonsPage() {
         onChangeRole={handleChangeRoleSubmit}
       />
     </div>
-  );
+  )
 }
 
-export default PersonsPage;
+export default PersonsPage

@@ -1,3 +1,6 @@
+/**
+ * 日期格式化工具（日期、日期时间、相对时间、日期标签）
+ */
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 

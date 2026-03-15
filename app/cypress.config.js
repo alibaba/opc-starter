@@ -1,6 +1,7 @@
 const { defineConfig } = require('cypress')
 const dotenv = require('dotenv')
 const path = require('path')
+const usersFixture = require('./cypress/fixtures/users.json')
 
 // 加载 .env.test 文件
 const envPath = path.resolve(__dirname, '.env.test')
@@ -8,20 +9,14 @@ const envConfig = dotenv.config({ path: envPath })
 
 if (envConfig.error) {
   console.warn('⚠️  未找到 .env.test 文件，使用默认测试配置')
-  console.warn('   请复制 .env.test.example 为 .env.test 并配置测试用户凭证')
+  console.warn('   如需 MSW Mock，请运行 ./setup-env.sh 或手动创建 .env.test')
 }
 
 module.exports = defineConfig({
+  allowCypressEnv: false,
   e2e: {
     // 基础URL
     baseUrl: 'http://localhost:5173',
-    
-    // 环境变量（传递给测试用例）
-    // 默认值需与 cypress/fixtures/users.json 中的 testUser 保持一致
-    env: {
-      TEST_USER_EMAIL: process.env.TEST_USER_EMAIL || 'test@example.com',
-      TEST_USER_PWD: process.env.TEST_USER_PWD || '888888',
-    },
     
     // 视口大小
     viewportWidth: 1280,
@@ -57,7 +52,7 @@ module.exports = defineConfig({
     },
     
     // Cypress Dashboard 配置（需要注册获取 projectId）
-    projectId: 'photo-wall-e2e',
+    projectId: 'opc-starter-e2e',
     
     setupNodeEvents(on, config) {
       // 实现 node 事件监听器
@@ -66,7 +61,8 @@ module.exports = defineConfig({
       // 打印配置信息
       on('before:run', () => {
         console.log('🚀 Cypress E2E 测试启动')
-        console.log('📧 测试用户:', config.env.TEST_USER_EMAIL)
+        console.log('📧 Fixture 测试用户:', usersFixture.testUser.email)
+        console.log('🧾 凭证来源: cypress/fixtures/users.json')
         console.log('🔧 MSW Mock:', process.env.VITE_ENABLE_MSW === 'true' ? '已启用' : '已禁用')
       })
       

@@ -17,54 +17,54 @@ export async function rotateImage(
   quality: number = 0.95
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const image = new Image();
-    
+    const image = new Image()
+
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+          reject(new Error('Failed to get canvas context'))
+          return
         }
-        
+
         // 将角度转换为弧度
-        const radians = (degrees * Math.PI) / 180;
-        
+        const radians = (degrees * Math.PI) / 180
+
         // 计算旋转后的画布尺寸
-        const sin = Math.abs(Math.sin(radians));
-        const cos = Math.abs(Math.cos(radians));
-        
-        const newWidth = image.width * cos + image.height * sin;
-        const newHeight = image.width * sin + image.height * cos;
-        
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        
+        const sin = Math.abs(Math.sin(radians))
+        const cos = Math.abs(Math.cos(radians))
+
+        const newWidth = image.width * cos + image.height * sin
+        const newHeight = image.width * sin + image.height * cos
+
+        canvas.width = newWidth
+        canvas.height = newHeight
+
         // 移动到画布中心
-        ctx.translate(newWidth / 2, newHeight / 2);
-        
+        ctx.translate(newWidth / 2, newHeight / 2)
+
         // 旋转
-        ctx.rotate(radians);
-        
+        ctx.rotate(radians)
+
         // 绘制图像（从中心点开始）
-        ctx.drawImage(image, -image.width / 2, -image.height / 2);
-        
+        ctx.drawImage(image, -image.width / 2, -image.height / 2)
+
         // 转换为 base64
-        const base64 = canvas.toDataURL('image/jpeg', quality);
-        resolve(base64);
+        const base64 = canvas.toDataURL('image/jpeg', quality)
+        resolve(base64)
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    };
-    
+    }
+
     image.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-    
-    image.src = imageSrc;
-  });
+      reject(new Error('Failed to load image'))
+    }
+
+    image.src = imageSrc
+  })
 }
 
 /**
@@ -80,51 +80,51 @@ export async function flipImage(
   quality: number = 0.95
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const image = new Image();
-    
+    const image = new Image()
+
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+          reject(new Error('Failed to get canvas context'))
+          return
         }
-        
-        canvas.width = image.width;
-        canvas.height = image.height;
-        
+
+        canvas.width = image.width
+        canvas.height = image.height
+
         // 保存当前状态
-        ctx.save();
-        
+        ctx.save()
+
         if (direction === 'horizontal') {
           // 水平翻转
-          ctx.scale(-1, 1);
-          ctx.drawImage(image, -image.width, 0);
+          ctx.scale(-1, 1)
+          ctx.drawImage(image, -image.width, 0)
         } else {
           // 垂直翻转
-          ctx.scale(1, -1);
-          ctx.drawImage(image, 0, -image.height);
+          ctx.scale(1, -1)
+          ctx.drawImage(image, 0, -image.height)
         }
-        
+
         // 恢复状态
-        ctx.restore();
-        
+        ctx.restore()
+
         // 转换为 base64
-        const base64 = canvas.toDataURL('image/jpeg', quality);
-        resolve(base64);
+        const base64 = canvas.toDataURL('image/jpeg', quality)
+        resolve(base64)
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    };
-    
+    }
+
     image.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-    
-    image.src = imageSrc;
-  });
+      reject(new Error('Failed to load image'))
+    }
+
+    image.src = imageSrc
+  })
 }
 
 /**
@@ -139,7 +139,6 @@ export async function rotateBy90(
   times: number,
   quality: number = 0.95
 ): Promise<string> {
-  const degrees = (times % 4) * 90;
-  return rotateImage(imageSrc, degrees, quality);
+  const degrees = (times % 4) * 90
+  return rotateImage(imageSrc, degrees, quality)
 }
-

@@ -1,3 +1,7 @@
+/**
+ * Agent Tool 注册表 — 管理所有前端可执行工具的注册、查找和 OpenAI 格式转换。
+ * 工具通过 `defineTool()` 注册，运行时由 toolExecutor 按名称查找并执行。
+ */
 import { z } from 'zod'
 import zodToJsonSchema from 'zod-to-json-schema'
 import type {
@@ -14,7 +18,7 @@ export function defineTool<T extends z.ZodObject<z.ZodRawShape>>(
 ): RegisteredTool<T> {
   const { name, description, category, parameters, execute } = config
 
-  // 使用类型断言解决 zod v4 与 zod-to-json-schema 的类型兼容问题
+  // zod v4 与 zod-to-json-schema 存在类型签名差异，需要类型断言桥接
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jsonSchema = zodToJsonSchema(parameters as any, { target: 'openAi' })
 

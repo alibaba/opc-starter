@@ -1,11 +1,11 @@
 /**
  * 统一数据访问服务 - OPC-Starter
- * 
+ *
  * 核心原则:
  * 1. 读操作: 优先从 IndexedDB (快速)
  * 2. 写操作: 先写 Supabase (权威) → 成功后更新 IndexedDB (缓存)
  * 3. 更新机制: Supabase Realtime 订阅 (实时)
- * 
+ *
  * @author OPC-Starter Team
  */
 
@@ -72,7 +72,7 @@ export class DataServiceClass {
   private static instance: DataServiceClass | null = null
   private readonly QUEUE_STORAGE_KEY = 'dataservice-offline-queue'
   private readonly NETWORK_RETRY_DELAY = 2000
-  
+
   private readonly syncManager = createSyncManager()
   private readonly networkManager = createNetworkManager()
   private readonly conflictResolver = createConflictResolver()
@@ -108,14 +108,14 @@ export class DataServiceClass {
     startRealtimeSubscription: (callbacks) => this.startRealtimeSubscription(callbacks),
   })
   private unsubscribeAllRealtime: (() => void) | null = null
-  
+
   static getInstance(): DataServiceClass {
     if (!DataServiceClass.instance) {
       DataServiceClass.instance = new DataServiceClass()
     }
     return DataServiceClass.instance
   }
-  
+
   get persons(): ReactiveCollection<Person & BaseEntity> {
     if (!this._persons) {
       this._persons = new ReactiveCollection<Person & BaseEntity>('persons', {
@@ -124,32 +124,32 @@ export class DataServiceClass {
     }
     return this._persons
   }
-  
+
   constructor() {
     this.setupNetworkListeners()
     this.loadOfflineQueue()
   }
-  
+
   // ==================== 同步状态管理 ====================
-  
+
   getSyncStatus(): SyncStatus {
     return this.syncManager.getSyncStatus()
   }
-  
+
   isSyncing(): boolean {
     return this.syncManager.isSyncing()
   }
-  
+
   hasCompletedInitialSync(): boolean {
     return this.syncManager.hasCompletedInitialSync()
   }
-  
+
   onSyncStatusChange(callback: SyncStatusCallback): () => void {
     return this.syncManager.onSyncStatusChange(callback)
   }
-  
+
   // ==================== 网络状态管理 ====================
-  
+
   private setupNetworkListeners(): void {
     this.networkManager.setup({
       onOnline: () => {
@@ -169,41 +169,41 @@ export class DataServiceClass {
       console.log('[DataService] 发现待处理的离线操作，将在初始化后处理')
     }
   }
-  
+
   private get isOnline(): boolean {
     return this.networkManager.isOnline()
   }
-  
+
   checkOnline(): boolean {
     return this.networkManager.isOnline()
   }
-  
+
   getNetworkStatus(): boolean {
     return this.networkManager.isOnline()
   }
-  
+
   // ==================== Realtime 订阅 ====================
-  
+
   subscribePersons(callback?: (event: DataChangeEvent<Person>) => void): () => void {
     return this.realtime.subscribePersons(callback)
   }
-  
+
   subscribeAll(callbacks?: RealtimeCallbacks): () => void {
     return this.realtime.subscribeAll(callbacks)
   }
-  
+
   cleanup(): void {
     this.realtime.cleanup()
   }
-  
+
   // ==================== 初始同步 ====================
-  
+
   async initialSync(callbacks?: {
     onPersonChange?: (event: DataChangeEvent<Person>) => void
   }): Promise<void> {
     return this.syncOrchestrator.initialSync(callbacks)
   }
-  
+
   private startRealtimeSubscription(callbacks?: {
     onPersonChange?: (event: DataChangeEvent<Person>) => void
   }): void {
@@ -212,40 +212,40 @@ export class DataServiceClass {
     }
     this.unsubscribeAllRealtime = this.subscribeAll(callbacks)
   }
-  
+
   async incrementalSync(): Promise<{ added: number; updated: number; deleted: number }> {
     return this.syncOrchestrator.incrementalSync()
   }
-  
+
   async forceFullSync(): Promise<void> {
     console.log('[DataService] 开始强制完整同步...')
     await personDB.clear()
     await this.initialSync()
   }
-  
+
   // ==================== 离线队列管理 ====================
-  
+
   private loadOfflineQueue(): void {
     this.offlineQueueManager.loadQueue()
   }
-  
+
   private async enqueueOperation(
     op: Omit<WriteOperation, 'timestamp' | 'retryCount'>
   ): Promise<void> {
     await this.offlineQueueManager.enqueueOperation(op)
   }
-  
+
   async processOfflineQueue(): Promise<{ success: number; failed: number }> {
     return this.offlineQueueManager.processOfflineQueue()
   }
-  
+
   private async processOfflineQueueWithRetry(): Promise<void> {
     return this.offlineQueueManager.processOfflineQueueWithRetry()
   }
-  
+
   private async executeOperation(op: WriteOperation): Promise<void> {
     console.log('[DataService] 执行队列操作:', op.type, op.entityType, op.id)
-    
+
     if (op.entityType === 'person') {
       try {
         const person = await this.remote.executePersonOperation(op)
@@ -260,23 +260,23 @@ export class DataServiceClass {
       }
     }
   }
-  
+
   getQueueStats(): {
     queueSize: number
     operations: WriteOperation[]
   } {
     return this.offlineQueueManager.getQueueStats()
   }
-  
+
   async triggerQueueProcessing(): Promise<{ success: number; failed: number }> {
     if (!this.isOnline) {
       console.log('[DataService] 离线状态，无法处理队列')
       return { success: 0, failed: 0 }
     }
-    
+
     return this.processOfflineQueue()
   }
-  
+
   getSyncStats(): {
     queueSize: number
     syncing: number
@@ -305,9 +305,9 @@ export class DataServiceClass {
       conflictStats: { ...conflictStats },
     }
   }
-  
+
   // ==================== 冲突检测与解决 ====================
-  
+
   getConflictStats(): {
     total: number
     serverWins: number
@@ -316,11 +316,11 @@ export class DataServiceClass {
   } {
     return this.conflictResolver.getConflictStats()
   }
-  
+
   resetConflictStats(): void {
     this.conflictResolver.resetConflictStats()
   }
-  
+
   // ==================== 人物操作 ====================
 
   async getPersons(): Promise<Person[]> {
@@ -332,7 +332,9 @@ export class DataServiceClass {
     return person ?? null
   }
 
-  async addPerson(person: Omit<Person, 'id' | 'photoCount'> & { photoCount?: number }): Promise<Person> {
+  async addPerson(
+    person: Omit<Person, 'id' | 'photoCount'> & { photoCount?: number }
+  ): Promise<Person> {
     const record: Person = {
       id: crypto.randomUUID(),
       name: person.name,

@@ -5,35 +5,35 @@
  * @see STORY-23-004, STORY-23-006
  */
 
-import { useEffect, useRef } from 'react';
-import { Bot, Sparkles, MapPin, AlertCircle } from 'lucide-react';
-import { useAgentStore } from '@/stores/useAgentStore';
-import { useAgentChat } from '@/hooks/useAgentChat';
-import { useContextualSuggestions } from '@/hooks/useContextualSuggestions';
-import { AgentMessage } from './AgentMessage';
-import { cn } from '@/lib/utils';
+import { useEffect, useRef } from 'react'
+import { Bot, Sparkles, MapPin, AlertCircle } from 'lucide-react'
+import { useAgentStore } from '@/stores/useAgentStore'
+import { useAgentChat } from '@/hooks/useAgentChat'
+import { useContextualSuggestions } from '@/hooks/useContextualSuggestions'
+import { AgentMessage } from './AgentMessage'
+import { cn } from '@/lib/utils'
 
 /**
  * 对话消息列表组件
  */
 export function AgentThread() {
-  const messages = useAgentStore((state) => state.messages);
-  const isStreaming = useAgentStore((state) => state.isStreaming);
-  const handleUserAction = useAgentStore((state) => state.handleUserAction);
+  const messages = useAgentStore((state) => state.messages)
+  const isStreaming = useAgentStore((state) => state.isStreaming)
+  const handleUserAction = useAgentStore((state) => state.handleUserAction)
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
 
   // 自动滚动到底部
   useEffect(() => {
     if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, isStreaming]);
+  }, [messages, isStreaming])
 
   // 空状态 - 使用上下文感知推荐
   if (messages.length === 0) {
-    return <EmptyStateWithSuggestions />;
+    return <EmptyStateWithSuggestions />
   }
 
   return (
@@ -44,31 +44,22 @@ export function AgentThread() {
       {/* 消息列表 */}
       <div className="py-2">
         {messages.map((message) => (
-          <AgentMessage
-            key={message.id}
-            message={message}
-            onAction={handleUserAction}
-          />
+          <AgentMessage key={message.id} message={message} onAction={handleUserAction} />
         ))}
       </div>
 
       {/* 滚动锚点 */}
       <div ref={bottomRef} />
     </div>
-  );
+  )
 }
 
 /**
  * 空状态组件 - 显示上下文感知的推荐
  */
 function EmptyStateWithSuggestions() {
-  const {
-    suggestions,
-    emptyStateHint,
-    currentPage,
-    hasSelectedPhotos,
-    selectedPhotoCount,
-  } = useContextualSuggestions();
+  const { suggestions, emptyStateHint, currentPage, hasSelectedPhotos, selectedPhotoCount } =
+    useContextualSuggestions()
 
   // 页面名称映射
   const pageNames: Record<string, string> = {
@@ -78,7 +69,7 @@ function EmptyStateWithSuggestions() {
     'ai-studio': 'AI 工作室',
     search: '搜索',
     persons: '人物',
-  };
+  }
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
@@ -86,10 +77,8 @@ function EmptyStateWithSuggestions() {
       <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
         <Bot className="w-8 h-8 text-primary" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">
-        Photo Wall 助手
-      </h3>
-      
+      <h3 className="text-lg font-semibold text-foreground mb-2">Photo Wall 助手</h3>
+
       {/* 上下文信息 */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
         <MapPin className="w-3 h-3" />
@@ -122,7 +111,7 @@ function EmptyStateWithSuggestions() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -134,23 +123,23 @@ function SuggestionButton({
   navigationHint,
   canExecute = true,
 }: {
-  text: string;
-  icon: string;
-  navigationHint?: string;
-  canExecute?: boolean;
+  text: string
+  icon: string
+  navigationHint?: string
+  canExecute?: boolean
 }) {
-  const { sendMessage, isStreaming } = useAgentChat();
+  const { sendMessage, isStreaming } = useAgentChat()
 
   const handleClick = async () => {
-    if (isStreaming) return;
-    
+    if (isStreaming) return
+
     // 如果有导航提示，发送时包含提示信息让 AI 处理
     if (navigationHint) {
-      sendMessage(`${text}（${navigationHint}）`);
+      sendMessage(`${text}（${navigationHint}）`)
     } else {
-      sendMessage(text);
+      sendMessage(text)
     }
-  };
+  }
 
   return (
     <button
@@ -169,9 +158,7 @@ function SuggestionButton({
         <span
           className={cn(
             'text-sm block transition-colors',
-            canExecute
-              ? 'text-foreground group-hover:text-primary'
-              : 'text-muted-foreground'
+            canExecute ? 'text-foreground group-hover:text-primary' : 'text-muted-foreground'
           )}
         >
           {text}
@@ -191,5 +178,5 @@ function SuggestionButton({
         )}
       />
     </button>
-  );
+  )
 }

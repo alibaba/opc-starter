@@ -15,29 +15,35 @@ const createMockLocalAdapter = (): LocalAdapter<TestPhoto> & {
   _store: Map<string, TestPhoto>
 } => {
   const store = new Map<string, TestPhoto>()
-  
+
   return {
     _store: store,
     findAll: vi.fn(async () => Array.from(store.values())),
     findOne: vi.fn(async (id: string) => store.get(id)),
     query: vi.fn(async () => Array.from(store.values())),
-    upsert: vi.fn(async (doc: TestPhoto) => { store.set(doc.id, doc) }),
-    bulkUpsert: vi.fn(async (docs: TestPhoto[]) => { 
-      docs.forEach(doc => store.set(doc.id, doc)) 
+    upsert: vi.fn(async (doc: TestPhoto) => {
+      store.set(doc.id, doc)
     }),
-    remove: vi.fn(async (id: string) => { store.delete(id) }),
-    clear: vi.fn(async () => { store.clear() }),
+    bulkUpsert: vi.fn(async (docs: TestPhoto[]) => {
+      docs.forEach((doc) => store.set(doc.id, doc))
+    }),
+    remove: vi.fn(async (id: string) => {
+      store.delete(id)
+    }),
+    clear: vi.fn(async () => {
+      store.clear()
+    }),
   }
 }
 
 const createMockRemoteAdapter = (): RemoteAdapter<TestPhoto> => {
   let idCounter = 0
-  
+
   return {
     fetch: vi.fn(async () => []),
     fetchOne: vi.fn(async () => undefined),
-    insert: vi.fn(async (doc) => ({ ...doc, id: `server-${++idCounter}` } as TestPhoto)),
-    update: vi.fn(async (id, changes) => ({ id, ...changes } as TestPhoto)),
+    insert: vi.fn(async (doc) => ({ ...doc, id: `server-${++idCounter}` }) as TestPhoto),
+    update: vi.fn(async (id, changes) => ({ id, ...changes }) as TestPhoto),
     remove: vi.fn(async () => {}),
     subscribe: vi.fn(() => () => {}),
   }
@@ -78,7 +84,7 @@ describe('SyncEngine', () => {
 
     it('首次同步应该更新 lastSyncTime', async () => {
       mockRemote.fetch = vi.fn().mockResolvedValue([])
-      
+
       const before = new Date()
       await engine.initialSync()
       const after = new Date()
@@ -94,13 +100,13 @@ describe('SyncEngine', () => {
       engine.setLastSyncTime(lastSync)
 
       mockRemote.fetch = vi.fn().mockResolvedValue([])
-      
+
       await engine.deltaSync()
 
       expect(mockRemote.fetch).toHaveBeenCalledWith(
         expect.objectContaining({
           filter: expect.objectContaining({
-            updated_at: expect.any(Object)
+            updated_at: expect.any(Object),
           }),
         })
       )
@@ -110,16 +116,12 @@ describe('SyncEngine', () => {
       mockLocal._store.set('1', { id: '1', title: 'Local', url: '1.jpg' })
       engine.setLastSyncTime(new Date('2025-12-08T00:00:00Z'))
 
-      mockRemote.fetch = vi.fn().mockResolvedValue([
-        { id: '2', title: 'Remote New', url: '2.jpg' },
-      ])
+      mockRemote.fetch = vi.fn().mockResolvedValue([{ id: '2', title: 'Remote New', url: '2.jpg' }])
 
       await engine.deltaSync()
 
       expect(mockLocal.bulkUpsert).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ id: '2' }),
-        ])
+        expect.arrayContaining([expect.objectContaining({ id: '2' })])
       )
     })
   })
@@ -152,7 +154,7 @@ describe('SyncEngine', () => {
 
     it('恢复在线时应该处理队列', async () => {
       engine.setOnlineStatus(false)
-      
+
       await engine.queueOperation({
         type: 'INSERT',
         data: { title: 'Queued', url: 'q.jpg' },
@@ -169,7 +171,7 @@ describe('SyncEngine', () => {
 
     it('队列处理失败应该保留操作并增加重试计数', async () => {
       engine.setOnlineStatus(false)
-      
+
       await engine.queueOperation({
         type: 'INSERT',
         data: { title: 'Retry', url: 'r.jpg' },
@@ -192,7 +194,7 @@ describe('SyncEngine', () => {
         entityName: 'photos',
         maxRetries: 2,
       })
-      
+
       engine.setOnlineStatus(false)
       await engine.queueOperation({
         type: 'INSERT',
@@ -211,7 +213,7 @@ describe('SyncEngine', () => {
 
     it('UPDATE 操作应该调用 remote.update', async () => {
       engine.setOnlineStatus(false)
-      
+
       await engine.queueOperation({
         id: 'photo-1',
         type: 'UPDATE',
@@ -226,7 +228,7 @@ describe('SyncEngine', () => {
 
     it('DELETE 操作应该调用 remote.remove', async () => {
       engine.setOnlineStatus(false)
-      
+
       await engine.queueOperation({
         id: 'photo-1',
         type: 'DELETE',
@@ -296,7 +298,7 @@ describe('SyncEngine', () => {
   describe('Sync Status', () => {
     it('同步时应该更新状态为 syncing', async () => {
       const statusChanges: string[] = []
-      
+
       engine = new SyncEngine<TestPhoto>({
         localAdapter: mockLocal,
         remoteAdapter: mockRemote,
@@ -313,16 +315,18 @@ describe('SyncEngine', () => {
 
     it('同步失败时应该更新状态为 error', async () => {
       let lastStatus: string = ''
-      
+
       engine = new SyncEngine<TestPhoto>({
         localAdapter: mockLocal,
         remoteAdapter: mockRemote,
         entityName: 'photos',
-        onSyncStatusChange: (status) => { lastStatus = status.status },
+        onSyncStatusChange: (status) => {
+          lastStatus = status.status
+        },
       })
 
       mockRemote.fetch = vi.fn().mockRejectedValue(new Error('Network'))
-      
+
       try {
         await engine.initialSync()
       } catch {
@@ -334,12 +338,14 @@ describe('SyncEngine', () => {
 
     it('离线时应该更新状态为 offline', () => {
       let lastStatus: string = ''
-      
+
       engine = new SyncEngine<TestPhoto>({
         localAdapter: mockLocal,
         remoteAdapter: mockRemote,
         entityName: 'photos',
-        onSyncStatusChange: (status) => { lastStatus = status.status },
+        onSyncStatusChange: (status) => {
+          lastStatus = status.status
+        },
       })
 
       engine.setOnlineStatus(false)

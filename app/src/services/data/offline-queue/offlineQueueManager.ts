@@ -1,3 +1,10 @@
+/**
+ * 离线队列管理器
+ *
+ * 在网络不可用时缓存写操作到 localStorage，
+ * 恢复在线后按顺序重放（flush），实现离线优先写入。
+ */
+
 import type { WriteOperation } from '@/services/data/DataService'
 
 interface OfflineQueueDeps {
@@ -117,8 +124,10 @@ export function createOfflineQueueManager(deps: OfflineQueueDeps) {
         if (result.failed > 0 && offlineQueue.length > 0) {
           retryCount++
           const delay = Math.min(1000 * Math.pow(2, retryCount), 30000)
-          console.log(`[DataService] 部分操作失败，${delay / 1000}秒后重试 (${retryCount}/${maxRetries})`)
-          await new Promise(resolve => setTimeout(resolve, delay))
+          console.log(
+            `[DataService] 部分操作失败，${delay / 1000}秒后重试 (${retryCount}/${maxRetries})`
+          )
+          await new Promise((resolve) => setTimeout(resolve, delay))
         } else {
           break
         }

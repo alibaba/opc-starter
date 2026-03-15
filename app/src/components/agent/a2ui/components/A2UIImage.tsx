@@ -3,24 +3,24 @@
  * @description 用于显示图片，支持懒加载和占位符
  */
 
-import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react'
+import { cn } from '@/lib/utils'
 
 export interface A2UIImageProps {
   /** 图片地址 */
-  src: string;
+  src: string
   /** 替代文本 */
-  alt?: string;
+  alt?: string
   /** 宽度 */
-  width?: number | string;
+  width?: number | string
   /** 高度 */
-  height?: number | string;
+  height?: number | string
   /** 图片适应方式 */
-  fit?: 'cover' | 'contain' | 'fill' | 'none';
+  fit?: 'cover' | 'contain' | 'fill' | 'none'
   /** 圆角 */
-  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 const fitMap = {
@@ -28,7 +28,7 @@ const fitMap = {
   contain: 'object-contain',
   fill: 'object-fill',
   none: 'object-none',
-};
+}
 
 const roundedMap = {
   none: 'rounded-none',
@@ -36,7 +36,7 @@ const roundedMap = {
   md: 'rounded-md',
   lg: 'rounded-lg',
   full: 'rounded-full',
-};
+}
 
 export const A2UIImage: React.FC<A2UIImageProps> = ({
   src,
@@ -47,8 +47,8 @@ export const A2UIImage: React.FC<A2UIImageProps> = ({
   rounded = 'md',
   className,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
 
   if (hasError) {
     return (
@@ -62,16 +62,13 @@ export const A2UIImage: React.FC<A2UIImageProps> = ({
       >
         <span className="text-sm">图片加载失败</span>
       </div>
-    );
+    )
   }
 
   return (
     <div className={cn('relative overflow-hidden', roundedMap[rounded], className)}>
       {isLoading && (
-        <div
-          className="absolute inset-0 animate-pulse bg-muted"
-          style={{ width, height }}
-        />
+        <div className="absolute inset-0 animate-pulse bg-muted" style={{ width, height }} />
       )}
       <img
         src={src}
@@ -86,10 +83,10 @@ export const A2UIImage: React.FC<A2UIImageProps> = ({
         )}
         onLoad={() => setIsLoading(false)}
         onError={() => {
-          setIsLoading(false);
-          setHasError(true);
+          setIsLoading(false)
+          setHasError(true)
         }}
       />
     </div>
-  );
-};
+  )
+}

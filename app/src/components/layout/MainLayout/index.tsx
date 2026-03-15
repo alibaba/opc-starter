@@ -1,26 +1,30 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
-import { Sidebar } from '../Sidebar';
-import { Header } from '../Header';
-import { dataService } from '@/services/data/DataService';
-import { useSyncStatus } from '@/hooks/useSyncStatus';
-import { Loader2 } from 'lucide-react';
-import { AgentWindow } from '@/components/agent/AgentWindow';
-import { useAgentStore } from '@/stores/useAgentStore';
-import { A2UIPortalContainer } from '@/components/agent/a2ui/A2UIPortalContainer';
+/**
+ * MainLayout - 应用主布局组件
+ * @description 组合 Header、Sidebar 和内容区域，管理数据同步初始化与 Agent 窗口
+ */
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Outlet } from 'react-router-dom'
+import { Sidebar } from '../Sidebar'
+import { Header } from '../Header'
+import { dataService } from '@/services/data/DataService'
+import { useSyncStatus } from '@/hooks/useSyncStatus'
+import { Loader2 } from 'lucide-react'
+import { AgentWindow } from '@/components/agent/AgentWindow'
+import { useAgentStore } from '@/stores/useAgentStore'
+import { A2UIPortalContainer } from '@/components/agent/a2ui/A2UIPortalContainer'
 
 // localStorage key for sidebar collapsed state
-const SIDEBAR_COLLAPSED_KEY = 'photo-wall:sidebar-collapsed';
+const SIDEBAR_COLLAPSED_KEY = 'photo-wall:sidebar-collapsed'
 
 /**
  * 首次同步加载组件 (Epic-18: S18-2)
  */
 function InitialSyncLoader() {
-  const { isSyncing, progress, hasInitialSynced } = useSyncStatus();
+  const { isSyncing, progress, hasInitialSynced } = useSyncStatus()
 
   // 如果已完成首次同步，不显示加载器
   if (hasInitialSynced || !isSyncing) {
-    return null;
+    return null
   }
 
   return (
@@ -31,13 +35,14 @@ function InitialSyncLoader() {
           <h3 className="text-base md:text-lg font-semibold">正在同步数据</h3>
           {progress && (
             <p className="text-xs md:text-sm text-muted-foreground mt-1">
-              {progress.message || `同步 ${progress.table}... (${progress.current}/${progress.total})`}
+              {progress.message ||
+                `同步 ${progress.table}... (${progress.current}/${progress.total})`}
             </p>
           )}
         </div>
         {progress && (
           <div className="w-40 md:w-48 h-2 bg-muted rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-primary transition-all duration-300"
               style={{ width: `${(progress.current / progress.total) * 100}%` }}
             />
@@ -45,60 +50,60 @@ function InitialSyncLoader() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
 export function MainLayout() {
-  const hasInitialized = useRef(false);
+  const hasInitialized = useRef(false)
   // 移动端侧边栏展开状态
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   // 桌面端侧边栏折叠状态（从 localStorage 读取初始值）
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
-      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
     } catch {
-      return false;
+      return false
     }
-  });
-  
+  })
+
   // Agent 窗口状态
-  const isPanelOpen = useAgentStore((state) => state.isPanelOpen);
-  const togglePanel = useAgentStore((state) => state.togglePanel);
+  const isPanelOpen = useAgentStore((state) => state.isPanelOpen)
+  const togglePanel = useAgentStore((state) => state.togglePanel)
 
   // 切换侧边栏折叠状态
   const handleToggleCollapse = useCallback(() => {
     setSidebarCollapsed((prev) => {
-      const newValue = !prev;
+      const newValue = !prev
       try {
-        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newValue));
+        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newValue))
       } catch {
         // localStorage 不可用时忽略
       }
-      return newValue;
-    });
-  }, []);
+      return newValue
+    })
+  }, [])
 
   // 初始化数据同步 (Epic-18: S18-2)
   useEffect(() => {
     // 防止 React 18 Strict Mode 下的重复调用
     if (hasInitialized.current) {
-      return;
+      return
     }
-    hasInitialized.current = true;
+    hasInitialized.current = true
 
-    console.log('[MainLayout] 启动数据同步...');
-    
+    console.log('[MainLayout] 启动数据同步...')
+
     // 启动初始同步
     dataService.initialSync().catch((error) => {
-      console.error('[MainLayout] 初始同步失败:', error);
-    });
+      console.error('[MainLayout] 初始同步失败:', error)
+    })
 
     // 清理函数：组件卸载时清理订阅
     return () => {
-      console.log('[MainLayout] 清理数据服务订阅');
-      dataService.cleanup();
-    };
-  }, []);
+      console.log('[MainLayout] 清理数据服务订阅')
+      dataService.cleanup()
+    }
+  }, [])
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -106,8 +111,8 @@ export function MainLayout() {
       <InitialSyncLoader />
 
       {/* 左侧Sidebar - 移动端通过 state 控制显示，桌面端支持折叠 */}
-      <Sidebar 
-        isOpen={sidebarOpen} 
+      <Sidebar
+        isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={handleToggleCollapse}
@@ -131,5 +136,5 @@ export function MainLayout() {
       {/* AI 助手悬浮窗口 */}
       <AgentWindow isOpen={isPanelOpen} onClose={togglePanel} />
     </div>
-  );
+  )
 }

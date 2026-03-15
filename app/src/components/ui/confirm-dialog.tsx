@@ -2,7 +2,7 @@
  * Confirm Dialog Component
  * Simple confirmation dialog for user actions
  */
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -10,18 +10,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './dialog';
-import { Button } from './button';
+} from './dialog'
+import { Button } from './button'
 
 export interface ConfirmDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm: () => void | Promise<void>;
-  variant?: 'default' | 'destructive';
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: string
+  confirmText?: string
+  cancelText?: string
+  onConfirm: () => void | Promise<void>
+  variant?: 'default' | 'destructive'
 }
 
 export function ConfirmDialog({
@@ -34,17 +34,17 @@ export function ConfirmDialog({
   onConfirm,
   variant = 'default',
 }: ConfirmDialogProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const handleConfirm = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      await onConfirm();
-      onOpenChange(false);
+      await onConfirm()
+      onOpenChange(false)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,73 +67,81 @@ export function ConfirmDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // Hook for using confirm dialog
-let globalConfirmCallback: ((confirmed: boolean) => void) | null = null;
-let globalOpenCallback: ((props: Omit<ConfirmDialogProps, 'open' | 'onOpenChange'>) => void) | null = null;
+let globalConfirmCallback: ((confirmed: boolean) => void) | null = null
+let globalOpenCallback:
+  | ((props: Omit<ConfirmDialogProps, 'open' | 'onOpenChange'>) => void)
+  | null = null
 
 export function useConfirmDialog() {
-  const [dialogProps, setDialogProps] = useState<Omit<ConfirmDialogProps, 'open' | 'onOpenChange'> | null>(null);
+  const [dialogProps, setDialogProps] = useState<Omit<
+    ConfirmDialogProps,
+    'open' | 'onOpenChange'
+  > | null>(null)
 
   return {
     open: !!dialogProps,
     dialogProps: dialogProps || undefined,
     confirm: (props: Omit<ConfirmDialogProps, 'open' | 'onOpenChange'>) => {
       return new Promise<boolean>((resolve) => {
-        setDialogProps(props);
-        globalConfirmCallback = resolve;
-      });
+        setDialogProps(props)
+        globalConfirmCallback = resolve
+      })
     },
     close: (confirmed: boolean) => {
-      setDialogProps(null);
+      setDialogProps(null)
       if (globalConfirmCallback) {
-        globalConfirmCallback(confirmed);
-        globalConfirmCallback = null;
+        globalConfirmCallback(confirmed)
+        globalConfirmCallback = null
       }
     },
-  };
+  }
 }
 
 // Helper functions
 export async function confirm(title: string, description: string): Promise<boolean> {
   return new Promise((resolve) => {
     if (globalOpenCallback) {
-      globalConfirmCallback = resolve;
+      globalConfirmCallback = resolve
       globalOpenCallback({
         title,
         description,
         onConfirm: () => resolve(true),
-      });
+      })
     } else {
-      resolve(false);
+      resolve(false)
     }
-  });
+  })
 }
 
 export async function confirmDelete(title: string, description: string): Promise<boolean> {
-  return confirm(title, description);
+  return confirm(title, description)
 }
 
 export async function confirmCancel(title: string, description: string): Promise<boolean> {
-  return confirm(title, description);
+  return confirm(title, description)
 }
 
 export async function confirmSave(title: string, description: string): Promise<boolean> {
-  return confirm(title, description);
+  return confirm(title, description)
 }
 
 // Global confirm dialog component
 export function GlobalConfirmDialog() {
-  const [dialogProps, setDialogProps] = useState<Omit<ConfirmDialogProps, 'open' | 'onOpenChange'> | null>(null);
+  const [dialogProps, setDialogProps] = useState<Omit<
+    ConfirmDialogProps,
+    'open' | 'onOpenChange'
+  > | null>(null)
 
   // Register global callback
   if (!globalOpenCallback) {
-    globalOpenCallback = setDialogProps;
+    globalOpenCallback = setDialogProps
   }
 
-  if (!dialogProps) return null;
+  if (!dialogProps) return null
 
   return (
     <ConfirmDialog
@@ -141,13 +149,13 @@ export function GlobalConfirmDialog() {
       open={true}
       onOpenChange={(open) => {
         if (!open) {
-          setDialogProps(null);
+          setDialogProps(null)
           if (globalConfirmCallback) {
-            globalConfirmCallback(false);
-            globalConfirmCallback = null;
+            globalConfirmCallback(false)
+            globalConfirmCallback = null
           }
         }
       }}
     />
-  );
+  )
 }

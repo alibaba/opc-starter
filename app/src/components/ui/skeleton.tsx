@@ -1,3 +1,6 @@
+/**
+ * Skeleton - 加载骨架屏占位组件
+ */
 import { cn } from '@/lib/utils'
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -30,12 +33,7 @@ export function Skeleton({
 
   return (
     <div
-      className={cn(
-        'bg-muted',
-        variantClasses[variant],
-        animationClasses[animation],
-        className
-      )}
+      className={cn('bg-muted', variantClasses[variant], animationClasses[animation], className)}
       style={{
         width: width ? (typeof width === 'number' ? `${width}px` : width) : undefined,
         height: height ? (typeof height === 'number' ? `${height}px` : height) : undefined,

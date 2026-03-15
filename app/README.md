@@ -8,14 +8,23 @@
 # 安装依赖
 npm install
 
-# 复制环境变量
-cp env.local.example .env.local
+# 推荐：MSW mock 模式（无需真实 Supabase）
+npm run dev:test
 
-# 启动开发服务器
+# 可选：真实 Supabase 模式
+cp env.local.example .env.local
 npm run dev
 ```
 
 ## 环境变量
+
+### 默认开发模式
+
+- **默认推荐**：`npm run dev:test`，使用 `app/.env.test` + MSW Mock。
+- **真实后端**：`npm run dev`，需要先创建 `app/.env.local`。
+- **测试账号**：统一来自 `cypress/fixtures/users.json`，不要在测试中手写或依赖环境变量。
+
+### 真实 Supabase 模式配置
 
 在 `.env.local` 中配置：
 
@@ -67,10 +76,13 @@ app/
 | `npm run dev` | 启动开发服务器 |
 | `npm run build` | 构建生产版本 |
 | `npm run preview` | 预览生产构建 |
-| `npm run lint` | 运行 ESLint |
+| `npm run lint` | 运行 ESLint 并自动修复 |
+| `npm run lint:check` | 只检查 ESLint，不修改文件 |
 | `npm run type-check` | TypeScript 类型检查 |
 | `npm test` | 运行单元测试 |
-| `npm run test:e2e` | 运行 E2E 测试 |
+| `npm run test:e2e` | 启动 `dev:test` 后无头运行 E2E |
+| `npm run test:e2e:headless` | 无头运行 E2E（CI / 回归） |
+| `npm run ai:check` | 核心 AI 迭代校验 |
 
 ## 技术栈
 

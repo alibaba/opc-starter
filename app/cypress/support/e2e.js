@@ -59,4 +59,4 @@ Cypress.Commands.overwrite('visit', (originalFn, url, options) => {
 
 // 打印测试环境信息
 console.log('🧪 Cypress E2E 测试环境已加载')
-console.log('📧 测试用户:', Cypress.env('TEST_USER_EMAIL'))
+console.log('🧾 测试凭证来源: cypress/fixtures/users.json')

@@ -1,6 +1,6 @@
 # OPC-Starter 系统架构
 
-> 版本: v1.0.0 | 更新: 2026-01-13
+> 版本: v1.1.0 | 更新: 2026-03-07
 
 ## 项目定位
 
@@ -57,9 +57,14 @@ src/auth/
 
 ```
 src/components/organization/
-├── OrganizationTree.tsx       # 组织树
-├── TeamManagement.tsx         # 团队管理
-└── MembershipManagement.tsx   # 成员管理
+├── OrgTree.tsx                 # 组织架构树
+├── OrgTreeSelector.tsx         # 组织选择器下拉
+├── OrganizationBreadcrumb.tsx  # 组织路径面包屑
+├── TeamMembersList.tsx         # 团队成员列表
+├── AddMemberDialog.tsx         # 添加成员对话框
+├── CreateOrgDialog.tsx         # 创建组织/团队对话框
+├── AssignTeamDialog.tsx        # 分配团队对话框
+└── ChangeRoleDialog.tsx        # 修改角色对话框
 ```
 
 - 多层级组织结构
@@ -105,10 +110,22 @@ src/lib/agent/
 
 ```
 src/services/data/
-├── DataService.ts            # 核心服务
-├── CacheManager.ts           # 缓存管理
+├── DataService.ts            # 核心服务（统一数据访问入口）
+├── network/                  # 网络状态管理
+│   └── networkManager.ts
+├── sync/                     # 同步引擎
+│   ├── syncManager.ts
+│   └── syncOrchestrator.ts
+├── offline-queue/            # 离线队列
+│   └── offlineQueueManager.ts
+├── conflict/                 # 冲突解决
+│   └── conflictResolver.ts
+├── realtime/                 # Realtime 订阅
+│   └── realtimeManager.ts
+├── remote/                   # 远程 API 封装
+│   └── remoteApi.ts
 └── adapters/                 # 数据适配器
-    └── _template.ts          # 适配器模板
+    └── personAdapter.ts
 ```
 
 #### 数据流原则: Cache + Realtime
@@ -148,23 +165,31 @@ app/
 │   ├── auth/              # 认证模块
 │   ├── components/        # React 组件
 │   │   ├── agent/         # Agent Studio
-│   │   ├── layout/        # 布局组件
+│   │   ├── business/      # 业务组件（头像、同步状态等）
+│   │   ├── layout/        # 布局组件（Header/Sidebar/MainLayout）
 │   │   ├── organization/  # 组织架构
 │   │   └── ui/            # 基础 UI (shadcn)
+│   ├── config/            # 路由、常量配置
 │   ├── pages/             # 页面组件
 │   ├── services/          # 服务层
-│   │   ├── data/          # 数据服务
+│   │   ├── api/           # API 客户端
+│   │   ├── cache/         # 缓存服务
+│   │   ├── data/          # DataService（核心数据访问层）
+│   │   ├── db/            # IndexedDB 封装
+│   │   ├── organization/  # 组织服务（查询 + 变更）
 │   │   └── storage/       # 存储服务
 │   ├── stores/            # Zustand Store
 │   ├── lib/               # 工具库
-│   │   ├── agent/         # Agent 客户端
-│   │   └── supabase/      # Supabase 客户端
+│   │   ├── agent/         # Agent 客户端（SSE/工具）
+│   │   ├── reactive/      # 响应式数据层
+│   │   └── supabase/      # Supabase 客户端 & 类型
 │   ├── hooks/             # 自定义 Hooks
 │   ├── types/             # TypeScript 类型
+│   ├── mocks/             # MSW Mock 处理器
 │   └── utils/             # 工具函数
 ├── supabase/
 │   ├── functions/         # Edge Functions
-│   │   └── ai-assistant/ # Agent 网关
+│   │   └── ai-assistant/  # Agent 网关（多模块）
 │   ├── setup.sql          # 数据库初始化
 │   └── SUPABASE_COOKBOOK.md
 └── cypress/               # E2E 测试
@@ -205,9 +230,13 @@ CREATE TABLE organization_memberships (
 
 ## Edge Functions
 
-| Function | 职责 |
-|----------|------|
-| `ai-assistant` | Agent SSE 网关，LLM 交互、工具调用代理 |
+| Function | 模块 | 职责 |
+|----------|------|------|
+| `ai-assistant` | `index.ts` | 入口，路由与认证 |
+| | `agentLoop.ts` | Agent 循环，多轮工具调用 |
+| | `tools.ts` | 工具定义（OpenAI 格式） |
+| | `sse.ts` | SSE 流式响应、系统提示词 |
+| | `types.ts` | TypeScript 类型定义 |
 
 ## RLS 策略
 
@@ -225,9 +254,8 @@ SECURITY DEFINER;
 |-------|------|
 | `useAuthStore` | 用户认证、会话管理 |
 | `useProfileStore` | 用户信息管理 |
-| `useOrganizationStore` | 组织架构管理 |
 | `useAgentStore` | Agent 对话状态 |
-| `useUIStore` | UI 状态 |
+| `useUIStore` | UI 状态（侧边栏、主题等） |
 
 ## 扩展指南
 

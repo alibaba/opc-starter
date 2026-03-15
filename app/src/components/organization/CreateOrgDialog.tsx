@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+/**
+ * CreateOrgDialog - 创建组织/团队对话框
+ * @description 提供表单创建新组织或子团队，支持设置名称和显示名称
+ */
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,47 +11,47 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import type { Organization, CreateOrganizationInput } from '@/lib/supabase/organizationTypes';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import type { Organization, CreateOrganizationInput } from '@/lib/supabase/organizationTypes'
 
 interface CreateOrgDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  parentOrg: Organization | null;
-  onSubmit: (input: CreateOrganizationInput) => Promise<void>;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  parentOrg: Organization | null
+  onSubmit: (input: CreateOrganizationInput) => Promise<void>
 }
 
 export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: CreateOrgDialogProps) {
-  const [name, setName] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [description, setDescription] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !displayName.trim()) return;
+    e.preventDefault()
+    if (!name.trim() || !displayName.trim()) return
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
       await onSubmit({
         name: name.trim(),
         display_name: displayName.trim(),
         parent_id: parentOrg?.id || null,
         description: description.trim() || null,
-      });
-      setName('');
-      setDisplayName('');
-      setDescription('');
-      onOpenChange(false);
+      })
+      setName('')
+      setDisplayName('')
+      setDescription('')
+      onOpenChange(false)
     } catch (error) {
-      console.error('Failed to create organization:', error);
+      console.error('Failed to create organization:', error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,9 +75,7 @@ export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: Cre
                 required
                 pattern="[a-z0-9-]+"
               />
-              <p className="text-xs text-muted-foreground">
-                仅支持小写字母、数字和横线
-              </p>
+              <p className="text-xs text-muted-foreground">仅支持小写字母、数字和横线</p>
             </div>
 
             <div className="space-y-2">
@@ -115,5 +117,5 @@ export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: Cre
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

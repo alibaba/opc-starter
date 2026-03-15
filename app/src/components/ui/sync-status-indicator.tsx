@@ -1,6 +1,6 @@
 /**
  * 同步状态指示器组件 (Epic-18: S18-5)
- * 
+ *
  * 显示数据同步状态：
  * - 在线/离线状态
  * - 同步中状态（带动画）
@@ -9,22 +9,11 @@
  */
 
 import { useState } from 'react'
-import { 
-  Cloud, 
-  CloudOff, 
-  RefreshCw, 
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-} from 'lucide-react'
+import { Cloud, CloudOff, RefreshCw, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSyncStatus } from '@/hooks/useSyncStatus'
 import { Badge } from '@/components/ui/badge'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export interface SyncStatusIndicatorProps {
   /** 是否显示详细信息 */
@@ -33,10 +22,7 @@ export interface SyncStatusIndicatorProps {
   className?: string
 }
 
-export function SyncStatusIndicator({ 
-  showDetails = false,
-  className 
-}: SyncStatusIndicatorProps) {
+export function SyncStatusIndicator({ showDetails = false, className }: SyncStatusIndicatorProps) {
   const {
     isSyncing,
     hasInitialSynced,
@@ -49,7 +35,7 @@ export function SyncStatusIndicator({
     triggerQueueProcessing,
     retryFailedSync,
   } = useSyncStatus()
-  
+
   const [isRetrying, setIsRetrying] = useState(false)
 
   // 处理重试
@@ -74,23 +60,23 @@ export function SyncStatusIndicator({
     if (!isOnline) {
       return <CloudOff className="w-4 h-4 text-muted-foreground" />
     }
-    
+
     if (isSyncing || isRetrying) {
       return <Loader2 className="w-4 h-4 text-primary animate-spin" />
     }
-    
+
     if (failedCount > 0) {
       return <AlertCircle className="w-4 h-4 text-destructive" />
     }
-    
+
     if (pendingCount > 0) {
       return <RefreshCw className="w-4 h-4 text-warning" />
     }
-    
+
     if (hasInitialSynced) {
       return <CheckCircle2 className="w-4 h-4 text-success" />
     }
-    
+
     return <Cloud className="w-4 h-4 text-muted-foreground" />
   }
 
@@ -134,17 +120,15 @@ export function SyncStatusIndicator({
             )}
           >
             {getStatusIcon()}
-            
+
             {/* 待同步/失败数量徽章 */}
             {(pendingCount > 0 || failedCount > 0) && (
-              <span 
+              <span
                 className={cn(
                   'absolute -top-1 -right-1 min-w-[18px] h-[18px]',
                   'flex items-center justify-center',
                   'text-[10px] font-bold rounded-full',
-                  failedCount > 0 
-                    ? 'bg-destructive text-white' 
-                    : 'bg-warning text-white'
+                  failedCount > 0 ? 'bg-destructive text-white' : 'bg-warning text-white'
                 )}
               >
                 {failedCount > 0 ? failedCount : pendingCount}
@@ -179,21 +163,17 @@ export function SyncStatusIndicator({
       )}
     >
       {/* 状态图标 */}
-      <div className="flex-shrink-0">
-        {getStatusIcon()}
-      </div>
+      <div className="flex-shrink-0">{getStatusIcon()}</div>
 
       {/* 状态信息 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium truncate">
-            {getStatusText()}
-          </span>
-          
+          <span className="text-sm font-medium truncate">{getStatusText()}</span>
+
           {/* 进度条 */}
           {isSyncing && progress && (
             <div className="flex-1 h-1.5 bg-primary/20 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${(progress.current / progress.total) * 100}%` }}
               />
@@ -222,10 +202,7 @@ export function SyncStatusIndicator({
           )}
           title="重试同步"
         >
-          <RefreshCw className={cn(
-            'w-4 h-4',
-            isRetrying && 'animate-spin'
-          )} />
+          <RefreshCw className={cn('w-4 h-4', isRetrying && 'animate-spin')} />
         </button>
       )}
     </div>
@@ -286,4 +263,3 @@ export function SyncStatusBadge({ className }: { className?: string }) {
 
   return null
 }
-

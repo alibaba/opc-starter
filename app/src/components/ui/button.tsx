@@ -1,3 +1,6 @@
+/**
+ * Button - 通用按钮组件，支持多种变体和尺寸
+ */
 /* eslint-disable react-refresh/only-export-components */
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'

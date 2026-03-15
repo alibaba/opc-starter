@@ -1,32 +1,36 @@
-import { useState } from 'react';
-import { ChevronDown, Check, Building2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+/**
+ * OrgTreeSelector - 组织选择器下拉组件
+ * @description 以下拉菜单形式展示组织树，用于选择目标组织/团队
+ */
+import { useState } from 'react'
+import { ChevronDown, Check, Building2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import type { OrganizationTreeNode } from '@/lib/supabase/organizationTypes';
+} from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
+import type { OrganizationTreeNode } from '@/lib/supabase/organizationTypes'
 
 interface OrgTreeSelectorProps {
-  value: string | null;
-  onChange: (orgId: string) => void;
-  tree: OrganizationTreeNode[];
-  className?: string;
-  placeholder?: string;
+  value: string | null
+  onChange: (orgId: string) => void
+  tree: OrganizationTreeNode[]
+  className?: string
+  placeholder?: string
 }
 
 interface OrgTreeNodeItemProps {
-  node: OrganizationTreeNode;
-  level: number;
-  selectedId: string | null;
-  onSelect: (orgId: string) => void;
+  node: OrganizationTreeNode
+  level: number
+  selectedId: string | null
+  onSelect: (orgId: string) => void
 }
 
 function OrgTreeNodeItem({ node, level, selectedId, onSelect }: OrgTreeNodeItemProps) {
-  const isSelected = selectedId === node.id;
-  const hasChildren = node.children && node.children.length > 0;
+  const isSelected = selectedId === node.id
+  const hasChildren = node.children && node.children.length > 0
 
   return (
     <div>
@@ -53,7 +57,7 @@ function OrgTreeNodeItem({ node, level, selectedId, onSelect }: OrgTreeNodeItemP
           />
         ))}
     </div>
-  );
+  )
 }
 
 export function OrgTreeSelector({
@@ -63,33 +67,30 @@ export function OrgTreeSelector({
   className,
   placeholder = '选择组织',
 }: OrgTreeSelectorProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   const findNodeById = (nodes: OrganizationTreeNode[], id: string): OrganizationTreeNode | null => {
     for (const node of nodes) {
-      if (node.id === id) return node;
+      if (node.id === id) return node
       if (node.children) {
-        const found = findNodeById(node.children, id);
-        if (found) return found;
+        const found = findNodeById(node.children, id)
+        if (found) return found
       }
     }
-    return null;
-  };
+    return null
+  }
 
-  const selectedNode = value ? findNodeById(tree, value) : null;
+  const selectedNode = value ? findNodeById(tree, value) : null
 
   const handleSelect = (orgId: string) => {
-    onChange(orgId);
-    setOpen(false);
-  };
+    onChange(orgId)
+    setOpen(false)
+  }
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn('w-full justify-between', className)}
-        >
+        <Button variant="outline" className={cn('w-full justify-between', className)}>
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="truncate">
@@ -101,9 +102,7 @@ export function OrgTreeSelector({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[400px] max-h-[400px] overflow-y-auto p-0 bg-white dark:bg-slate-900">
         {tree.length === 0 ? (
-          <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-            暂无组织数据
-          </div>
+          <div className="px-3 py-8 text-center text-sm text-muted-foreground">暂无组织数据</div>
         ) : (
           <div className="py-1 bg-popover">
             {tree.map((node) => (
@@ -119,5 +118,5 @@ export function OrgTreeSelector({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

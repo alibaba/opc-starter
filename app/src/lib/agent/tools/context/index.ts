@@ -2,4 +2,4 @@
  * Context Tools - OPC-Starter
  */
 
-export * from './getCurrent';
+export * from './getCurrent'

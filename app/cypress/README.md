@@ -8,29 +8,18 @@
 
 ### 1. 环境准备
 
-首先，创建测试环境配置文件：
+首先，确保应用以 MSW mock 模式启动：
 
 ```bash
-# 在 photo-wall 目录下创建 .env.test 文件
-cp .env.development .env.test
+# 在 app/ 目录下创建 .env.test（若不存在）
+./setup-env.sh
 ```
 
-编辑 `.env.test` 文件，配置测试环境变量：
+`.env.test` 最少只需要保证 `VITE_ENABLE_MSW=true`。测试账号统一来自 `cypress/fixtures/users.json`，不要在测试中使用 `Cypress.env('TEST_USER_*')`。
 
 ```bash
 # MSW Mock 开关
 VITE_ENABLE_MSW=true
-
-# 认证模式：true=使用MSW模拟认证，false=使用真实Supabase
-VITE_USE_MOCK_AUTH=true
-
-# Supabase 配置
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
-
-# 测试用户凭证
-TEST_USER_EMAIL=test@example.com
-TEST_USER_PWD=Test123456
 ```
 
 ### 2. 运行测试
@@ -38,7 +27,11 @@ TEST_USER_PWD=Test123456
 #### 交互式模式（推荐用于开发）
 
 ```bash
-npm run test:e2e
+# 终端 A：启动应用
+npm run dev:test
+
+# 终端 B：打开 Cypress
+npm run cypress:open
 ```
 
 这会启动 Cypress Test Runner，你可以：
@@ -53,7 +46,7 @@ npm run test:e2e
 npm run test:e2e:headless
 ```
 
-这会在后台运行所有测试，适合集成到 CI/CD 流程中。
+这会启动 `dev:test` 并在后台运行所有测试，适合集成到 CI/CD 流程中。
 
 ### 3. 单独运行 Cypress
 
@@ -91,7 +84,7 @@ cypress/
 ### 认证相关
 
 ```javascript
-// 登录（使用环境变量中的测试用户）
+// 登录（使用 fixture 中的测试用户）
 cy.login()
 
 // 使用自定义凭证登录
@@ -214,13 +207,14 @@ describe('功能模块名称', () => {
 }
 ```
 
-### 环境变量
+### 测试账号来源
 
-测试可以通过 `Cypress.env()` 访问环境变量：
+测试账号统一来自 `cypress/fixtures/users.json`：
 
 ```javascript
-const testEmail = Cypress.env('TEST_USER_EMAIL')
-const testPassword = Cypress.env('TEST_USER_PWD')
+cy.fixture('users').then((users) => {
+  const { email, password } = users.testUser
+})
 ```
 
 ## 🐛 调试技巧
@@ -357,11 +351,11 @@ kill -9 <PID>
 
 #### Q: 测试用户登录失败
 **解决方案**:
-1. 检查 `.env.test` 文件配置
-2. 确认测试用户凭证正确:
+1. 检查 `.env.test` 文件中 `VITE_ENABLE_MSW=true`
+2. 确认 `cypress/fixtures/users.json` 与 `src/mocks/handlers/authHandlers.ts` 中的账号一致:
    ```bash
-   TEST_USER_EMAIL=test@example.com
-   TEST_USER_PWD=Test123456
+   test@example.com
+   888888
    ```
 
 ### CI/CD 问题

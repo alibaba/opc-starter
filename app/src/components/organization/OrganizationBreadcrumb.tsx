@@ -1,33 +1,37 @@
-import { ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import type { Organization } from '@/lib/supabase/organizationTypes';
+/**
+ * OrganizationBreadcrumb - 组织路径面包屑
+ * @description 展示当前组织的层级路径，支持点击跳转到上级组织
+ */
+import { ChevronRight } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import type { Organization } from '@/lib/supabase/organizationTypes'
 
 interface OrganizationBreadcrumbProps {
-  ancestors: Organization[];
-  currentOrg: Organization | null;
-  role: 'admin' | 'manager' | 'member';
-  className?: string;
+  ancestors: Organization[]
+  currentOrg: Organization | null
+  role: 'admin' | 'manager' | 'member'
+  className?: string
 }
 
 function getRoleBadgeVariant(role: 'admin' | 'manager' | 'member') {
   switch (role) {
     case 'admin':
-      return 'destructive';
+      return 'destructive'
     case 'manager':
-      return 'default';
+      return 'default'
     case 'member':
-      return 'secondary';
+      return 'secondary'
   }
 }
 
 function getRoleLabel(role: 'admin' | 'manager' | 'member'): string {
   switch (role) {
     case 'admin':
-      return '管理员';
+      return '管理员'
     case 'manager':
-      return '经理';
+      return '经理'
     case 'member':
-      return '成员';
+      return '成员'
   }
 }
 
@@ -42,10 +46,10 @@ export function OrganizationBreadcrumb({
       <div className={className}>
         <p className="text-sm text-muted-foreground">未分配组织</p>
       </div>
-    );
+    )
   }
 
-  const allOrgs = [...ancestors, currentOrg];
+  const allOrgs = [...ancestors, currentOrg]
 
   return (
     <div className={className}>
@@ -69,5 +73,5 @@ export function OrganizationBreadcrumb({
         </Badge>
       </div>
     </div>
-  );
+  )
 }

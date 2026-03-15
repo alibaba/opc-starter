@@ -37,15 +37,6 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    // 定义全局常量，可在代码中使用
-    // 安全: 测试凭证仅在开发/测试模式注入，生产构建不包含
-    define: {
-      'import.meta.env.VITE_USE_MOCK_AUTH': JSON.stringify(env.VITE_USE_MOCK_AUTH),
-      ...(mode !== 'production' && {
-        'import.meta.env.TEST_USER_EMAIL': JSON.stringify(env.TEST_USER_EMAIL),
-        'import.meta.env.TEST_USER_PWD': JSON.stringify(env.TEST_USER_PWD),
-      }),
-    },
     build: {
       // 打包优化配置
       rollupOptions: {

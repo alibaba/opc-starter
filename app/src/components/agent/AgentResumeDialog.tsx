@@ -5,25 +5,25 @@
  * @see STORY-23-004
  */
 
-import { MessageCircle, Plus, RotateCcw } from 'lucide-react';
+import { MessageCircle, Plus, RotateCcw } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 interface AgentResumeDialogProps {
   /** 是否打开 */
-  open: boolean;
+  open: boolean
   /** 关闭回调 */
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (open: boolean) => void
   /** 开始新对话 */
-  onNewChat: () => void;
+  onNewChat: () => void
   /** 恢复上次对话 */
-  onResume: () => void;
+  onResume: () => void
 }
 
 /**
@@ -43,9 +43,7 @@ export function AgentResumeDialog({
             <MessageCircle className="w-6 h-6 text-primary" />
           </div>
           <DialogTitle>继续上次对话？</DialogTitle>
-          <DialogDescription>
-            您有一个未完成的对话，是否要继续？
-          </DialogDescription>
+          <DialogDescription>您有一个未完成的对话，是否要继续？</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 pt-4">
@@ -83,5 +81,5 @@ export function AgentResumeDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

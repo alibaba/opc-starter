@@ -58,8 +58,8 @@ vi.mock('@/components/organization/OrgTree', () => ({
   OrgTree: ({ tree, onSelect }: { tree: unknown[]; onSelect: (node: unknown) => void }) => (
     <div data-testid="org-tree">
       {tree.map((node: unknown, index: number) => (
-        <button 
-          key={index} 
+        <button
+          key={index}
           data-testid={`org-node-${(node as { id: string }).id}`}
           onClick={() => onSelect(node)}
         >
@@ -77,21 +77,18 @@ vi.mock('@/components/organization/TeamMembersList', () => ({
 }))
 
 vi.mock('@/components/organization/CreateOrgDialog', () => ({
-  CreateOrgDialog: ({ open }: { open: boolean }) => (
-    open ? <div data-testid="create-org-dialog">CreateOrgDialog</div> : null
-  ),
+  CreateOrgDialog: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="create-org-dialog">CreateOrgDialog</div> : null,
 }))
 
 vi.mock('@/components/organization/AddMemberDialog', () => ({
-  AddMemberDialog: ({ open }: { open: boolean }) => (
-    open ? <div data-testid="add-member-dialog">AddMemberDialog</div> : null
-  ),
+  AddMemberDialog: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="add-member-dialog">AddMemberDialog</div> : null,
 }))
 
 vi.mock('@/components/organization/ChangeRoleDialog', () => ({
-  ChangeRoleDialog: ({ open }: { open: boolean }) => (
-    open ? <div data-testid="change-role-dialog">ChangeRoleDialog</div> : null
-  ),
+  ChangeRoleDialog: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="change-role-dialog">ChangeRoleDialog</div> : null,
 }))
 
 describe('PersonsPage', () => {
@@ -110,20 +107,20 @@ describe('PersonsPage', () => {
     mockUser = null
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByText('请先登录')).toBeInTheDocument()
   })
 
   it('应该渲染页面标题', async () => {
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByText('组织架构与人员管理')).toBeInTheDocument()
     expect(screen.getByText(/管理团队组织结构和成员信息/)).toBeInTheDocument()
   })
 
   it('应该显示组织树区域', async () => {
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByText('组织树')).toBeInTheDocument()
     expect(screen.getByTestId('org-tree')).toBeInTheDocument()
   })
@@ -133,7 +130,7 @@ describe('PersonsPage', () => {
     mockTree = []
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByText('加载中...')).toBeInTheDocument()
   })
 
@@ -141,7 +138,7 @@ describe('PersonsPage', () => {
     mockError = '加载组织信息失败'
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByText('加载组织信息失败')).toBeInTheDocument()
   })
 
@@ -152,7 +149,7 @@ describe('PersonsPage', () => {
     ]
 
     renderWithRouter(<PersonsPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByTestId('org-node-org1')).toBeInTheDocument()
       expect(screen.getByTestId('org-node-org2')).toBeInTheDocument()
@@ -163,7 +160,7 @@ describe('PersonsPage', () => {
     mockSelectedOrg = null
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByText('请从左侧选择一个组织查看成员')).toBeInTheDocument()
   })
 
@@ -171,7 +168,7 @@ describe('PersonsPage', () => {
     mockSelectedOrg = { id: 'org1', display_name: '研发部' }
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByTestId('team-members-list')).toBeInTheDocument()
     expect(screen.getByText('研发部')).toBeInTheDocument()
   })
@@ -180,7 +177,7 @@ describe('PersonsPage', () => {
     mockUserOrgInfo = { role: 'admin' }
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByRole('button', { name: /创建.*组织/ })).toBeInTheDocument()
   })
 
@@ -188,7 +185,7 @@ describe('PersonsPage', () => {
     mockUserOrgInfo = { role: 'member' }
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.queryByRole('button', { name: /创建.*组织/ })).not.toBeInTheDocument()
   })
 
@@ -197,18 +194,17 @@ describe('PersonsPage', () => {
     mockSelectedOrg = { id: 'org1', display_name: '研发部' }
 
     renderWithRouter(<PersonsPage />)
-    
+
     expect(screen.getByRole('button', { name: /编辑组织/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /删除组织/ })).toBeInTheDocument()
   })
 
   it('初始化时应该调用 loadTree 和 getUserOrgInfo', async () => {
     renderWithRouter(<PersonsPage />)
-    
+
     await waitFor(() => {
       expect(mockLoadTree).toHaveBeenCalled()
       expect(mockGetUserOrgInfo).toHaveBeenCalledWith('test-user-id')
     })
   })
 })
-

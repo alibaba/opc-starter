@@ -36,10 +36,10 @@ const mockGetUserOrgInfo = vi.fn()
 const mockUpdateUserOrganization = vi.fn()
 
 let mockTree: { id: string; display_name: string }[] = []
-let mockUserOrgInfo: { 
-  role: string; 
-  organization: { display_name: string } | null;
-  ancestors: { display_name: string }[];
+let mockUserOrgInfo: {
+  role: string
+  organization: { display_name: string } | null
+  ancestors: { display_name: string }[]
 } | null = null
 let mockOrgLoading = false
 
@@ -65,16 +65,13 @@ vi.mock('@/components/business/ProfileForm', () => ({
 
 vi.mock('@/components/organization/OrganizationBreadcrumb', () => ({
   OrganizationBreadcrumb: ({ currentOrg }: { currentOrg: { display_name: string } | null }) => (
-    <div data-testid="org-breadcrumb">
-      {currentOrg?.display_name || '未分配团队'}
-    </div>
+    <div data-testid="org-breadcrumb">{currentOrg?.display_name || '未分配团队'}</div>
   ),
 }))
 
 vi.mock('@/components/organization/AssignTeamDialog', () => ({
-  AssignTeamDialog: ({ open }: { open: boolean }) => (
-    open ? <div data-testid="assign-team-dialog">AssignTeamDialog</div> : null
-  ),
+  AssignTeamDialog: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="assign-team-dialog">AssignTeamDialog</div> : null,
 }))
 
 describe('ProfilePage', () => {
@@ -94,7 +91,7 @@ describe('ProfilePage', () => {
     mockProfile = null
 
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByText('加载个人信息中...')).toBeInTheDocument()
   })
 
@@ -103,34 +100,34 @@ describe('ProfilePage', () => {
     mockProfile = null
 
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByText('网络连接失败')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument()
   })
 
   it('应该渲染页面标题', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByText('个人中心')).toBeInTheDocument()
     expect(screen.getByText(/管理您的个人信息和头像/)).toBeInTheDocument()
   })
 
   it('应该显示组织信息区域', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByText('组织信息')).toBeInTheDocument()
   })
 
   it('应该显示头像上传组件', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByTestId('avatar-uploader')).toBeInTheDocument()
     expect(screen.getByText('头像')).toBeInTheDocument()
   })
 
   it('应该显示个人信息表单', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByTestId('profile-form')).toBeInTheDocument()
   })
 
@@ -142,7 +139,7 @@ describe('ProfilePage', () => {
     }
 
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByTestId('org-breadcrumb')).toBeInTheDocument()
     expect(screen.getByText('研发部')).toBeInTheDocument()
   })
@@ -151,7 +148,7 @@ describe('ProfilePage', () => {
     mockOrgLoading = true
 
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByText('加载组织信息...')).toBeInTheDocument()
   })
 
@@ -159,7 +156,7 @@ describe('ProfilePage', () => {
     mockUserOrgInfo = { role: 'admin', organization: null, ancestors: [] }
 
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByRole('button', { name: /修改团队/ })).toBeInTheDocument()
   })
 
@@ -167,19 +164,19 @@ describe('ProfilePage', () => {
     mockUserOrgInfo = { role: 'member', organization: null, ancestors: [] }
 
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.queryByRole('button', { name: /修改团队/ })).not.toBeInTheDocument()
   })
 
   it('应该显示头像相关提示信息', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     expect(screen.getByText(/上传的头像将用于 AI 人脸识别/)).toBeInTheDocument()
   })
 
   it('初始化时应该调用 loadProfile', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     await waitFor(() => {
       expect(mockLoadProfile).toHaveBeenCalled()
     })
@@ -187,11 +184,10 @@ describe('ProfilePage', () => {
 
   it('初始化时应该调用 loadTree 和 getUserOrgInfo', async () => {
     renderWithRouter(<ProfilePage />)
-    
+
     await waitFor(() => {
       expect(mockLoadTree).toHaveBeenCalled()
       expect(mockGetUserOrgInfo).toHaveBeenCalledWith('test-user-id')
     })
   })
 })
-

@@ -10,8 +10,8 @@
  * 4. 运行: npm run test -- tools/myTool
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { myTool } from './index';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { myTool } from './index'
 
 vi.mock('@/stores/usePhotoEditorStore', () => ({
   usePhotoEditorStore: Object.assign(() => ({}), {
@@ -31,7 +31,7 @@ vi.mock('@/stores/usePhotoEditorStore', () => ({
       loadPhoto: vi.fn(),
     })),
   }),
-}));
+}))
 
 vi.mock('@/stores/useBatchSelectionStore', () => ({
   useBatchSelectionStore: {
@@ -40,7 +40,7 @@ vi.mock('@/stores/useBatchSelectionStore', () => ({
       selectedPhotoIds: new Set(),
     })),
   },
-}));
+}))
 
 vi.mock('@/stores/usePhotoStore', () => ({
   usePhotoStore: {
@@ -55,99 +55,99 @@ vi.mock('@/stores/usePhotoStore', () => ({
       ],
     })),
   },
-}));
+}))
 
 describe('myTool', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   describe('成功路径', () => {
     it('should execute successfully with valid params', async () => {
       const result = await myTool.execute({
         param1: 'test-value',
         param2: 42,
-      });
+      })
 
-      expect(result.success).toBe(true);
-      expect(result.message).toContain('test-value');
-      expect(result.data?.result).toBe(42);
-    });
+      expect(result.success).toBe(true)
+      expect(result.message).toContain('test-value')
+      expect(result.data?.result).toBe(42)
+    })
 
     it('should handle optional params', async () => {
       const result = await myTool.execute({
         param1: 'test-value',
-      });
+      })
 
-      expect(result.success).toBe(true);
-      expect(result.data?.result).toBe(0);
-    });
-  });
+      expect(result.success).toBe(true)
+      expect(result.data?.result).toBe(0)
+    })
+  })
 
   describe('失败路径', () => {
     it('should reject invalid params via validateAndExecute', async () => {
       const result = await myTool.validateAndExecute({
         invalidParam: 'wrong',
-      });
+      })
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('参数验证失败');
-    });
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('参数验证失败')
+    })
 
     it('should reject missing required params', async () => {
-      const result = await myTool.validateAndExecute({});
+      const result = await myTool.validateAndExecute({})
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('参数验证失败');
-    });
-  });
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('参数验证失败')
+    })
+  })
 
   describe('边界情况', () => {
     it('should handle empty string param', async () => {
       const result = await myTool.execute({
         param1: '',
-      });
+      })
 
-      expect(result.success).toBe(true);
-    });
+      expect(result.success).toBe(true)
+    })
 
     it('should handle zero as param2', async () => {
       const result = await myTool.execute({
         param1: 'test',
         param2: 0,
-      });
+      })
 
-      expect(result.data?.result).toBe(0);
-    });
-  });
+      expect(result.data?.result).toBe(0)
+    })
+  })
 
   describe('OpenAI Schema', () => {
     it('should have correct tool definition structure', () => {
-      expect(myTool.definition.type).toBe('function');
-      expect(myTool.definition.function.name).toBe('myToolName');
-      expect(myTool.definition.function.description).toBeDefined();
-      expect(myTool.definition.function.parameters).toBeDefined();
-    });
+      expect(myTool.definition.type).toBe('function')
+      expect(myTool.definition.function.name).toBe('myToolName')
+      expect(myTool.definition.function.description).toBeDefined()
+      expect(myTool.definition.function.parameters).toBeDefined()
+    })
 
     it('should have valid JSON schema parameters', () => {
-      const params = myTool.definition.function.parameters;
-      expect(params).toBeDefined();
-    });
-  });
+      const params = myTool.definition.function.parameters
+      expect(params).toBeDefined()
+    })
+  })
 
   describe('A2UI 响应', () => {
     it('should return UI component when successful', async () => {
       const result = await myTool.execute({
         param1: 'test',
-      });
+      })
 
-      expect(result.ui).toBeDefined();
-      expect(result.ui?.id).toContain('my-ui-');
-      expect(result.ui?.type).toBe('photo-preview');
-    });
-  });
-});
+      expect(result.ui).toBeDefined()
+      expect(result.ui?.id).toContain('my-ui-')
+      expect(result.ui?.type).toBe('photo-preview')
+    })
+  })
+})

@@ -13,11 +13,11 @@ interface TestPhoto extends BaseEntity {
 
 class TestDB extends Dexie {
   photos!: Table<TestPhoto, string>
-  
+
   constructor() {
     super('test-db')
     this.version(1).stores({
-      photos: 'id, albumId, createdAt'
+      photos: 'id, albumId, createdAt',
     })
   }
 }
@@ -47,7 +47,7 @@ describe('DexieAdapter', () => {
 
     it('findOne() 应该返回单条记录', async () => {
       await adapter.upsert({ id: '1', title: 'Photo 1', url: 'a.jpg' })
-      
+
       const found = await adapter.findOne('1')
       expect(found?.title).toBe('Photo 1')
     })
@@ -70,8 +70,8 @@ describe('DexieAdapter', () => {
       await adapter.upsert({ id: '1', title: 'Alpha', url: 'a.jpg' })
       await adapter.upsert({ id: '2', title: 'Beta', url: 'b.jpg' })
 
-      const filtered = await adapter.query({ 
-        filter: (item) => item.title.startsWith('A') 
+      const filtered = await adapter.query({
+        filter: (item) => item.title.startsWith('A'),
       })
       expect(filtered).toHaveLength(1)
       expect(filtered[0].title).toBe('Alpha')
@@ -104,7 +104,7 @@ describe('DexieAdapter', () => {
     it('upsert() 应该更新已存在记录', async () => {
       await adapter.upsert({ id: '1', title: 'Original', url: 'o.jpg' })
       await adapter.upsert({ id: '1', title: 'Updated', url: 'o.jpg' })
-      
+
       const found = await adapter.findOne('1')
       expect(found?.title).toBe('Updated')
     })
@@ -112,7 +112,7 @@ describe('DexieAdapter', () => {
     it('remove() 应该删除记录', async () => {
       await adapter.upsert({ id: '1', title: 'To Delete', url: 'd.jpg' })
       await adapter.remove('1')
-      
+
       const found = await adapter.findOne('1')
       expect(found).toBeUndefined()
     })
@@ -120,9 +120,9 @@ describe('DexieAdapter', () => {
     it('clear() 应该清空所有记录', async () => {
       await adapter.upsert({ id: '1', title: 'P1', url: '1.jpg' })
       await adapter.upsert({ id: '2', title: 'P2', url: '2.jpg' })
-      
+
       await adapter.clear()
-      
+
       const all = await adapter.findAll()
       expect(all).toHaveLength(0)
     })
@@ -143,15 +143,15 @@ describe('DexieAdapter', () => {
 
     it('bulkUpsert() 应该支持更新已存在记录', async () => {
       await adapter.upsert({ id: '1', title: 'Original', url: 'o.jpg' })
-      
+
       await adapter.bulkUpsert([
         { id: '1', title: 'Updated', url: 'o.jpg' },
         { id: '2', title: 'New', url: 'n.jpg' },
       ])
-      
+
       const all = await adapter.findAll()
       expect(all).toHaveLength(2)
-      expect(all.find(p => p.id === '1')?.title).toBe('Updated')
+      expect(all.find((p) => p.id === '1')?.title).toBe('Updated')
     })
   })
 })

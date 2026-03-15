@@ -1,3 +1,6 @@
+/**
+ * Reactive 数据层 React Hooks（useQuery、useMutation、useSyncStatus）
+ */
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import type { Observable } from 'rxjs'
 import type { BaseEntity, QueryOptions, SyncStatus } from '../types'
@@ -33,19 +36,19 @@ export function useQuery<T extends BaseEntity>(
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null)
-  
+
   const optionsKey = useMemo(() => JSON.stringify(options || {}), [options])
 
   const subscribe = useCallback(() => {
     setLoading(true)
     setError(null)
-    
+
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe()
     }
 
     const observable = collection.find(options)
-    
+
     subscriptionRef.current = observable.subscribe({
       next: (items) => {
         setData(items)
@@ -61,7 +64,7 @@ export function useQuery<T extends BaseEntity>(
 
   useEffect(() => {
     subscribe()
-    
+
     return () => {
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe()
@@ -86,7 +89,7 @@ export function useQueryOne<T extends BaseEntity>(
 
   useEffect(() => {
     setLoading(true)
-    
+
     const subscription = collection.findOne(id).subscribe({
       next: (item) => {
         setData(item)
@@ -110,56 +113,63 @@ export function useMutation<T extends BaseEntity>(
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
-  const insert = useCallback(async (doc: Omit<T, 'id'>): Promise<T> => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      const result = await collection.insert(doc)
-      setLoading(false)
-      return result
-    } catch (err) {
-      setError(err as Error)
-      setLoading(false)
-      throw err
-    }
-  }, [collection])
+  const insert = useCallback(
+    async (doc: Omit<T, 'id'>): Promise<T> => {
+      setLoading(true)
+      setError(null)
 
-  const update = useCallback(async (id: string, changes: Partial<T>): Promise<T> => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      const result = await collection.update(id, changes)
-      setLoading(false)
-      return result
-    } catch (err) {
-      setError(err as Error)
-      setLoading(false)
-      throw err
-    }
-  }, [collection])
+      try {
+        const result = await collection.insert(doc)
+        setLoading(false)
+        return result
+      } catch (err) {
+        setError(err as Error)
+        setLoading(false)
+        throw err
+      }
+    },
+    [collection]
+  )
 
-  const remove = useCallback(async (id: string): Promise<void> => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      await collection.remove(id)
-      setLoading(false)
-    } catch (err) {
-      setError(err as Error)
-      setLoading(false)
-      throw err
-    }
-  }, [collection])
+  const update = useCallback(
+    async (id: string, changes: Partial<T>): Promise<T> => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const result = await collection.update(id, changes)
+        setLoading(false)
+        return result
+      } catch (err) {
+        setError(err as Error)
+        setLoading(false)
+        throw err
+      }
+    },
+    [collection]
+  )
+
+  const remove = useCallback(
+    async (id: string): Promise<void> => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        await collection.remove(id)
+        setLoading(false)
+      } catch (err) {
+        setError(err as Error)
+        setLoading(false)
+        throw err
+      }
+    },
+    [collection]
+  )
 
   return { insert, update, remove, loading, error }
 }
 
-export function useSyncStatus(
-  statusObservable?: Observable<SyncStatus>
-): UseSyncStatusResult {
+export function useSyncStatus(statusObservable?: Observable<SyncStatus>): UseSyncStatusResult {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     status: 'idle',
     pendingCount: 0,

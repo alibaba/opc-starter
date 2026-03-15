@@ -1,5 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+/**
+ * AssignTeamDialog - 分配团队对话框
+ * @description 将成员从一个组织/团队分配到另一个团队，支持组织树选择
+ */
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,19 +11,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { OrgTree } from '@/components/organization/OrgTree';
-import type { OrganizationTreeNode, Organization } from '@/lib/supabase/organizationTypes';
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { OrgTree } from '@/components/organization/OrgTree'
+import type { OrganizationTreeNode, Organization } from '@/lib/supabase/organizationTypes'
 
 interface AssignTeamDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  userId: string;
-  userName: string;
-  currentOrg: Organization | null;
-  organizationTree: OrganizationTreeNode[];
-  onSubmit: (userId: string, organizationId: string | null) => Promise<void>;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  userId: string
+  userName: string
+  currentOrg: Organization | null
+  organizationTree: OrganizationTreeNode[]
+  onSubmit: (userId: string, organizationId: string | null) => Promise<void>
 }
 
 export function AssignTeamDialog({
@@ -31,32 +35,32 @@ export function AssignTeamDialog({
   organizationTree,
   onSubmit,
 }: AssignTeamDialogProps) {
-  const [selectedOrg, setSelectedOrg] = useState<OrganizationTreeNode | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedOrg, setSelectedOrg] = useState<OrganizationTreeNode | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (open && currentOrg) {
-      setSelectedOrg(currentOrg as OrganizationTreeNode);
+      setSelectedOrg(currentOrg as OrganizationTreeNode)
     }
-  }, [open, currentOrg]);
+  }, [open, currentOrg])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    setIsSubmitting(true);
+    e.preventDefault()
+
+    setIsSubmitting(true)
     try {
-      await onSubmit(userId, selectedOrg?.id || null);
-      onOpenChange(false);
+      await onSubmit(userId, selectedOrg?.id || null)
+      onOpenChange(false)
     } catch (error) {
-      console.error('Failed to assign team:', error);
+      console.error('Failed to assign team:', error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleSelectOrg = (node: OrganizationTreeNode) => {
-    setSelectedOrg(node);
-  };
+    setSelectedOrg(node)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,9 +68,7 @@ export function AssignTeamDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>分配团队</DialogTitle>
-            <DialogDescription>
-              为用户 "{userName}" 分配所属组织团队
-            </DialogDescription>
+            <DialogDescription>为用户 "{userName}" 分配所属组织团队</DialogDescription>
           </DialogHeader>
 
           <div className="py-4">
@@ -78,7 +80,7 @@ export function AssignTeamDialog({
                 onSelect={handleSelectOrg}
               />
             </div>
-            
+
             {selectedOrg && (
               <div className="mt-3 p-3 bg-accent rounded-md">
                 <p className="text-sm">
@@ -105,5 +107,5 @@ export function AssignTeamDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

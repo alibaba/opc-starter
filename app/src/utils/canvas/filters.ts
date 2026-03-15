@@ -4,7 +4,7 @@
  * Story: 8.3 - 滤镜效果
  */
 
-import { FILTERS, type FilterType } from '@/types/filter';
+import { FILTERS, type FilterType } from '@/types/filter'
 
 /**
  * 应用滤镜到图像
@@ -19,51 +19,51 @@ export async function applyFilter(
   quality: number = 0.95
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const image = new Image();
-    
+    const image = new Image()
+
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+          reject(new Error('Failed to get canvas context'))
+          return
         }
-        
-        canvas.width = image.width;
-        canvas.height = image.height;
-        
+
+        canvas.width = image.width
+        canvas.height = image.height
+
         // 查找滤镜配置
-        const filterConfig = FILTERS.find(f => f.id === filterType);
-        
+        const filterConfig = FILTERS.find((f) => f.id === filterType)
+
         if (!filterConfig) {
-          reject(new Error(`Filter not found: ${filterType}`));
-          return;
+          reject(new Error(`Filter not found: ${filterType}`))
+          return
         }
-        
+
         // 应用 CSS 滤镜到 canvas context
         if (filterConfig.cssFilter !== 'none') {
-          ctx.filter = filterConfig.cssFilter;
+          ctx.filter = filterConfig.cssFilter
         }
-        
+
         // 绘制图像
-        ctx.drawImage(image, 0, 0);
-        
+        ctx.drawImage(image, 0, 0)
+
         // 转换为 base64
-        const base64 = canvas.toDataURL('image/jpeg', quality);
-        resolve(base64);
+        const base64 = canvas.toDataURL('image/jpeg', quality)
+        resolve(base64)
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    };
-    
+    }
+
     image.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-    
-    image.src = imageSrc;
-  });
+      reject(new Error('Failed to load image'))
+    }
+
+    image.src = imageSrc
+  })
 }
 
 /**
@@ -79,54 +79,54 @@ export async function generateFilterThumbnail(
   size: number = 100
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const image = new Image();
-    
+    const image = new Image()
+
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
         if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+          reject(new Error('Failed to get canvas context'))
+          return
         }
-        
+
         // 计算缩略图尺寸（保持宽高比）
-        let width = size;
-        let height = size;
-        
+        let width = size
+        let height = size
+
         if (image.width > image.height) {
-          height = (size * image.height) / image.width;
+          height = (size * image.height) / image.width
         } else {
-          width = (size * image.width) / image.height;
+          width = (size * image.width) / image.height
         }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
+
+        canvas.width = width
+        canvas.height = height
+
         // 应用滤镜
-        const filterConfig = FILTERS.find(f => f.id === filterType);
+        const filterConfig = FILTERS.find((f) => f.id === filterType)
         if (filterConfig && filterConfig.cssFilter !== 'none') {
-          ctx.filter = filterConfig.cssFilter;
+          ctx.filter = filterConfig.cssFilter
         }
-        
+
         // 绘制缩略图
-        ctx.drawImage(image, 0, 0, width, height);
-        
+        ctx.drawImage(image, 0, 0, width, height)
+
         // 转换为 base64
-        const base64 = canvas.toDataURL('image/jpeg', 0.8);
-        resolve(base64);
+        const base64 = canvas.toDataURL('image/jpeg', 0.8)
+        resolve(base64)
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    };
-    
+    }
+
     image.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-    
-    image.src = imageSrc;
-  });
+      reject(new Error('Failed to load image'))
+    }
+
+    image.src = imageSrc
+  })
 }
 
 /**
@@ -139,20 +139,19 @@ export async function generateAllFilterThumbnails(
   imageSrc: string,
   size: number = 100
 ): Promise<Map<FilterType, string>> {
-  const thumbnails = new Map<FilterType, string>();
-  
+  const thumbnails = new Map<FilterType, string>()
+
   // 并行生成所有滤镜缩略图
   const promises = FILTERS.map(async (filter) => {
     try {
-      const thumbnail = await generateFilterThumbnail(imageSrc, filter.id, size);
-      thumbnails.set(filter.id, thumbnail);
+      const thumbnail = await generateFilterThumbnail(imageSrc, filter.id, size)
+      thumbnails.set(filter.id, thumbnail)
     } catch (error) {
-      console.error(`Failed to generate thumbnail for filter ${filter.id}:`, error);
+      console.error(`Failed to generate thumbnail for filter ${filter.id}:`, error)
     }
-  });
-  
-  await Promise.all(promises);
-  
-  return thumbnails;
-}
+  })
 
+  await Promise.all(promises)
+
+  return thumbnails
+}
