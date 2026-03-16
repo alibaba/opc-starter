@@ -6,29 +6,30 @@ import { http, HttpResponse, delay } from 'msw'
 import { getRandomDelay } from '../data/mockConfig'
 
 // URL 模式 - 同时支持开发代理和生产环境
+// 使用正则表达式匹配任意端口
 const REST_URL_PATTERNS = {
   photos: [
-    'http://localhost:5173/supabase-proxy/rest/v1/photos',
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/photos/,
     'https://*.supabase.co/rest/v1/photos',
   ],
   albums: [
-    'http://localhost:5173/supabase-proxy/rest/v1/albums',
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/albums/,
     'https://*.supabase.co/rest/v1/albums',
   ],
   persons: [
-    'http://localhost:5173/supabase-proxy/rest/v1/persons',
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/persons/,
     'https://*.supabase.co/rest/v1/persons',
   ],
   profiles: [
-    'http://localhost:5173/supabase-proxy/rest/v1/profiles',
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/profiles/,
     'https://*.supabase.co/rest/v1/profiles',
   ],
   organizations: [
-    'http://localhost:5173/supabase-proxy/rest/v1/organizations',
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/organizations/,
     'https://*.supabase.co/rest/v1/organizations',
   ],
   ai_fusion_tasks: [
-    'http://localhost:5173/supabase-proxy/rest/v1/ai_fusion_tasks',
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/ai_fusion_tasks/,
     'https://*.supabase.co/rest/v1/ai_fusion_tasks',
   ],
 }

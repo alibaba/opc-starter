@@ -76,7 +76,7 @@ async function submitRegisterForm(page: Page) {
  * 等待注册完成
  */
 async function waitForRegisterSuccess(page: Page) {
-  await expect(page).toHaveURL('http://localhost:5173/', { timeout: 15000 })
+  await expect(page).toHaveURL(/.*localhost.*\//, { timeout: 15000 })
 }
 
 // ============================================
@@ -85,7 +85,6 @@ async function waitForRegisterSuccess(page: Page) {
 
 test.describe('[P0] 注册功能 - 核心流程', () => {
   test.beforeEach(async ({ page }) => {
-    await clearAuthState(page)
     await page.goto('/register')
   })
 

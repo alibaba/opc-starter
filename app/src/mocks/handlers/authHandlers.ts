@@ -40,18 +40,22 @@ const MOCK_SESSION = {
 }
 
 // 匹配开发环境代理和生产环境的 URL
+// 使用正则表达式匹配任意端口
 const AUTH_URL_PATTERNS = {
   token: [
-    'http://localhost:5173/supabase-proxy/auth/v1/token',
+    /http:\/\/localhost:\d+\/supabase-proxy\/auth\/v1\/token/,
     'https://*.supabase.co/auth/v1/token',
   ],
-  user: ['http://localhost:5173/supabase-proxy/auth/v1/user', 'https://*.supabase.co/auth/v1/user'],
+  user: [
+    /http:\/\/localhost:\d+\/supabase-proxy\/auth\/v1\/user/,
+    'https://*.supabase.co/auth/v1/user',
+  ],
   logout: [
-    'http://localhost:5173/supabase-proxy/auth/v1/logout',
+    /http:\/\/localhost:\d+\/supabase-proxy\/auth\/v1\/logout/,
     'https://*.supabase.co/auth/v1/logout',
   ],
   signup: [
-    'http://localhost:5173/supabase-proxy/auth/v1/signup',
+    /http:\/\/localhost:\d+\/supabase-proxy\/auth\/v1\/signup/,
     'https://*.supabase.co/auth/v1/signup',
   ],
 }
@@ -150,6 +154,18 @@ const handleSignup = async (request: Request) => {
     email: string
     password: string
     data?: Record<string, unknown>
+  }
+
+  // 检查是否使用已存在的测试用户邮箱
+  if (body.email === TEST_USER_EMAIL) {
+    console.log('[MSW Auth] ❌ 注册失败 - 邮箱已存在:', body.email)
+    return HttpResponse.json(
+      {
+        error: 'user_already_exists',
+        error_description: 'A user with this email address has already been registered',
+      },
+      { status: 400 }
+    )
   }
 
   const newUser = {

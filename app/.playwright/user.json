@@ -2,15 +2,15 @@
   "cookies": [],
   "origins": [
     {
-      "origin": "http://localhost:5173",
+      "origin": "http://localhost:5174",
       "localStorage": [
         {
           "name": "auth-storage",
           "value": "{\"state\":{\"user\":{\"id\":\"test-user-id-12345\",\"email\":\"test@example.com\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"created_at\":\"2024-01-01T00:00:00.000Z\",\"updated_at\":\"2024-01-01T00:00:00.000Z\",\"user_metadata\":{\"display_name\":\"测试用户\"},\"app_metadata\":{}},\"isAuthenticated\":true},\"version\":0}"
         },
         {
-          "name": "sb-spb-2ze3ys5qpci8l5lk-auth-token",
-          "value": "{\"access_token\":\"mock-access-token-setup\",\"refresh_token\":\"mock-refresh-token-setup\",\"expires_in\":3600,\"expires_at\":1773658776.067,\"token_type\":\"bearer\",\"user\":{\"id\":\"test-user-id-12345\",\"email\":\"test@example.com\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"created_at\":\"2024-01-01T00:00:00.000Z\",\"updated_at\":\"2024-01-01T00:00:00.000Z\",\"user_metadata\":{\"display_name\":\"测试用户\"},\"app_metadata\":{}}}"
+          "name": "sb-localhost-auth-token",
+          "value": "{\"access_token\":\"mock-access-token-setup\",\"refresh_token\":\"mock-refresh-token-setup\",\"expires_in\":3600,\"expires_at\":9773658776.067,\"token_type\":\"bearer\",\"user\":{\"id\":\"test-user-id-12345\",\"email\":\"test@example.com\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"created_at\":\"2024-01-01T00:00:00.000Z\",\"updated_at\":\"2024-01-01T00:00:00.000Z\",\"user_metadata\":{\"display_name\":\"测试用户\"},\"app_metadata\":{}}}"
         }
       ]
     }

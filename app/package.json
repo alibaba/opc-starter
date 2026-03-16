@@ -26,6 +26,7 @@
   "scripts": {
     "dev": "vite",
     "dev:test": "vite --mode test",
+    "dev:test:e2e": "vite --mode test --port 5174 --strictPort",
     "build": "tsc -b && vite build && rm -f dist/mockServiceWorker.js",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",

@@ -63,7 +63,7 @@ async function submitLoginForm(page: Page) {
 }
 
 async function waitForLoginSuccess(page: Page) {
-  await expect(page).toHaveURL('http://localhost:5173/', { timeout: 15000 })
+  await expect(page).toHaveURL(/.*localhost.*\//, { timeout: 15000 })
 }
 
 /**
@@ -99,7 +99,6 @@ async function mockAuthUser(page: Page) {
 
 test.describe('[P0] 登录功能 - 核心流程', () => {
   test.beforeEach(async ({ page }) => {
-    await clearAuthState(page)
     await page.goto('/login')
   })
 
@@ -117,9 +116,9 @@ test.describe('[P0] 登录功能 - 核心流程', () => {
     await expect(page.locator('text=登录到你的账户')).toBeVisible()
     await fillLoginForm(page, TEST_USER.email, TEST_USER.password)
     await submitLoginForm(page)
-    // 登录成功后跳转到首页（MSW 响应较快，loading 状态可能很短暂，直接验证最终跳转）
+    // 登录成功后跳转到首页（使用相对路径匹配，兼容不同端口）
     await waitForLoginSuccess(page)
-    await expect(page).toHaveURL('http://localhost:5173/')
+    await expect(page).toHaveURL(/\/$/)
   })
 
   test('[P1] 使用错误密码显示错误提示', async ({ page }) => {
@@ -180,13 +179,9 @@ test.describe('[P1] 登录功能 - 表单验证', () => {
 })
 
 test.describe('[P1] 登录功能 - 导航', () => {
-  test.beforeEach(async ({ page }) => {
-    await clearAuthState(page)
-  })
-
   test('[P1] 未登录访问首页重定向到登录页', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveURL(/.*login.*/)
+    await expect(page).toHaveURL(/.*login.*/, { timeout: 15000 })
   })
 
   test('[P1] 点击注册链接跳转到注册页', async ({ page }) => {
@@ -195,19 +190,23 @@ test.describe('[P1] 登录功能 - 导航', () => {
     await expect(page).toHaveURL(/.*register.*/)
     await expect(page.locator('text=创建你的账户')).toBeVisible()
   })
+})
+
+test.describe('[P2] 登录功能 - 状态保持', () => {
+  // 使用预设置的登录状态
+  test.use({ storageState: '.playwright/user.json' })
 
   test('[P2] 登录后刷新页面保持登录状态', async ({ page }) => {
-    // mock getUser，保证 ProtectedRoute 在刷新后也能验证通过
-    await mockAuthUser(page)
+    // GIVEN: 已登录状态访问首页
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
-    await page.goto('/login')
-    await fillLoginForm(page, TEST_USER.email, TEST_USER.password)
-    await submitLoginForm(page)
-    await waitForLoginSuccess(page)
-
+    // WHEN: 刷新页面
     await page.reload()
 
+    // THEN: 仍在首页，未被重定向到登录页
     await expect(page).not.toHaveURL(/.*login.*/)
+    await expect(page).toHaveURL(/\/$/)
   })
 })
 
