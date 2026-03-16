@@ -13,8 +13,16 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    // 排除 Playwright E2E 测试
-    exclude: ['node_modules', 'dist', 'tests/e2e/**', 'tests/support/**', 'cypress/**'],
+    // 排除 Playwright E2E 测试和其他测试框架
+    exclude: [
+      'node_modules',
+      'dist',
+      'tests/e2e/**',
+      'tests/support/**',
+      'cypress/**',
+      '**/*.spec.ts',
+      '**/*.spec.js',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

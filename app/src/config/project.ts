@@ -22,14 +22,33 @@ export interface ProjectConfig {
 }
 
 /**
+ * 获取环境变量的辅助函数，在测试环境中提供默认值
+ */
+function getEnvVar(key: string, defaultValue: string): string {
+  // 在浏览器环境中
+  if (typeof window !== 'undefined' && window.location) {
+    // @ts-expect-error: import.meta.env typing varies between environments
+    return import.meta.env?.[key] || defaultValue
+  }
+
+  // 在 Node.js 环境中（如测试）
+  if (typeof process !== 'undefined') {
+    return process.env[key] || defaultValue
+  }
+
+  // 默认情况
+  return defaultValue
+}
+
+/**
  * 默认项目配置
  * 可通过环境变量覆盖
  */
 const defaultConfig: ProjectConfig = {
-  name: import.meta.env.VITE_PROJECT_NAME || 'OPC-Starter',
-  description: import.meta.env.VITE_PROJECT_DESCRIPTION || 'AI-Friendly React Boilerplate',
-  agentName: import.meta.env.VITE_AGENT_NAME || 'AI 助手',
-  agentDescription: import.meta.env.VITE_AGENT_DESCRIPTION || '智能助手，随时为您服务',
+  name: getEnvVar('VITE_PROJECT_NAME', 'OPC-Starter'),
+  description: getEnvVar('VITE_PROJECT_DESCRIPTION', 'AI-Friendly React Boilerplate'),
+  agentName: getEnvVar('VITE_AGENT_NAME', 'AI 助手'),
+  agentDescription: getEnvVar('VITE_AGENT_DESCRIPTION', '智能助手，随时为您服务'),
   storageKeyPrefix: 'opc-starter',
   dbPrefix: 'opc-starter',
 }
