@@ -1,0 +1,24 @@
+# CI/CD Pipeline Setup Workflow
+name: cicd-setup
+description: "Setup CI/CD pipeline for automated ESA deployments with GitHub Actions."
+author: "OPC-Starter"
+
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+date: system-generated
+
+installed_path: "{project-root}/_bmad/bmm/workflows/5-operations/cicd-setup"
+instructions: "{installed_path}/instructions.xml"
+template: "{installed_path}/github-actions.yml.template"
+template_output: "{project-root}/.github/workflows/deploy.yml"
+template: false
+
+variables:
+  github_secrets:
+    - VITE_SUPABASE_URL
+    - VITE_SUPABASE_ANON_KEY
+    - ESA_ACCESS_KEY_ID
+    - ESA_ACCESS_KEY_SECRET
+
+standalone: true

@@ -1,0 +1,18 @@
+# Custom Domain Setup Workflow
+name: domain-setup
+description: "Configure custom domain for ESA Pages deployment with DNS and SSL setup."
+author: "OPC-Starter"
+
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+date: system-generated
+
+installed_path: "{project-root}/_bmad/bmm/workflows/5-operations/domain-setup"
+instructions: "{installed_path}/instructions.xml"
+template: false
+
+variables:
+  app_dir: "{project-root}/app"
+
+standalone: true

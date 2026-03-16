@@ -1,0 +1,30 @@
+# Deploy to ESA Pages Workflow
+name: deploy-esa
+description: "Deploy React/Vite application to Alibaba Cloud ESA Pages with pre-flight checks, build, and deployment verification."
+author: "OPC-Starter"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/_bmad/bmm/workflows/5-operations/deploy-esa"
+instructions: "{installed_path}/instructions.xml"
+validation: "{installed_path}/checklist.md"
+template: false
+
+variables:
+  app_dir: "{project-root}/app"
+  dist_dir: "{app_dir}/dist"
+  esa_config: "{app_dir}/esa.jsonc"
+  env_file: "{app_dir}/.env.local"
+
+input_file_patterns:
+  project_context:
+    description: "Project context for deployment decisions"
+    whole: "{project-root}/docs/project-context.md"
+    load_strategy: "FULL_LOAD"
+
+standalone: true
