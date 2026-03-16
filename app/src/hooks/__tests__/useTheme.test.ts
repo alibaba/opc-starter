@@ -7,7 +7,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTheme } from '../useTheme'
 
-const THEME_STORAGE_KEY = 'photo-wall-theme'
+const THEME_STORAGE_KEY = 'opc-starter:theme'
 
 describe('useTheme', () => {
   let mockLocalStorage: Record<string, string>
