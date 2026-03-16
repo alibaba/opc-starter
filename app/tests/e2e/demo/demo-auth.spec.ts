@@ -90,7 +90,7 @@ test.describe('🎬 演示模式 - 认证流程', () => {
 
     // 高亮页面标题
     await highlightElement(page, 'h1', 800)
-    await expect(page.locator('h1')).toContainText('照片时光机')
+    await expect(page.locator('h1')).toContainText('OPC-Starter')
 
     // ============================================
     // Step 2: 填写邮箱

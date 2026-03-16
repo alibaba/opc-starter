@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Photo Wall 数据库一致性检查工具
+OPC-Starter 数据库一致性检查工具
 
 用途：对比 TypeScript 类型定义与 SQL CHECK 约束，发现不一致问题
 使用：python scripts/db_constraint_diff.py
@@ -27,12 +27,12 @@ class Colors:
 
 
 def find_project_root() -> Path:
-    """找到项目根目录（包含 photo-wall 的目录）"""
+    """找到项目根目录（包含 app 的目录）"""
     script_dir = Path(__file__).parent.resolve()
     # 从 .qoder/skills/auto-develop/scripts 向上找
     current = script_dir
     for _ in range(10):
-        if (current / 'photo-wall').exists():
+        if (current / 'app').exists():
             return current
         current = current.parent
     raise RuntimeError("无法找到项目根目录")
@@ -129,7 +129,7 @@ def compare_and_report(
     """比较并输出报告，返回是否有差异"""
     has_diff = False
     
-    print(f"\n{Colors.BLUE}=== Photo Wall 数据库一致性检查 ==={Colors.NC}\n")
+    print(f"\n{Colors.BLUE}=== OPC-Starter 数据库一致性检查 ==={Colors.NC}\n")
     
     if not pairs:
         print(f"{Colors.YELLOW}未找到可对比的类型-约束对{Colors.NC}")
@@ -173,15 +173,15 @@ def main():
         print(f"{Colors.RED}错误: {e}{Colors.NC}")
         sys.exit(1)
     
-    photo_wall = project_root / 'photo-wall'
-    types_dir = photo_wall / 'src' / 'types'
-    setup_sql = photo_wall / 'supabase' / 'setup.sql'
-    
+    app_dir = project_root / 'app'
+    types_dir = app_dir / 'src' / 'types'
+    setup_sql = app_dir / 'supabase' / 'setup.sql'
+
     # 检查文件存在
     if not types_dir.exists():
         print(f"{Colors.RED}错误: 找不到 types 目录: {types_dir}{Colors.NC}")
         sys.exit(1)
-    
+
     if not setup_sql.exists():
         print(f"{Colors.RED}错误: 找不到 setup.sql: {setup_sql}{Colors.NC}")
         sys.exit(1)

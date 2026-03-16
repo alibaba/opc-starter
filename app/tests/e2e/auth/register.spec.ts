@@ -23,6 +23,13 @@ const generateUniqueEmail = () => {
   return `newuser${timestamp}@test.com`
 }
 
+// 已存在的测试用户（用于测试重复注册）
+const EXISTING_USER = {
+  email: 'test@example.com',
+  password: '888888',
+  displayName: '测试用户',
+}
+
 // ============================================
 // 辅助函数
 // ============================================
@@ -83,8 +90,8 @@ test.describe('[P0] 注册功能 - 核心流程', () => {
   })
 
   test('[P0] 应该显示注册页面', async ({ page }) => {
-    // 验证页面标题
-    await expect(page.locator('h1')).toContainText('照片时光机')
+    // 验证页面标题（已改为 OPC-Starter）
+    await expect(page.locator('h1')).toContainText('OPC-Starter')
     await expect(page.locator('text=创建你的账户')).toBeVisible()
 
     // 验证表单元素存在

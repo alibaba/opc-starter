@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { useAgentChat } from '@/hooks/useAgentChat'
 import { useAgentContext } from '@/hooks/useAgentContext'
 import { useAgentStore } from '@/stores/useAgentStore'
+import { PROJECT_CONFIG } from '@/config/project'
 
 interface AgentInputProps {
   /** 自定义类名 */
@@ -201,7 +202,7 @@ export function AgentInput({ className }: AgentInputProps) {
               {retryCount > 0 ? `正在重试 (${retryCount}/3)...` : error.message}
             </span>
           ) : (
-            <span>Photo Wall 助手可能会出错，请核实重要信息</span>
+            <span>{PROJECT_CONFIG.agentName}可能会出错，请核实重要信息</span>
           )}
         </div>
       </div>

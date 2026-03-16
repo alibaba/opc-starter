@@ -1,5 +1,5 @@
 #!/bin/bash
-# Photo Wall 质量验证流程
+# OPC-Starter 质量验证流程
 # 用途：执行完整的质量检查流程（lint → test → e2e → build）
 # 使用：./scripts/quality_check.sh [--skip-e2e]
 
@@ -22,12 +22,12 @@ for arg in "$@"; do
   esac
 done
 
-# 进入 photo-wall 目录
+# 进入 app 目录
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../../photo-wall" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../../../../app" && pwd)"
 cd "$PROJECT_DIR"
 
-echo -e "${YELLOW}=== Photo Wall 质量验证流程 ===${NC}"
+echo -e "${YELLOW}=== OPC-Starter 质量验证流程 ===${NC}"
 echo "工作目录: $PROJECT_DIR"
 echo ""
 

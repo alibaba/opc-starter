@@ -12,7 +12,7 @@ Cypress.Commands.add('waitForMSW', () => {
   // MSW 会在应用启动时自动初始化
   cy.wait(1000)
   cy.log('⏳ 等待 MSW 初始化完成')
-  
+
   // 检查控制台是否有 MSW 启动日志
   cy.window().then((win) => {
     // 如果有 Service Worker 支持，检查状态
@@ -27,21 +27,21 @@ Cypress.Commands.add('waitForMSW', () => {
 /**
  * 登录命令
  * 从 fixture 读取测试用户凭证进行登录
- * 
+ *
  * @example
  * cy.login()
  * cy.login('custom@email.com', 'customPassword')
  */
 Cypress.Commands.add('login', (email, password) => {
   cy.log('🔐 开始登录流程')
-  
+
   // 如果提供了自定义凭证，直接使用
   if (email && password) {
     cy.log(`📧 用户: ${email}`)
     performLogin(email, password)
     return
   }
-  
+
   // 否则从 fixture 读取
   cy.fixture('users').then((users) => {
     const { email: testEmail, password: testPassword } = users.testUser
@@ -56,21 +56,21 @@ Cypress.Commands.add('login', (email, password) => {
 function performLogin(email, password) {
   // 访问登录页面
   cy.visit('/login')
-  
+
   // 等待页面加载完成
   cy.get('h1').should('contain', '照片时光机')
-  
+
   // 填写登录表单
   cy.get('input[type="email"]').clear().type(email)
   cy.get('input[type="password"]').clear().type(password)
-  
+
   // 点击登录按钮
   cy.get('button[type="submit"]').click()
-  
+
   // 等待登录完成（跳转到首页）
   cy.url().should('not.include', '/login')
   cy.url().should('eq', Cypress.config().baseUrl + '/')
-  
+
   cy.log('✅ 登录成功')
 }
 
@@ -80,18 +80,18 @@ function performLogin(email, password) {
  */
 Cypress.Commands.add('logout', () => {
   cy.log('🚪 开始登出流程')
-  
+
   // 方式1: 通过 UI 登出（如果有登出按钮）
   // cy.get('[data-testid="logout-button"]').click()
-  
+
   // 方式2: 直接清除认证状态
   cy.clearLocalStorage()
   cy.clearCookies()
-  
+
   // 访问首页，应该自动跳转到登录页
   cy.visit('/')
   cy.url().should('include', '/login')
-  
+
   cy.log('✅ 登出成功')
 })
 
@@ -101,21 +101,21 @@ Cypress.Commands.add('logout', () => {
  */
 Cypress.Commands.add('clearAuth', () => {
   cy.log('🧹 清除认证状态')
-  
+
   // 清除 localStorage 中的认证信息
   cy.clearLocalStorage()
-  
+
   // 清除 cookies
   cy.clearCookies()
-  
+
   // 清除 sessionStorage
   cy.window().then((win) => {
     win.sessionStorage.clear()
   })
-  
+
   // 清除 IndexedDB（如果需要）
   cy.clearIndexedDB()
-  
+
   cy.log('✅ 认证状态已清除')
 })
 
@@ -125,16 +125,16 @@ Cypress.Commands.add('clearAuth', () => {
  */
 Cypress.Commands.add('clearIndexedDB', () => {
   cy.log('🗑️ 清除 IndexedDB')
-  
+
   cy.window().then((win) => {
-    const databases = ['photo-wall-db']
-    
+    const databases = ['opc-starter-db']
+
     databases.forEach((dbName) => {
       // 同步删除数据库，不等待回调
       win.indexedDB.deleteDatabase(dbName)
     })
   })
-  
+
   // 等待一小段时间确保删除完成
   cy.wait(100)
   cy.log('✅ IndexedDB 清除完成')
@@ -142,14 +142,12 @@ Cypress.Commands.add('clearIndexedDB', () => {
 
 /**
  * 等待元素可见并可交互
- * 
+ *
  * @param {string} selector - CSS 选择器
  * @param {number} timeout - 超时时间（毫秒）
  */
 Cypress.Commands.add('waitForElement', (selector, timeout = 10000) => {
-  cy.get(selector, { timeout })
-    .should('be.visible')
-    .should('not.be.disabled')
+  cy.get(selector, { timeout }).should('be.visible').should('not.be.disabled')
 })
 
 /**
@@ -159,7 +157,7 @@ Cypress.Commands.add('waitForElement', (selector, timeout = 10000) => {
 Cypress.Commands.add('checkLoggedIn', () => {
   cy.url().should('not.include', '/login')
   cy.url().should('not.include', '/register')
-  
+
   // 可以添加更多检查，例如检查用户头像或用户名是否显示
   cy.log('✅ 用户已登录')
 })

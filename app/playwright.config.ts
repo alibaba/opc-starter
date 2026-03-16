@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename)
 // 加载测试环境变量
 dotenvConfig({ path: path.resolve(__dirname, '.env.test') })
 
+// 已登录状态存储路径
+export const STORAGE_STATE = path.resolve(__dirname, '.playwright/user.json')
+
 /**
  * Playwright 配置文件
  * OPC-Starter E2E 测试配置
@@ -71,8 +74,26 @@ export default defineConfig({
   // 项目配置
   projects: [
     {
-      name: 'chromium',
+      // setup 项目：登录并保存认证状态（作为 Playwright test 运行）
+      name: 'setup',
+      testMatch: '**/global.setup.ts',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      // 需要登录的页面测试：依赖 setup 完成
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: STORAGE_STATE,
+      },
+      dependencies: ['setup'],
+      testIgnore: ['**/auth/*.spec.ts', '**/demo/*.spec.ts', '**/global.setup.ts'],
+    },
+    {
+      // 认证测试：不需要预登录状态（自己管理登录流程）
+      name: 'chromium-auth',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: ['**/auth/*.spec.ts', '**/demo/*.spec.ts'],
     },
   ],
 

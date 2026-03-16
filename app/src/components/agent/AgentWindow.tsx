@@ -14,6 +14,7 @@ import { useAgentStore, getLastThreadId } from '@/stores/useAgentStore'
 import { AgentThread } from './AgentThread'
 import { AgentInput } from './AgentInput'
 import { AgentResumeDialog } from './AgentResumeDialog'
+import { PROJECT_CONFIG } from '@/config/project'
 
 interface AgentWindowProps {
   /** 是否显示 */
@@ -164,7 +165,7 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground leading-tight">
-                  Photo Wall 助手
+                  {PROJECT_CONFIG.agentName}
                 </h3>
                 {!isMinimized && (
                   <p className="text-[10px] text-muted-foreground">

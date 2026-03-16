@@ -1,66 +1,52 @@
 /**
  * Settings 页面 E2E 测试
- * 测试设置页面的显示和导航功能
- *
- * FIXME: 这些测试依赖测试用户 test@example.com 存在
- * 需要先在 Supabase 中创建或确认测试用户
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect } from '../fixtures'
+import { STORAGE_STATE } from '../../playwright.config'
 
-const TEST_USER = {
-  email: 'test@example.com',
-  password: '888888',
-}
+test.describe('[P2] Settings 页面', () => {
+  test.use({ storageState: STORAGE_STATE })
 
-async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login')
-  await page.fill('input[type="email"]', TEST_USER.email)
-  await page.fill('input[type="password"]', TEST_USER.password)
-  await page.click('button[type="submit"]')
-  await expect(page).toHaveURL('http://localhost:5173/', { timeout: 10000 })
-}
-
-test.describe.fixme('[P2] Settings 页面', () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page)
+  test.beforeEach(async ({ authedPage: page }) => {
+    await page.goto('/settings')
   })
 
-  test('[P2] 应该能够访问设置页面', async ({ page }) => {
-    await page.goto('/settings')
-    await expect(page.locator('text=设置')).toBeVisible()
+  test('[P2] 应该能够访问设置页面', async ({ authedPage: page }) => {
+    // SettingsPage 的 h1 在 bg-card border-b 区块内，不在 main 中
+    await expect(page.getByRole('heading', { name: '设置', level: 1 })).toBeVisible()
     await expect(page.locator('text=管理应用配置和偏好设置')).toBeVisible()
   })
 
-  test('[P2] 应该显示云存储设置入口', async ({ page }) => {
-    await page.goto('/settings')
-    await expect(page.locator('text=云存储')).toBeVisible()
+  test('[P2] 应该显示云存储设置入口', async ({ authedPage: page }) => {
     await expect(page.locator('text=管理存储空间和同步设置')).toBeVisible()
   })
 
-  test('[P2] 应该显示关于信息', async ({ page }) => {
-    await page.goto('/settings')
+  test('[P2] 应该显示关于信息', async ({ authedPage: page }) => {
     await expect(page.locator('text=关于')).toBeVisible()
-    await expect(page.locator('text=OPC-Starter')).toBeVisible()
+    // 精确匹配 about 区块中的 OPC-Starter span
+    await expect(page.locator('main').getByText('OPC-Starter').first()).toBeVisible()
     await expect(page.locator('text=React 19')).toBeVisible()
   })
 })
 
-test.describe.fixme('[P2] Settings 页面导航', () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page)
+test.describe('[P2] Settings 页面导航', () => {
+  test.use({ storageState: STORAGE_STATE })
+
+  test.beforeEach(async ({ authedPage: page }) => {
+    await page.goto('/settings')
   })
 
-  test('[P2] 点击云存储应该跳转到云存储设置页面', async ({ page }) => {
-    await page.goto('/settings')
-    await page.click('text=云存储')
+  test('[P2] 点击云存储应该跳转到云存储设置页面', async ({ authedPage: page }) => {
+    await page.locator('text=管理存储空间和同步设置').click()
     await expect(page).toHaveURL(/.*settings\/cloud-storage.*/)
   })
 
-  test('[P2] 从 Dashboard 导航到 Settings', async ({ page }) => {
-    await expect(page.locator('text=OPC-Starter')).toBeVisible()
-    await page.click('text=系统设置')
+  test('[P2] 从 Dashboard 导航到 Settings', async ({ authedPage: page }) => {
+    await page.goto('/')
+    await expect(page.locator('main').getByRole('heading', { name: 'OPC-Starter' })).toBeVisible()
+    await page.locator('main').getByRole('heading', { name: '系统设置' }).click()
     await expect(page).toHaveURL(/.*settings.*/)
-    await expect(page.locator('text=设置')).toBeVisible()
+    await expect(page.getByRole('heading', { name: '设置', level: 1 })).toBeVisible()
   })
 })

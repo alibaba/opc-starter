@@ -2,10 +2,11 @@
  * useTheme - 主题切换 Hook，支持 light/dark/system 及持久化
  */
 import { useEffect, useState, useCallback } from 'react'
+import { getStorageKey } from '@/config/project'
 
 export type Theme = 'light' | 'dark' | 'system'
 
-const THEME_STORAGE_KEY = 'photo-wall-theme'
+const THEME_STORAGE_KEY = getStorageKey('theme')
 
 /**
  * 获取系统主题偏好
