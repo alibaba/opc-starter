@@ -41,6 +41,17 @@ lerna-debug.log*
 coverage/
 .nyc_output/
 
+# Playwright 测试产物（本地保留，不入仓库）
+app/playwright-report/
+app/test-results/
+test-results/
+.playwright-cli/
+
+# Playwright 调试临时文件
+*.yml
+!.github/**/*.yml
+playwright-auth-test-case.sh
+
 # 构建
 *.tsbuildinfo
 
