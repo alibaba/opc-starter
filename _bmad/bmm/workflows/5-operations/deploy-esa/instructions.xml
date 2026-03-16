@@ -1,0 +1,109 @@
+<instructions id="deploy-esa">
+  <step n="1" goal="Pre-flight Checks">
+    <action>Verify ESA CLI is installed</action>
+    <check if="ESA CLI not found">
+      <ask>ESA CLI not installed. Install now? (y/n)</ask>
+      <action if="y">Run: npm install esa-cli@latest -g</action>
+    </check>
+
+    <action>Check ESA authentication status</action>
+    <check if="not logged in">
+      <ask>Not logged in to ESA. Run esa-cli login now? (y/n)</ask>
+      <action if="y">Run: esa-cli login</action>
+    </check>
+
+    <action>Verify app directory exists</action>
+    <action>Check esa.jsonc configuration exists</action>
+    <action>Verify .env.local exists and has required variables</action>
+
+    <check if="VITE_ENABLE_MSW is true">
+      <ask>MSW Mock is enabled (VITE_ENABLE_MSW=true). Disable for production? (y/n)</ask>
+      <action if="y">Update .env.local: VITE_ENABLE_MSW=false</action>
+    </check>
+  </step>
+
+  <step n="2" goal="Environment Validation">
+    <action>Display current environment configuration</action>
+    <ask>Confirm these settings are correct for deployment? (y/n/edit)</ask>
+
+    <check if="n">
+      <action>Stop deployment</action>
+      <goto step="exit" />
+    </check>
+
+    <check if="edit">
+      <ask>Which variable to edit? (Enter variable name or 'done')</ask>
+      <action>Update specified variable in .env.local</action>
+    </check>
+  </step>
+
+  <step n="3" goal="Build Application">
+    <action>Navigate to app directory</action>
+    <action>Run: npm run build</action>
+
+    <check if="build fails">
+      <action>Display error messages</action>
+      <ask>Build failed. View error details and fix? (y/n)</ask>
+      <action if="y">Provide troubleshooting guidance</action>
+      <goto step="exit" />
+    </check>
+
+    <action>Verify dist directory was created</action>
+    <action>Display build output summary (bundle sizes, warnings)</action>
+  </step>
+
+  <step n="4" goal="Deploy to ESA">
+    <ask>Ready to deploy to ESA Pages. Proceed? (y/n)</ask>
+
+    <check if="y">
+      <action>Run: esa-cli deploy</action>
+
+      <check if="deployment succeeds">
+        <action>Display deployment URL</action>
+        <action>Save deployment info to session</action>
+      </check>
+
+      <check if="deployment fails">
+        <action>Display error message</action>
+        <ask>View troubleshooting guide? (y/n)</ask>
+        <goto step="6" />
+      </check>
+    </check>
+  </step>
+
+  <step n="5" goal="Post-deployment Verification">
+    <action>Wait 10 seconds for CDN propagation</action>
+    <action>Check deployment URL is accessible</action>
+    <action>Verify HTTPS is working</action>
+    <action>Test key application routes</action>
+
+    <ask>Deployment successful! View deployment summary? (y/n)</ask>
+    <action if="y">Display full deployment report</action>
+  </step>
+
+  <step n="6" goal="Troubleshooting Guide" optional="true">
+    <action if="build or deployment failed">Display common issues and solutions:</action>
+
+    <troubleshooting>
+      <issue>ESA CLI not found</issue>
+      <solution>npm install esa-cli@latest -g</solution>
+
+      <issue>Not logged in</issue>
+      <solution>esa-cli login</solution>
+
+      <issue>esa.jsonc not found</issue>
+      <solution>Ensure you're in the app directory containing esa.jsonc</solution>
+
+      <issue>Build fails with module errors</issue>
+      <solution>Try: rm -rf node_modules &amp;&amp; npm install</solution>
+
+      <issue>Large bundle warning</issue>
+      <solution>Consider code splitting in vite.config.ts</solution>
+    </troubleshooting>
+  </step>
+
+  <step n="exit" goal="Complete">
+    <action>Display final status</action>
+    <action if="success">Suggest next steps: custom domain, CI/CD setup</action>
+  </step>
+</instructions>
