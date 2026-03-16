@@ -3,6 +3,7 @@
  */
 import { RegisterForm } from '../components/RegisterForm'
 import { Camera } from 'lucide-react'
+import { PROJECT_CONFIG } from '@/config/project'
 
 export function RegisterPage() {
   return (
@@ -15,7 +16,7 @@ export function RegisterPage() {
               <Camera className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">照片时光机</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{PROJECT_CONFIG.name}</h1>
           <p className="mt-1 md:mt-2 text-sm md:text-base text-muted-foreground">创建你的账户</p>
         </div>
 
@@ -26,7 +27,7 @@ export function RegisterPage() {
 
         {/* 底部提示 */}
         <p className="text-center text-xs md:text-sm text-muted-foreground px-4">
-          记录团队成长轨迹，增强集体记忆与情感链接
+          {PROJECT_CONFIG.description}
         </p>
       </div>
     </div>
