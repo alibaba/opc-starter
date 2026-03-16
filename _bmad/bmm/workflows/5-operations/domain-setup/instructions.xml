@@ -1,0 +1,83 @@
+<instructions id="domain-setup">
+  <step n="1" goal="Gather Domain Information">
+    <ask>Enter your custom domain (e.g., app.yourdomain.com):</ask>
+    <action>Store domain in variable: {custom_domain}</action>
+
+    <ask>Is this domain for mainland China access (requires ICP filing)? (y/n)</ask>
+    <action>Store in variable: {requires_icp}</action>
+  </step>
+
+  <step n="2" goal="Add Domain to ESA">
+    <action>Run: esa-cli domain add {custom_domain}</action>
+
+    <check if="domain added successfully">
+      <action>Display ESA CNAME target</action>
+    </check>
+
+    <check if="domain already exists">
+      <ask>Domain already configured. Update configuration? (y/n)</ask>
+    </check>
+  </step>
+
+  <step n="3" goal="Configure DNS">
+    <action>Display DNS configuration instructions:</action>
+
+    <dns-instructions>
+      <record>
+        <type>CNAME</type>
+        <host>[subdomain part of {custom_domain}]</host>
+        <value>[ESA CNAME target from step 2]</value>
+      </record>
+    </dns-instructions>
+
+    <ask>DNS record configured? (y/n)</ask>
+
+    <check if="n">
+      <action>Provide detailed instructions for common DNS providers</action>
+      <ask>Continue when DNS is configured? (y/n)</ask>
+    </check>
+  </step>
+
+  <step n="4" goal="Configure SSL Certificate">
+    <ask>Configure SSL certificate? (auto/renew/skip)</ask>
+
+    <check if="auto">
+      <action>ESA will auto-provision Let's Encrypt certificate</action>
+      <action>Display certificate status check command</action>
+    </check>
+
+    <check if="renew">
+      <ask>Provide certificate file path:</ask>
+      <action>Run: esa-cli domain cert-upload {custom_domain} --cert=[path]</action>
+    </check>
+  </step>
+
+  <step n="5" goal="Update Supabase Configuration">
+    <action>Display Supabase configuration instructions:</action>
+
+    <supabase-instructions>
+      1. Go to Supabase Dashboard → Authentication → URL Configuration
+      2. Update Site URL to: https://{custom_domain}
+      3. Add to Redirect URLs: https://{custom_domain}/**
+    </supabase-instructions>
+
+    <ask>Supabase configuration updated? (y/n)</ask>
+  </step>
+
+  <step n="6" goal="Verify Domain">
+    <action>Wait for DNS propagation (suggest waiting 5-10 minutes)</action>
+    <action>Run: dig {custom_domain}</action>
+    <action>Test: curl -I https://{custom_domain}</action>
+
+    <ask>Domain verification successful? (y/n)</ask>
+
+    <check if="n">
+      <action>Provide troubleshooting steps</action>
+    </check>
+  </step>
+
+  <step n="exit" goal="Complete">
+    <action>Display domain setup summary</action>
+    <action>Remind about ICP filing if {requires_icp} is true</action>
+  </step>
+</instructions>

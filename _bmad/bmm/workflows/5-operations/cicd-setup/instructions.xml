@@ -1,0 +1,89 @@
+<instructions id="cicd-setup">
+  <step n="1" goal="Select CI/CD Platform">
+    <ask>Which CI/CD platform? (github/gitlab/jenkins)</ask>
+    <action>Store in variable: {cicd_platform}</action>
+  </step>
+
+  <step n="2" goal="Verify Prerequisites">
+    <check if="{cicd_platform} is github">
+      <action>Check if .github/workflows directory exists</action>
+      <action if="not exists">Create .github/workflows directory</action>
+    </check>
+
+    <ask>Is your code pushed to a remote repository? (y/n)</ask>
+    <check if="n">
+      <action>Provide instructions to push to GitHub first</action>
+      <goto step="exit" />
+    </check>
+  </step>
+
+  <step n="3" goal="Configure GitHub Secrets">
+    <action>List required secrets for ESA deployment:</action>
+
+    <secrets-list>
+      <secret name="VITE_SUPABASE_URL">Supabase project URL</secret>
+      <secret name="VITE_SUPABASE_ANON_KEY">Supabase anonymous key</secret>
+      <secret name="ESA_ACCESS_KEY_ID">Alibaba Cloud AccessKey ID</secret>
+      <secret name="ESA_ACCESS_KEY_SECRET">Alibaba Cloud AccessKey Secret</secret>
+    </secrets-list>
+
+    <action>Display instructions for adding secrets:</action>
+    <instructions>
+      1. Go to GitHub repository → Settings → Secrets and variables → Actions
+      2. Click "New repository secret"
+      3. Add each secret listed above
+    </instructions>
+
+    <ask>All secrets configured? (y/n)</ask>
+  </step>
+
+  <step n="4" goal="Create Workflow File">
+    <action>Generate CI/CD workflow file based on {cicd_platform}</action>
+
+    <check if="{cicd_platform} is github">
+      <action>Create .github/workflows/deploy.yml</action>
+      <template-output section="github-actions-workflow" />
+    </check>
+
+    <check if="{cicd_platform} is gitlab">
+      <action>Create .gitlab-ci.yml</action>
+      <template-output section="gitlab-ci-workflow" />
+    </check>
+
+    <check if="{cicd_platform} is jenkins">
+      <action>Create Jenkinsfile</action>
+      <template-output section="jenkins-pipeline" />
+    </check>
+
+    <ask>Review and commit the workflow file? (y/n)</ask>
+  </step>
+
+  <step n="5" goal="Configure Branch Protection (Optional)">
+    <ask>Configure branch protection for main branch? (y/n)</ask>
+
+    <check if="y">
+      <instructions>
+        1. Go to GitHub → Settings → Branches
+        2. Add rule for 'main' branch
+        3. Enable: Require status checks, Require pull request reviews
+      </instructions>
+    </check>
+  </step>
+
+  <step n="6" goal="Test Pipeline">
+    <ask>Trigger test deployment? (y/n)</ask>
+
+    <check if="y">
+      <action>Provide instructions to trigger workflow:</action>
+      <instructions>
+        - Push a commit to main branch, OR
+        - Go to Actions tab → Deploy workflow → Run workflow
+      </instructions>
+    </check>
+  </step>
+
+  <step n="exit" goal="Complete">
+    <action>Display CI/CD setup summary</action>
+    <action>Remind about monitoring the first deployment</action>
+  </step>
+</instructions>
