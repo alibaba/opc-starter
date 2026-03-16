@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useProfileStore } from '@/stores/useProfileStore'
 import { dataService } from '@/services/data/DataService'
+import { PROJECT_CONFIG } from '@/config/project'
 
 function DashboardPage() {
   const { user } = useAuthStore()
@@ -83,10 +84,10 @@ function DashboardPage() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="w-8 h-8 text-primary" />
-              <h1 className="text-4xl font-bold text-foreground">OPC-Starter</h1>
+              <h1 className="text-4xl font-bold text-foreground">{PROJECT_CONFIG.name}</h1>
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              一人公司启动器 - AI-Friendly React Boilerplate
+              {PROJECT_CONFIG.description}
             </p>
             <p className="text-sm text-muted-foreground mt-2">
               欢迎回来，{profile?.fullName || user?.email || '用户'}！

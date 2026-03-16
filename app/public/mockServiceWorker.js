@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* tslint:disable */
 
 /**
@@ -97,7 +98,10 @@ addEventListener('fetch', function (event) {
 
   // Opening the DevTools triggers the "only-if-cached" request
   // that cannot be handled by the worker. Bypass such requests.
-  if (event.request.cache === 'only-if-cached' && event.request.mode !== 'same-origin') {
+  if (
+    event.request.cache === 'only-if-cached' &&
+    event.request.mode !== 'same-origin'
+  ) {
     return
   }
 
@@ -120,7 +124,12 @@ addEventListener('fetch', function (event) {
 async function handleRequest(event, requestId, requestInterceptedAt) {
   const client = await resolveMainClient(event)
   const requestCloneForEvents = event.request.clone()
-  const response = await getResponse(event, client, requestId, requestInterceptedAt)
+  const response = await getResponse(
+    event,
+    client,
+    requestId,
+    requestInterceptedAt,
+  )
 
   // Send back the response clone for the "response:*" life-cycle events.
   // Ensure MSW is active and ready to handle the message, otherwise
@@ -150,7 +159,7 @@ async function handleRequest(event, requestId, requestInterceptedAt) {
           },
         },
       },
-      responseClone.body ? [serializedRequest.body, responseClone.body] : []
+      responseClone.body ? [serializedRequest.body, responseClone.body] : [],
     )
   }
 
@@ -215,7 +224,9 @@ async function getResponse(event, client, requestId, requestInterceptedAt) {
     const acceptHeader = headers.get('accept')
     if (acceptHeader) {
       const values = acceptHeader.split(',').map((value) => value.trim())
-      const filteredValues = values.filter((value) => value !== 'msw/passthrough')
+      const filteredValues = values.filter(
+        (value) => value !== 'msw/passthrough',
+      )
 
       if (filteredValues.length > 0) {
         headers.set('accept', filteredValues.join(', '))
@@ -252,7 +263,7 @@ async function getResponse(event, client, requestId, requestInterceptedAt) {
         ...serializedRequest,
       },
     },
-    [serializedRequest.body]
+    [serializedRequest.body],
   )
 
   switch (clientMessage.type) {
@@ -286,7 +297,10 @@ function sendToClient(client, message, transferrables = []) {
       resolve(event.data)
     }
 
-    client.postMessage(message, [channel.port2, ...transferrables.filter(Boolean)])
+    client.postMessage(message, [
+      channel.port2,
+      ...transferrables.filter(Boolean),
+    ])
   })
 }
 

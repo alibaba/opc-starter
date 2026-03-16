@@ -12,9 +12,10 @@ import { Loader2 } from 'lucide-react'
 import { AgentWindow } from '@/components/agent/AgentWindow'
 import { useAgentStore } from '@/stores/useAgentStore'
 import { A2UIPortalContainer } from '@/components/agent/a2ui/A2UIPortalContainer'
+import { getStorageKey } from '@/config/project'
 
 // localStorage key for sidebar collapsed state
-const SIDEBAR_COLLAPSED_KEY = 'photo-wall:sidebar-collapsed'
+const SIDEBAR_COLLAPSED_KEY = getStorageKey('sidebar-collapsed')
 
 /**
  * 首次同步加载组件 (Epic-18: S18-2)

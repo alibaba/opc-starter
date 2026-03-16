@@ -6,6 +6,7 @@
  */
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import { getDbName } from '@/config/project'
 
 // ============ 类型定义 ============
 
@@ -56,7 +57,7 @@ interface PreferencesDBSchema extends DBSchema {
 
 // ============ 数据库操作 ============
 
-const DB_NAME = 'photo-wall-agent-preferences'
+const DB_NAME = getDbName('agent-preferences')
 const DB_VERSION = 1
 const STORE_NAME = 'preferences'
 

@@ -1,5 +1,5 @@
 {
-  "name": "opt-starter",
+  "name": "opc-starter",
   "assets": {
     "directory": "./dist",
     "notFoundStrategy": "singlePageApplication"

@@ -8,6 +8,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { AgentMessage } from '@/types/agent'
 import { compressIfNeeded } from './contextCompressor'
+import { getDbName } from '@/config/project'
 
 // ============ 类型定义 ============
 
@@ -48,7 +49,7 @@ interface SessionDBSchema extends DBSchema {
 
 // ============ 数据库操作 ============
 
-const DB_NAME = 'photo-wall-agent-sessions'
+const DB_NAME = getDbName('agent-sessions')
 const DB_VERSION = 1
 const STORE_NAME = 'sessions'
 

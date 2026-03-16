@@ -1,0 +1,20 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img [ref=e8]
+    - heading "照片时光机" [level=1] [ref=e11]
+    - paragraph [ref=e12]: 登录到你的账户
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]: 邮箱
+      - textbox "邮箱" [ref=e17]:
+        - /placeholder: your@email.com
+    - generic [ref=e18]:
+      - generic [ref=e19]: 密码
+      - textbox "密码" [ref=e20]:
+        - /placeholder: ••••••••
+    - button "登录" [ref=e21]
+    - generic [ref=e22]:
+      - text: 还没有账号？
+      - link "注册" [ref=e23] [cursor=pointer]:
+        - /url: /register
+  - paragraph [ref=e24]: 记录团队成长轨迹，增强集体记忆与情感链接

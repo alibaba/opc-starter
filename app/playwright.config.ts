@@ -71,29 +71,11 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  // 项目配置
+  // 项目配置 - 简化配置
   projects: [
     {
-      // setup 项目：登录并保存认证状态（作为 Playwright test 运行）
-      name: 'setup',
-      testMatch: '**/global.setup.ts',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      // 需要登录的页面测试：依赖 setup 完成
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: STORAGE_STATE,
-      },
-      dependencies: ['setup'],
-      testIgnore: ['**/auth/*.spec.ts', '**/demo/*.spec.ts', '**/global.setup.ts'],
-    },
-    {
-      // 认证测试：不需要预登录状态（自己管理登录流程）
-      name: 'chromium-auth',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: ['**/auth/*.spec.ts', '**/demo/*.spec.ts'],
     },
   ],
 
