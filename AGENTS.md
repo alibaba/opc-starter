@@ -5,7 +5,10 @@
 ## 核心原则
 
 1. **优先更新现有文档**，不创建新文档
-2. **SQL 变更集中管理** → `app/supabase/setup.sql`
+2. **SQL 变更通过 Migration 管理** → `app/supabase/migrations/[seq]_[desc].sql`
+   - 每个 schema 变更必须创建 migration 文件 + rollback 文件
+   - 更新 `migration-manifest.yaml` 注册变更
+   - `setup.sql` 由 migration 体系自动维护，禁止直接修改
 3. **操作文档更新** → `app/supabase/SUPABASE_COOKBOOK.md`
 
 ## 技术栈
@@ -40,7 +43,9 @@ React 19.1 · TypeScript 5.9 · Vite 7.1 · **Tailwind CSS 4.1** · Supabase 2.8
 - ❌ 直接操作 IndexedDB 或 Supabase（使用 DataService）
 - ❌ 在 A2UI 中使用未注册的组件类型
 - ❌ 直接调用 LLM API（通过 ai-assistant Edge Function）
-- ❌ 创建独立 SQL 文件或新文档文件
+- ❌ 直接修改 `setup.sql`（必须通过 migration 文件变更 schema）
+- ❌ 创建 migration 文件但不创建对应的 rollback 文件
+- ❌ 创建新文档文件（优先更新现有文档）
 
 ## 质量门禁
 

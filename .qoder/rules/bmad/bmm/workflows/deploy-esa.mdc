@@ -1,0 +1,28 @@
+---
+description: BMAD BMM Workflow: deploy-esa
+globs: 
+alwaysApply: false
+---
+
+name: deploy-esa
+description: "Deploy React/Vite applications to Alibaba Cloud ESA Pages with pre-flight migration checks, build validation, and post-deployment verification."
+author: "BMad"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+user_skill_level: "{config_source}:user_skill_level"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/_bmad/bmm/workflows/5-operations/deploy-esa"
+instructions: "{installed_path}/instructions.xml"
+
+# Migration check
+manifest_file: "{project-root}/app/supabase/migration-manifest.yaml"
+
+project_context: "**/project-context.md"
+
+standalone: true

@@ -9,14 +9,14 @@ name: "correct-course"
 description: "Navigate significant changes during sprint execution by analyzing impact, proposing solutions, and routing for implementation"
 author: "BMad Method"
 
-config_source: "{project-root}/.bmad/bmm/config.yaml"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 user_skill_level: "{config_source}:user_skill_level"
 document_output_language: "{config_source}:document_output_language"
 date: system-generated
-sprint_artifacts: "{config_source}:sprint_artifacts"
+sprint_artifacts: "{config_source}:implementation_artifacts"
 sprint_status: "{sprint_artifacts}/sprint-status.yaml || {output_folder}/sprint-status.yaml"
 
 # Smart input file references - handles both whole docs and sharded docs
@@ -52,7 +52,7 @@ input_file_patterns:
     sharded: "{output_folder}/index.md"
     load_strategy: "INDEX_GUIDED"
 
-installed_path: "{project-root}/.bmad/bmm/workflows/4-implementation/correct-course"
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/correct-course"
 template: false
 instructions: "{installed_path}/instructions.md"
 validation: "{installed_path}/checklist.md"

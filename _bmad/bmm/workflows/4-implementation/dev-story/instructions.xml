@@ -225,6 +225,80 @@
     <critical>FOLLOW THE STORY FILE TASKS/SUBTASKS SEQUENCE EXACTLY AS WRITTEN - NO DEVIATION</critical>
 
     <action>Review the current task/subtask from the story file - this is your authoritative implementation guide</action>
+
+    <!-- MIGRATION CHECK: Detect and create schema changes BEFORE implementation -->
+    <check if="task involves database schema changes (CREATE TABLE, ALTER TABLE, ADD COLUMN, DROP COLUMN, etc.) OR story Dev Notes contains [migration-required] tag">
+      <output>🔄 **Schema Change Detected** - Creating migration files before implementation</output>
+
+      <action>Extract schema change requirements from task description and Dev Notes</action>
+      <action>Identify affected tables, columns, indexes, constraints</action>
+
+      <!-- Determine next migration sequence number -->
+      <action>Scan migrations/ directory for existing files matching pattern: [NNNNN]_*.sql</action>
+      <action>Find highest sequence number and increment by 1</action>
+      <action>Format new sequence as 5-digit zero-padded: e.g., 00002</action>
+
+      <!-- Create migration file with self-registration -->
+      <action>Create migration file: app/supabase/migrations/[seq]_[description].sql</action>
+      <action>Write UP migration with:
+        - Descriptive header comment explaining the change
+        - CREATE TABLE / ALTER TABLE / CREATE INDEX statements
+        - Any necessary GRANT statements for RLS policies
+        - MUST end with self-registration INSERT:
+
+          INSERT INTO public._schema_migrations (seq, name, description, story)
+          VALUES ('[seq]', '[description_slug]', '[description]', '[story_key]')
+          ON CONFLICT (seq) DO NOTHING;
+      </action>
+
+      <!-- Create rollback file with de-registration -->
+      <action>Create rollback file: app/supabase/rollbacks/[seq]_rollback.sql</action>
+      <action>Write DOWN migration to reverse all changes:
+        - DROP TABLE / DROP COLUMN / DROP INDEX statements
+        - Ensure rollback is idempotent and safe
+        - MUST end with de-registration DELETE:
+
+          DELETE FROM public._schema_migrations WHERE seq = '[seq]';
+      </action>
+
+      <!-- Update manifest -->
+      <action>Read migration-manifest.yaml</action>
+      <action>Append new entry to migrations list:
+        - version: [seq]
+        - description: brief description
+        - created_at: current date
+        - status: pending</action>
+      <action>Save migration-manifest.yaml</action>
+
+      <output>✅ **Migration Files Created**
+        - Migration: migrations/[seq]_[description].sql
+        - Rollback: rollbacks/[seq]_rollback.sql
+        - Manifest updated with status: pending</output>
+
+      <ask>Schema migration files created. Apply migration to database now via MCP Server, or proceed with implementation first?</ask>
+
+      <check if="user confirms to apply migration">
+        <!-- Get API credentials via MCP -->
+        <action>Call MCP tool `get_supabase_project_api_keys` to retrieve service_role key</action>
+        <action>Set {{db_url}} = "https://{{project_id}}.supabase.opentrust.net"</action>
+        <action>Set {{service_key}} = retrieved service_role key</action>
+
+        <!-- Execute migration SQL -->
+        <action>Call MCP tool `execute_sql` with:
+          - url: {{db_url}}
+          - api_key: {{service_key}}
+          - sql: {{migration_sql_content}}
+        </action>
+        <action>Verify execution success (check for errors in response)</action>
+        <action>Update migration-manifest.yaml status: pending → applied</action>
+        <action>Record applied_at timestamp</action>
+      </check>
+
+      <check if="user prefers to proceed first">
+        <output>⏭️ Proceeding with implementation. Migration will be applied manually later.</output>
+      </check>
+    </check>
+
     <action>Plan implementation following red-green-refactor cycle</action>
 
     <!-- RED PHASE -->
@@ -372,10 +446,28 @@
 
   <step n="10" goal="Completion communication and user support">
     <action>Execute the enhanced definition-of-done checklist using the validation framework</action>
-    <action>Prepare a concise summary in Dev Agent Record → Completion Notes</action>
+
+    <!-- Generate Implementation Summary -->
+    <action>Prepare a structured implementation summary containing:</action>
+    <action>1. **Story Overview**: ID, key, title, epic context</action>
+    <action>2. **Key Changes**: Bullet list of main features/components implemented</action>
+    <action>3. **Database Changes**: List any migrations created (version, description, status)</action>
+    <action>4. **Tests Added**: Unit tests, integration tests, E2E tests with coverage notes</action>
+    <action>5. **Files Modified**: Categorized by type (components, services, utils, configs)</action>
+    <action>6. **Technical Decisions**: Key architectural choices made during implementation</action>
+    <action>7. **Known Limitations**: Any edge cases, TODOs, or future improvements noted</action>
+
+    <action>Write summary to Dev Agent Record → Completion Notes</action>
+
+    <!-- Migration Status Summary -->
+    <check if="migration files were created during this story">
+      <action>List pending migrations from migration-manifest.yaml</action>
+      <action>Remind user to apply migrations before deployment if not already applied</action>
+      <output>⚠️ **Pending Migrations**: Remember to apply pending migrations to production database before deployment.</output>
+    </check>
 
     <action>Communicate to {user_name} that story implementation is complete and ready for review</action>
-    <action>Summarize key accomplishments: story ID, story key, title, key changes made, tests added, files modified</action>
+    <action>Present the implementation summary in a readable format</action>
     <action>Provide the story file path and current status (now "review")</action>
 
     <action>Based on {user_skill_level}, ask if user needs any explanations about:
@@ -391,16 +483,30 @@
       <action>Use examples and references to specific code when helpful</action>
     </check>
 
-    <action>Once explanations are complete (or user indicates no questions), suggest logical next steps</action>
-    <action>Recommended next steps (flexible based on project setup):
-      - Review the implemented story and test the changes
-      - Verify all acceptance criteria are met
-      - Ensure deployment readiness if applicable
-      - Run `code-review` workflow for peer review
-      - Optional: If Test Architect module installed, run `/bmad:tea:automate` to expand guardrail tests
+    <!-- Chain to code-review workflow -->
+    <action>Once explanations are complete (or user indicates no questions), suggest next steps</action>
+    <action>Recommended next steps (in priority order):
+      1. **Run code-review workflow** (highly recommended) - Peer review for quality assurance
+      2. Review the implemented story and test the changes manually
+      3. Verify all acceptance criteria are met
+      4. Apply pending migrations if not already applied
+      5. Ensure deployment readiness if applicable
+      6. Optional: If Test Architect module installed, run `/bmad:tea:automate` to expand guardrail tests
     </action>
 
     <output>💡 **Tip:** For best results, run `code-review` using a **different** LLM than the one that implemented this story.</output>
+
+    <ask>Would you like to start the code-review workflow now? (Recommended)</ask>
+
+    <check if="user confirms to start code-review">
+      <action>HALT and invoke code-review workflow with current story path</action>
+      <output>🔄 Starting code-review workflow for story: {{story_key}}</output>
+    </check>
+
+    <check if="user declines code-review">
+      <output>✅ Story implementation complete. You can run code-review manually later with: code-review {{story_path}}</output>
+    </check>
+
     <check if="{sprint_status} file exists">
       <action>Suggest checking {sprint_status} to see project progress</action>
     </check>

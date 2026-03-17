@@ -1,0 +1,86 @@
+# OPC-Starter Workflow Status
+# 跟踪开发流程中的 workflow 状态和链式调用关系
+
+# STATUS DEFINITIONS:
+# ==================
+# 初始状态:
+#   - required: 必须完成才能继续
+#   - optional: 可选
+#   - recommended: 强烈推荐
+#   - conditional: 特定条件下需要
+#
+# 完成状态:
+#   - {file-path}: 文件已创建
+#   - skipped: 已跳过
+#   - done: 已完成
+
+generated: "2026-03-17"
+project: opc-starter
+project_type: react-spa
+selected_track: implementation
+
+# Workflow 链式调用定义
+# 定义了 workflow 之间的触发关系
+workflow_chain:
+  dev-story:
+    triggers:
+      - create-story  # 如果没有 ready-for-dev 的 story
+    on_complete:
+      - code-review   # 开发完成后自动触发 code-review
+    next_on_done:
+      - db-migration  # 如果有 pending migrations
+      - deploy-esa    # 部署
+      - dev-story     # 继续下一个 story
+
+  code-review:
+    triggers:
+      - dev-story     # 需要先完成 story 开发
+    on_complete:
+      - db-migration  # 如果有 pending migrations
+      - deploy-esa    # review 通过后可部署
+      - dev-story     # review 不通过，继续开发
+
+  db-migration:
+    triggers: []      # 可独立运行
+    on_complete:
+      - deploy-esa    # migration 完成后可部署
+      - dev-story     # 继续开发
+
+  deploy-esa:
+    triggers:
+      - code-review   # 建议先 review
+    pre_check:
+      - db-migration  # 检查是否有 pending migrations
+    on_complete: []
+
+# 当前 workflow 状态
+workflow_status:
+  # Planning Phase
+  create-product-brief: "docs/README.md"
+  create-architecture: "docs/Architecture.md"
+  create-prd: "skipped"
+  create-epics: "docs/Epics.yaml"
+
+  # Implementation Phase - 跟踪在 sprint-status.yaml
+  # 这里只记录 workflow 的可用性
+
+# Migration 状态跟踪
+migration_status:
+  manifest_file: "app/supabase/migration-manifest.yaml"
+  migrations_dir: "app/supabase/migrations"
+  rollbacks_dir: "app/supabase/rollbacks"
+  baseline_version: "00001"
+  last_check: "2026-03-17"
+
+# 部署状态
+deployment_status:
+  platform: "esa-pages"
+  config_file: "app/esa.jsonc"
+  last_deployment: null
+  deployment_url: null
+
+# 下一步建议
+next_steps:
+  - "运行 dev-story 开始开发第一个 story"
+  - "或运行 create-story 创建新的 story"
+  - "运行 db-migration status 检查 migration 状态"

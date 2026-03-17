@@ -10,58 +10,97 @@
 
 | 前端 | 后端 |
 |------|------|
-| `src/types/*.ts` (TypeScript 类型) | `supabase/setup.sql` (表定义) |
-| `src/services/api/*.ts` (API 调用) | `supabase/setup.sql` (CHECK 约束) |
+| `src/types/*.ts` (TypeScript 类型) | `supabase/migrations/*.sql` (migration 文件) |
+| `src/services/api/*.ts` (API 调用) | `supabase/migrations/*.sql` (CHECK 约束) |
 
-### 2. 必检项目
+### 2. Migration 文件检查
+
+- [ ] Schema 变更已创建 migration 文件（非直接修改 setup.sql）
+- [ ] migration 文件有对应的 rollback 文件
+- [ ] `migration-manifest.yaml` 已更新（status: pending）
+- [ ] `setup.sql` 已同步更新为完整快照
+
+### 3. 必检项目
 
 - [ ] 新增的枚举值在 SQL CHECK 约束中存在
 - [ ] 新增的字段在 SQL 表定义中存在
 - [ ] 字段类型匹配（TEXT/UUID/JSONB 等）
 - [ ] 默认值一致
 - [ ] NOT NULL 约束一致
+- [ ] TypeScript 类型与 migration 中的 schema 一致
 
-### 3. 识别需要迁移的变更
+### 4. 识别需要迁移的变更
 
-如果 `setup.sql` 包含以下变更，则**必须**生成迁移 SQL 并在线上执行：
+如果 migration 文件包含以下变更，则需要在 db-migration workflow 中执行：
 
 - 新的 CHECK 约束值（如 `visibility IN ('private', 'organization', 'public')`）
 - 新的表字段
 - 修改的约束条件
 - 新的索引
 
-## 迁移 SQL 模板
+## Migration 文件规范
 
-### 更新 CHECK 约束
+### 目录结构
 
-```sql
--- 更新 CHECK 约束（新增枚举值）
-ALTER TABLE public.{table_name} 
-  DROP CONSTRAINT IF EXISTS {table_name}_{column}_check;
-ALTER TABLE public.{table_name}
-  ADD CONSTRAINT {table_name}_{column}_check 
-  CHECK ({column} IN ('value1', 'value2', 'value3'));
+```
+app/supabase/
+├── migrations/           # 增量迁移文件
+│   ├── 00001_baseline.sql
+│   └── 00002_add_xxx.sql
+├── rollbacks/            # 回滚文件
+│   ├── 00001_rollback.sql
+│   └── 00002_rollback.sql
+├── migration-manifest.yaml
+└── setup.sql
 ```
 
-### 新增字段
+### Migration 文件模板
 
 ```sql
--- 新增字段
-ALTER TABLE public.{table_name}
-  ADD COLUMN IF NOT EXISTS {column_name} {type} {constraints};
+-- migrations/00002_add_visibility.sql
+-- Seq: 00002
+-- Name: add_visibility
+-- Story: 1-3-product-visibility
+-- Description: products 表增加 visibility 字段
+-- Created: 2026-03-15
+
+-- ===== UP =====
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+
+ALTER TABLE public.products
+  ADD CONSTRAINT products_visibility_check
+  CHECK (visibility IN ('private', 'organization', 'public'));
 ```
 
-### 修改字段默认值
+### Rollback 文件模板
 
 ```sql
--- 修改默认值
-ALTER TABLE public.{table_name}
-  ALTER COLUMN {column_name} SET DEFAULT '{value}';
+-- rollbacks/00002_rollback.sql
+-- Rolls back: 00002_add_visibility.sql
+
+ALTER TABLE public.products
+  DROP CONSTRAINT IF EXISTS products_visibility_check;
+
+ALTER TABLE public.products
+  DROP COLUMN IF EXISTS visibility;
 ```
 
-## 验证迁移
+## 验证 Migration
 
-在 Supabase SQL Editor 执行迁移后，运行验证查询：
+### 执行前检查
+
+```bash
+# 检查 migration-manifest.yaml 中的 pending 状态
+cat app/supabase/migration-manifest.yaml | grep -A 5 "status: pending"
+
+# 确认 rollback 文件存在
+ls -la app/supabase/rollbacks/
+```
+
+### 执行后验证
+
+在 db-migration workflow 执行后，运行验证查询：
 
 ```sql
 -- 验证 CHECK 约束
@@ -73,6 +112,13 @@ WHERE constraint_name LIKE '%{table_name}%';
 SELECT column_name, data_type, column_default, is_nullable
 FROM information_schema.columns 
 WHERE table_name = '{table_name}';
+```
+
+### 验证 setup.sql 同步
+
+```bash
+# 确保 setup.sql 与 migrations 合并结果一致
+# 通过 diff 比较或通过 MCP Server 获取 schema dump 验证
 ```
 
 ## 常见遗漏场景
@@ -87,23 +133,28 @@ WHERE table_name = '{table_name}';
 ## 快速检查命令
 
 ```bash
-# 使用脚本检查一致性（如已安装）
-python .qoder/skills/auto-develop/scripts/db_constraint_diff.py
+# 检查 migration 文件状态
+cat app/supabase/migration-manifest.yaml
 
-# 或手动 grep 检查
 # 检查 TypeScript 类型中的枚举
 grep -r "type.*=.*|" src/types/
 
-# 检查 SQL CHECK 约束
-grep -i "CHECK" supabase/setup.sql
+# 检查 migration 中的 CHECK 约束
+grep -i "CHECK" app/supabase/migrations/*.sql
+
+# 检查 setup.sql 与 migration 是否同步
+# 通过 diff 比较或 MCP Server 验证
 ```
 
 ## 检查时机
 
 在以下场景必须执行此检查：
 
-1. **新增功能**涉及数据库字段
-2. **修改枚举类型**（如 visibility、status 等）
-3. **修改字段约束**（NOT NULL、默认值等）
-4. **质量验证通过后**，部署前最终确认
+1. **dev-story 开发中**：创建 migration 文件后立即检查
+2. **新增功能**涉及数据库字段
+3. **修改枚举类型**（如 visibility、status 等）
+4. **修改字段约束**（NOT NULL、默认值等）
+5. **code-review 前**：确保 migration 文件完整
+6. **db-migration 执行前**：验证 pending migrations
+7. **deploy-esa 前**：确认无 pending migrations
 

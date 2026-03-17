@@ -1,5 +1,60 @@
 <instructions id="deploy-esa">
   <step n="1" goal="Pre-flight Checks">
+    <!-- Migration Pre-check: DB as source of truth -->
+    <action>Call MCP tool `get_supabase_project_api_keys` to retrieve service_role key</action>
+    <action>Set {{db_url}} = "https://{{project_id}}.supabase.opentrust.net"</action>
+    <action>Set {{service_key}} = retrieved service_role key</action>
+
+    <!-- Query DB for applied migrations -->
+    <action>Call MCP tool `execute_sql` with:
+      - url: {{db_url}}
+      - api_key: {{service_key}}
+      - sql: "SELECT seq FROM public._schema_migrations ORDER BY seq;"
+    </action>
+    <action>Set {{db_versions}} = list of seq from DB result (or [] if table missing)</action>
+
+    <!-- Compare with local manifest -->
+    <action>Load migration-manifest.yaml</action>
+    <action>Set {{local_versions}} = list of seq from manifest</action>
+    <action>Compute {{pending}} = versions in local manifest but NOT in {{db_versions}}</action>
+
+    <check if="pending migrations exist (local has versions not in DB)">
+      <output>⚠️ **Database Out of Sync**
+
+        The following migrations exist locally but are NOT applied in database:
+        {{#each pending}}
+        - [{{seq}}] {{description}}
+        {{/each}}
+
+        Deploying without applying migrations may cause runtime errors.
+      </output>
+
+      <ask>What would you like to do?
+        1. **Apply migrations first** (recommended) - Run db-migration workflow
+        2. **Proceed anyway** - Deploy with pending migrations (risky)
+        3. **Cancel deployment** - Stop and resolve migrations manually
+
+        Choose [1], [2], or [3]:</ask>
+
+      <check if="user chooses '1'">
+        <action>HALT and invoke db-migration workflow with action: apply</action>
+      </check>
+
+      <check if="user chooses '2'">
+        <output>⚠️ Proceeding with pending migrations. Application may encounter errors.</output>
+      </check>
+
+      <check if="user chooses '3'">
+        <action>HALT deployment</action>
+        <output>Deployment cancelled. Apply migrations and try again.</output>
+      </check>
+    </check>
+
+    <check if="no pending migrations">
+      <output>✅ Database schema in sync with local migrations.</output>
+    </check>
+
+    <!-- Original pre-flight checks -->
     <action>Verify ESA CLI is installed</action>
     <check if="ESA CLI not found">
       <ask>ESA CLI not installed. Install now? (y/n)</ask>

@@ -1,0 +1,310 @@
+<workflow>
+  <critical>The workflow execution engine is governed by: {project-root}/_bmad/core/tasks/workflow.xml</critical>
+  <critical>You MUST have already loaded and processed: {installed_path}/workflow.yaml</critical>
+  <critical>Communicate all responses in {communication_language} and language MUST be tailored to {user_skill_level}</critical>
+  <critical>Generate all documents in {document_output_language}</critical>
+
+  <step n="1" goal="Determine migration action and load context">
+    <action>Determine action from {{action}} parameter or ask user:
+      - **create**: Create new migration files
+      - **apply**: Apply pending migrations to database
+      - **rollback**: Rollback a specific migration
+      - **status**: Show migration status report (compares DB vs local files)
+    </action>
+
+    <!-- Load local state -->
+    <action>Load migration-manifest.yaml to understand local state</action>
+    <action>Scan migrations/ directory for existing migration files</action>
+    <action>Scan rollbacks/ directory for existing rollback files</action>
+    <action>Set {{local_versions}} = list of seq numbers from manifest</action>
+
+    <!-- Load DB state via MCP -->
+    <action>Call MCP tool `get_supabase_project_api_keys` to retrieve service_role key</action>
+    <action>Set {{db_url}} = "https://{{project_id}}.supabase.opentrust.net"</action>
+    <action>Set {{service_key}} = retrieved service_role key</action>
+
+    <action>Call MCP tool `execute_sql` with:
+      - url: {{db_url}}
+      - api_key: {{service_key}}
+      - sql: "SELECT seq, name, description, applied_at FROM public._schema_migrations ORDER BY seq;"
+    </action>
+
+    <check if="execute_sql returns error (table does not exist)">
+      <action>Set {{db_versions}} = [] (empty — database has no migration metadata)</action>
+      <output>⚠️ **Database has no _schema_migrations table** — This is a fresh or uninitialized database.</output>
+    </check>
+
+    <check if="execute_sql succeeds">
+      <action>Set {{db_versions}} = list of seq numbers from DB result</action>
+    </check>
+
+    <!-- Diff: local vs DB -->
+    <action>Compute diff:
+      - **pending**: in local manifest but NOT in DB → need to apply
+      - **applied**: in both local manifest and DB → already applied
+      - **orphaned**: in DB but NOT in local manifest → unknown migration in DB
+      - **missing_file**: in manifest but .sql file not found on disk
+    </action>
+
+    <output>📋 **Migration Context**
+      - Local migrations: {{local_count}}
+      - DB applied: {{db_count}}
+      - Pending (need apply): {{pending_count}}
+      - Orphaned (DB only): {{orphaned_count}}
+    </output>
+
+    <check if="orphaned_count > 0">
+      <output>⚠️ **Warning**: Database has {{orphaned_count}} migration(s) not tracked in local manifest: {{orphaned_versions}}</output>
+    </check>
+
+    <check if="action == 'status'">
+      <goto step="5">Status report</goto>
+    </check>
+    <check if="action == 'create'">
+      <goto step="2">Create migration</goto>
+    </check>
+    <check if="action == 'apply'">
+      <goto step="3">Apply migration</goto>
+    </check>
+    <check if="action == 'rollback'">
+      <goto step="4">Rollback migration</goto>
+    </check>
+  </step>
+
+  <step n="2" goal="Create new migration files">
+    <action>Ask user for migration description (e.g., "add user preferences table")</action>
+    <action>Set {{description}} = user input</action>
+
+    <!-- Determine next sequence number -->
+    <action>Scan migrations/ for existing files matching pattern: [NNNNN]_*.sql</action>
+    <action>Find highest sequence number</action>
+    <action>Set {{next_seq}} = highest + 1, formatted as 5-digit zero-padded</action>
+
+    <!-- Create migration file with self-registration -->
+    <action>Set {{migration_file}} = migrations/{{next_seq}}_{{description_slug}}.sql</action>
+    <action>Create migration file with template:
+      -- Migration: {{description}}
+      -- Version: {{next_seq}}
+      -- Created: {{date}}
+
+      -- ===== UP =====
+      -- Add your schema changes here
+
+
+      -- ===== Register Migration =====
+      INSERT INTO public._schema_migrations (seq, name, description, story)
+      VALUES ('{{next_seq}}', '{{description_slug}}', '{{description}}', '{{story_key}}')
+      ON CONFLICT (seq) DO NOTHING;
+    </action>
+
+    <!-- Create rollback file with de-registration -->
+    <action>Set {{rollback_file}} = rollbacks/{{next_seq}}_rollback.sql</action>
+    <action>Create rollback file with template:
+      -- Rollback for Migration: {{description}}
+      -- Version: {{next_seq}}
+      -- Created: {{date}}
+
+      -- ===== DOWN =====
+      -- Add rollback logic here
+
+
+      -- ===== De-register Migration =====
+      DELETE FROM public._schema_migrations WHERE seq = '{{next_seq}}';
+    </action>
+
+    <!-- Update manifest -->
+    <action>Read migration-manifest.yaml</action>
+    <action>Append new entry:
+      - seq: {{next_seq}}
+        name: {{description_slug}}
+        description: {{description}}
+        created_at: {{date}}
+        status: pending
+    </action>
+    <action>Update last_migration to {{next_seq}}</action>
+    <action>Save migration-manifest.yaml</action>
+
+    <output>✅ **Migration Files Created**
+      - Migration: {{migration_file}}
+      - Rollback: {{rollback_file}}
+      - Manifest updated
+
+      ⚠️ **Next Steps:**
+      1. Edit the migration file to add your schema changes
+      2. Edit the rollback file to add rollback logic
+      3. Run `db-migration apply` to apply to database
+    </output>
+
+    <ask>Would you like me to help write the SQL for this migration?</ask>
+  </step>
+
+  <step n="3" goal="Apply pending migrations">
+    <critical>REQUIRES MCP Server connection to database</critical>
+
+    <!-- Use diff computed in Step 1 -->
+    <check if="pending_count == 0">
+      <output>✅ No pending migrations. Database is in sync with local files.</output>
+      <action>HALT</action>
+    </check>
+
+    <output>📋 **Pending Migrations** (in DB but not yet applied)
+      {{#each pending_migrations}}
+      - [{{seq}}] {{description}}
+      {{/each}}
+    </output>
+
+    <ask>Apply {{pending_count}} pending migration(s)? This will execute SQL against the database.</ask>
+
+    <check if="user confirms">
+      <action>For each pending migration in seq order:
+        1. Read migration SQL file content
+        2. Note: The SQL already contains the INSERT INTO _schema_migrations statement
+        3. Call MCP tool `execute_sql` with:
+           - url: {{db_url}}
+           - api_key: {{service_key}}
+           - sql: {{migration_sql_content}}
+        4. Verify execution success (no error in response)
+        5. Verify _schema_migrations now contains this seq:
+           execute_sql: "SELECT seq FROM public._schema_migrations WHERE seq = '{{seq}}';"
+        6. Update local manifest status: pending → applied
+        7. Record applied_at timestamp in manifest
+      </action>
+
+      <check if="any migration fails">
+        <output>❌ **Migration [{{failed_seq}}] Failed**
+          Error: {{error_message}}
+
+          Migrations applied before failure:
+          {{#each applied_before_failure}}
+          - [{{seq}}] {{description}} ✓
+          {{/each}}
+
+          ⚠️ The failed migration and remaining migrations were NOT applied.
+          Fix the SQL error and retry `db-migration apply`.
+        </output>
+        <action>Update failed migration status in manifest: pending → failed</action>
+        <action>Save migration-manifest.yaml</action>
+        <action>HALT</action>
+      </check>
+
+      <output>✅ **All Migrations Applied**
+        {{#each applied_migrations}}
+        - [{{seq}}] {{description}} ✓
+        {{/each}}
+      </output>
+    </check>
+
+    <check if="user declines">
+      <output>⏭️ Migration apply cancelled. Pending migrations remain.</output>
+    </check>
+
+    <action>Save migration-manifest.yaml</action>
+  </step>
+
+  <step n="4" goal="Rollback migration">
+    <critical>REQUIRES MCP Server connection to database</critical>
+    <critical>Rollback is DESTRUCTIVE - data may be lost</critical>
+
+    <!-- Find last applied from DB (source of truth) -->
+    <action>Call MCP tool `execute_sql` with:
+      - url: {{db_url}}
+      - api_key: {{service_key}}
+      - sql: "SELECT seq, name, description, applied_at FROM public._schema_migrations ORDER BY seq DESC LIMIT 1;"
+    </action>
+
+    <check if="no rows returned">
+      <output>⚠️ No migrations to rollback. Database is empty.</output>
+      <action>HALT</action>
+    </check>
+
+    <action>Set {{last_seq}}, {{last_name}}, {{last_description}}, {{last_applied_at}} from result</action>
+
+    <output>⚠️ **Rollback Warning**
+      Rolling back will execute DOWN migration which may:
+      - Drop tables or columns
+      - Remove data
+      - Cannot be easily undone
+
+      **Last Applied Migration (from DB):**
+      - Version: {{last_seq}}
+      - Name: {{last_name}}
+      - Description: {{last_description}}
+      - Applied: {{last_applied_at}}
+    </output>
+
+    <ask>Are you sure you want to rollback migration {{last_seq}}? Type "ROLLBACK {{last_seq}}" to confirm:</ask>
+
+    <check if="user confirms with exact string">
+      <!-- Read and execute rollback SQL (includes DELETE FROM _schema_migrations) -->
+      <action>Read rollback SQL file: rollbacks/{{last_seq}}_rollback.sql</action>
+      <action>Call MCP tool `execute_sql` with:
+        - url: {{db_url}}
+        - api_key: {{service_key}}
+        - sql: {{rollback_sql_content}}
+      </action>
+      <action>Verify _schema_migrations no longer contains this seq</action>
+      <action>Update local manifest status: applied → rolled_back</action>
+      <action>Save migration-manifest.yaml</action>
+
+      <output>✅ **Rollback Complete**
+        - Migration {{last_seq}} rolled back
+        - Removed from DB _schema_migrations
+        - Local manifest updated to: rolled_back
+      </output>
+    </check>
+
+    <check if="user declines or input doesn't match">
+      <output>⏭️ Rollback cancelled. No changes made.</output>
+    </check>
+  </step>
+
+  <step n="5" goal="Generate migration status report (DB vs Local diff)">
+    <!-- Uses data from Step 1 -->
+
+    <output>📊 **Migration Status Report**
+
+      **Source of Truth: `public._schema_migrations` table in database**
+
+      **Summary:**
+      | Source | Count |
+      |--------|-------|
+      | Local manifest | {{local_count}} |
+      | Database applied | {{db_count}} |
+      | Pending (local only) | {{pending_count}} |
+      | Orphaned (DB only) | {{orphaned_count}} |
+      | Missing files | {{missing_file_count}} |
+
+      **Full Migration History:**
+      | Seq | Name | Local | DB | Rollback |
+      |-----|------|-------|----|----------|
+      {{#each all_migrations}}
+      | {{seq}} | {{description}} | {{#if in_local}}✓{{else}}—{{/if}} | {{#if in_db}}✓ ({{applied_at}}){{else}}—{{/if}} | {{#if rollback_exists}}✓{{else}}❌{{/if}} |
+      {{/each}}
+
+      {{#if pending_count > 0}}
+      ⚠️ **Action Required**: {{pending_count}} migration(s) need to be applied to database.
+      {{/if}}
+
+      {{#if orphaned_count > 0}}
+      ⚠️ **Warning**: {{orphaned_count}} migration(s) in database are not tracked in local manifest.
+      This may indicate another developer applied migrations not yet pulled into this codebase.
+      {{/if}}
+
+      {{#if missing_file_count > 0}}
+      ❌ **Error**: {{missing_file_count}} migration(s) in manifest have no corresponding .sql file on disk.
+      {{/if}}
+    </output>
+
+    <check if="pending_count > 0">
+      <ask>Pending migrations detected. Would you like to apply them now?</ask>
+      <check if="user confirms">
+        <goto step="3">Apply migrations</goto>
+      </check>
+    </check>
+
+    <check if="all counts are 0 and local == db">
+      <output>✅ **Everything in sync.** Local files and database are identical.</output>
+    </check>
+  </step>
+
+</workflow>

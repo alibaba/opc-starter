@@ -9,12 +9,12 @@ description: "Create system architecture diagrams, ERDs, UML diagrams, or genera
 author: "BMad"
 
 # Config values
-config_source: "{project-root}/.bmad/bmm/config.yaml"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
 output_folder: "{config_source}:output_folder"
 
 # Workflow components
-installed_path: "{project-root}/.bmad/bmm/workflows/diagrams/create-diagram"
-shared_path: "{project-root}/.bmad/bmm/workflows/diagrams/_shared"
+installed_path: "{project-root}/_bmad/bmm/workflows/diagrams/create-diagram"
+shared_path: "{project-root}/_bmad/bmm/workflows/diagrams/_shared"
 instructions: "{installed_path}/instructions.md"
 validation: "{installed_path}/checklist.md"
 

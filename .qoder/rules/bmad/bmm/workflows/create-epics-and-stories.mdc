@@ -10,7 +10,7 @@ description: "Transform PRD requirements and Architecture decisions into compreh
 author: "BMad"
 
 # Critical variables from config
-config_source: "{project-root}/.bmad/bmm/config.yaml"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
 project_name: "{config_source}:project_name"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
@@ -39,7 +39,7 @@ input_file_patterns:
     load_strategy: "FULL_LOAD"
 
 # Module path and component files
-installed_path: "{project-root}/.bmad/bmm/workflows/3-solutioning/create-epics-and-stories"
+installed_path: "{project-root}/_bmad/bmm/workflows/3-solutioning/create-epics-and-stories"
 instructions: "{installed_path}/instructions.md"
 template: "{installed_path}/epics-template.md"
 

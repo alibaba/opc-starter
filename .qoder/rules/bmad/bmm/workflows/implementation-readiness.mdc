@@ -10,7 +10,7 @@ description: "Validate that PRD, UX Design, Architecture, Epics and Stories are 
 author: "BMad"
 
 # Critical variables from config
-config_source: "{project-root}/.bmad/bmm/config.yaml"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
@@ -18,12 +18,12 @@ document_output_language: "{config_source}:document_output_language"
 date: system-generated
 
 # Workflow status integration
-workflow_status_workflow: "{project-root}/.bmad/bmm/workflows/workflow-status/workflow.yaml"
-workflow_paths_dir: "{project-root}/.bmad/bmm/workflows/workflow-status/paths"
+workflow_status_workflow: "{project-root}/_bmad/bmm/workflows/workflow-status/workflow.yaml"
+workflow_paths_dir: "{project-root}/_bmad/bmm/workflows/workflow-status/paths"
 workflow_status_file: "{output_folder}/bmm-workflow-status.yaml"
 
 # Module path and component files
-installed_path: "{project-root}/.bmad/bmm/workflows/3-solutioning/implementation-readiness"
+installed_path: "{project-root}/_bmad/bmm/workflows/3-solutioning/implementation-readiness"
 template: "{installed_path}/template.md"
 instructions: "{installed_path}/instructions.md"
 validation: "{installed_path}/checklist.md"

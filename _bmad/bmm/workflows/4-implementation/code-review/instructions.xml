@@ -69,6 +69,22 @@
     <!-- Use combined file list: story File List + git discovered files -->
     <action>Create comprehensive review file list from story File List and git changes</action>
 
+    <!-- Migration Review -->
+    <check if="migrations/ directory has new files OR story mentions schema changes">
+      <action>Scan app/supabase/migrations/ for new migration files</action>
+      <action>For EACH new migration file:
+        1. **SQL Quality**: Check for SQL injection risks, missing indexes, poor constraints
+        2. **Rollback Exists**: Verify corresponding rollback file exists in rollbacks/
+        3. **Manifest Updated**: Check migration-manifest.yaml has the new entry
+        4. **Idempotency**: Can migration run safely multiple times?
+        5. **Naming Convention**: Follows [NNNNN]_[description].sql pattern
+      </action>
+      <action>If rollback missing → HIGH finding (incomplete migration)</action>
+      <action>If manifest not updated → MEDIUM finding (tracking issue)</action>
+      <action>If SQL issues found → HIGH/MEDIUM based on severity</action>
+      <output>📋 **Migration Review**: Reviewed {{migration_count}} migration files</output>
+    </check>
+
     <!-- AC Validation -->
     <action>For EACH Acceptance Criterion:
       1. Read the AC requirement
@@ -222,6 +238,74 @@
 
       {{#if new_status == "done"}}Code review complete!{{else}}Address the action items and continue development.{{/if}}
     </output>
+
+    <!-- Chain to next workflow -->
+    <check if="{{new_status}} == 'done'">
+      <!-- Check DB for actual migration state (DB is source of truth) -->
+      <action>Call MCP tool `get_supabase_project_api_keys` to retrieve service_role key</action>
+      <action>Set {{db_url}} = "https://{{project_id}}.supabase.opentrust.net"</action>
+      <action>Set {{service_key}} = retrieved service_role key</action>
+
+      <action>Call MCP tool `execute_sql` with:
+        - url: {{db_url}}
+        - api_key: {{service_key}}
+        - sql: "SELECT seq FROM public._schema_migrations ORDER BY seq;"
+      </action>
+      <action>Set {{db_versions}} = list of seq from DB result (or [] if table missing)</action>
+
+      <!-- Compare with local manifest -->
+      <action>Load migration-manifest.yaml</action>
+      <action>Set {{local_versions}} = list of seq from manifest</action>
+      <action>Compute {{pending}} = versions in local_versions but NOT in {{db_versions}}</action>
+
+      <check if="pending migrations exist (local has versions not in DB)">
+        <output>⚠️ **Pending Migrations Detected**: The following migrations exist locally but are NOT applied to database:
+          {{#each pending}}
+          - [{{seq}}]
+          {{/each}}
+        </output>
+        <ask>Would you like to:
+          1. **Apply migrations** via MCP Server (recommended)
+          2. **Deploy to ESA** - Start deployment workflow
+          3. **Continue to next story** - Start dev-story for next ready story
+          4. **Done** - No further action needed
+
+          Choose [1], [2], [3], or [4]:</ask>
+      </check>
+
+      <check if="no pending migrations">
+        <ask>Story is complete! What would you like to do next?
+          1. **Deploy to ESA** - Start deployment workflow
+          2. **Continue to next story** - Start dev-story for next ready story
+          3. **Done** - No further action needed
+
+          Choose [1], [2], or [3]:</ask>
+      </check>
+
+      <check if="user chooses 'Apply migrations'">
+        <action>HALT and invoke db-migration workflow with action: apply</action>
+      </check>
+
+      <check if="user chooses 'Deploy to ESA'">
+        <action>HALT and invoke esa-deploy workflow</action>
+      </check>
+
+      <check if="user chooses 'Continue to next story'">
+        <action>HALT and invoke dev-story workflow (will auto-discover next ready story)</action>
+      </check>
+
+      <check if="user chooses 'Done'">
+        <output>✅ Story {{story_key}} complete. All workflows finished.</output>
+      </check>
+    </check>
+
+    <check if="{{new_status}} == 'in-progress'">
+      <output>🔄 Story needs more work. Run dev-story to continue implementation.</output>
+      <ask>Would you like to continue development now?</ask>
+      <check if="user confirms">
+        <action>HALT and invoke dev-story workflow with {{story_path}}</action>
+      </check>
+    </check>
   </step>
 
 </workflow>

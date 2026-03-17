@@ -1,0 +1,19 @@
+-- rollbacks/00001_rollback.sql
+-- Rolls back: 00001_baseline.sql
+--
+-- 注意：基线 migration 的 rollback 是"空操作"
+-- 因为 baseline 代表数据库的初始状态，回滚意味着删除所有数据
+-- 实际使用时需要手动处理或保留此文件为空
+--
+-- 如需完全回滚 baseline，手动执行：
+-- DROP TABLE IF EXISTS public.agent_actions CASCADE;
+-- DROP TABLE IF EXISTS public.agent_messages CASCADE;
+-- DROP TABLE IF EXISTS public.agent_threads CASCADE;
+-- DROP TABLE IF EXISTS public.organization_members CASCADE;
+-- DROP TABLE IF EXISTS public.organizations CASCADE;
+-- DROP TABLE IF EXISTS public.profiles CASCADE;
+-- DROP FUNCTION IF EXISTS public.admin_create_organization(TEXT, TEXT, TEXT, UUID) CASCADE;
+-- DROP FUNCTION IF EXISTS public.sync_profile_organization() CASCADE;
+-- DROP FUNCTION IF EXISTS public.get_user_accessible_organizations(UUID) CASCADE;
+-- DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+-- DROP FUNCTION IF EXISTS public.update_updated_at_column() CASCADE;

@@ -268,6 +268,26 @@
     <template-output
       file="{default_output_file}">story_requirements</template-output>
 
+    <!-- Migration Detection - Analyze if story involves database schema changes -->
+    <action>Analyze story requirements for database schema changes:
+      - Keywords: "create table", "add column", "alter table", "schema", "database", "migration", "field", "data model"
+      - Entity definitions: new data types, user profiles, settings, records
+      - Relationships: foreign keys, references, associations
+      - Storage: persistent data, user data, configuration storage
+    </action>
+
+    <check if="story involves database schema changes">
+      <action>Set {{migration_required}} = true</action>
+      <action>Identify affected tables/entities from story requirements</action>
+      <action>Set {{migration_entities}} = list of affected tables/entities</action>
+      <action>Add to Dev Notes section: "[migration-required] This story requires database schema changes. Affected: {{migration_entities}}"</action>
+      <output>🔍 **Migration Required Detected**: Story involves schema changes for {{migration_entities}}</output>
+    </check>
+
+    <check if="story does NOT involve database schema changes">
+      <action>Set {{migration_required}} = false</action>
+    </check>
+
     <!-- Developer context section - MOST IMPORTANT PART -->
     <template-output file="{default_output_file}">
     developer_context_section</template-output> **DEV AGENT GUARDRAILS:** <template-output file="{default_output_file}">
