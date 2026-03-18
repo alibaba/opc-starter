@@ -15,6 +15,7 @@
     "coverage": "npm --prefix app run coverage",
     "test:e2e": "npm --prefix app run test:e2e",
     "test:e2e:headless": "npm --prefix app run test:e2e:headless",
+    "test:e2e:demo": "npm --prefix app run test:e2e:demo",
     "cypress:open": "npm --prefix app run cypress:open",
     "cypress:run": "npm --prefix app run cypress:run",
     "ai:check": "npm --prefix app run ai:check"

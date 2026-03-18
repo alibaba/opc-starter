@@ -10,13 +10,13 @@ import { Page } from '@playwright/test'
  */
 export const DEMO_CONFIG = {
   // 打字延迟（毫秒）- 快速演示
-  typeDelay: 40,
+  typeDelay: 25,
   // 点击后暂停（毫秒）
-  clickPause: 300,
+  clickPause: 200,
   // 页面加载等待（毫秒）
-  pageLoadPause: 500,
+  pageLoadPause: 300,
   // 操作间暂停（毫秒）
-  actionPause: 150,
+  actionPause: 100,
 }
 
 /**

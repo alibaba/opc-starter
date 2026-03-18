@@ -12,6 +12,7 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { execSync } from 'child_process'
 import {
   typeWithEffect,
   clickWithEffect,
@@ -20,15 +21,43 @@ import {
 } from '../../support/helpers/demo-helpers'
 
 // ============================================
+// 自适应屏幕分辨率
+// ============================================
+
+function getScreenSize(): { width: number; height: number } {
+  try {
+    // macOS: 读取主屏幕逻辑分辨率
+    const output = execSync(`system_profiler SPDisplaysDataType | grep "UI Looks like"`, {
+      encoding: 'utf8',
+    }).trim()
+    // 格式: "UI Looks like: 1512 x 982 @ 60.00Hz"
+    const match = output.match(/(\d+)\s*x\s*(\d+)/)
+    if (match) {
+      return { width: parseInt(match[1]), height: parseInt(match[2]) }
+    }
+  } catch {
+    // fallback
+  }
+  // 兜底：1280x800 适配投屏场景
+  return { width: 1280, height: 800 }
+}
+
+const screen = getScreenSize()
+const VIEWPORT = { width: screen.width, height: screen.height }
+
+// ============================================
 // 测试配置
 // ============================================
 
 test.use({
   launchOptions: {
-    slowMo: 50, // 全局慢速模式（减半）
+    slowMo: 30,
   },
-  viewport: { width: 1280, height: 720 },
-  video: 'on', // 录制视频
+  viewport: VIEWPORT,
+  video: {
+    mode: 'on',
+    size: VIEWPORT,
+  },
 })
 
 // ============================================
@@ -89,7 +118,7 @@ test.describe('🎬 演示模式 - 认证流程', () => {
     await waitForPageStable(page)
 
     // 高亮页面标题
-    await highlightElement(page, 'h1', 800)
+    await highlightElement(page, 'h1', 500)
     await expect(page.locator('h1')).toContainText('OPC-Starter')
 
     // ============================================
@@ -97,31 +126,31 @@ test.describe('🎬 演示模式 - 认证流程', () => {
     // ============================================
     console.log('📍 Step 2: 填写邮箱')
 
-    await highlightElement(page, '#email', 400)
-    await typeWithEffect(page, '#email', TEST_USER.email, { delay: 50 })
+    await highlightElement(page, '#email', 300)
+    await typeWithEffect(page, '#email', TEST_USER.email, { delay: 30 })
 
     // ============================================
     // Step 3: 填写密码
     // ============================================
     console.log('📍 Step 3: 填写密码')
 
-    await highlightElement(page, '#password', 400)
-    await typeWithEffect(page, '#password', TEST_USER.password, { delay: 40 })
+    await highlightElement(page, '#password', 300)
+    await typeWithEffect(page, '#password', TEST_USER.password, { delay: 30 })
 
     // ============================================
     // Step 4: 提交登录
     // ============================================
     console.log('📍 Step 4: 提交登录')
 
-    await highlightElement(page, 'button[type="submit"]', 500)
-    await clickWithEffect(page, 'button[type="submit"]', { pause: 1000 })
+    await highlightElement(page, 'button[type="submit"]', 400)
+    await clickWithEffect(page, 'button[type="submit"]', { pause: 800 })
 
     // ============================================
     // Step 5: 验证结果
     // ============================================
     console.log('📍 Step 5: 验证登录结果')
 
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(1000)
 
     // 截图保存
     await page.screenshot({

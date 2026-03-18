@@ -43,6 +43,7 @@
     "test:e2e": "npx playwright test --config=playwright.config.unit.ts",
     "test:e2e:headless": "npx playwright test --config=playwright.config.unit.ts --workers=1",
     "test:e2e:ui": "npx playwright test --config=playwright.config.unit.ts --ui",
+    "test:e2e:demo": "npx playwright test tests/e2e/demo/ --headed --workers=1",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "ai:check": "npm run lint:check && npm run format:check && npm run type-check && npm run coverage && npm run build",
