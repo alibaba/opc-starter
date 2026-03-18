@@ -2,7 +2,26 @@
 
 当功能涉及数据库变更时（新增字段、修改约束、新增枚举值等），**必须**执行以下检查。
 
-## 检查流程
+## 0. MCP 与 .env 一致性检查（前置必检）
+
+**在执行任何 migration 操作前，必须先确认 MCP 与前端 .env.local 指向同一实例。**
+
+```bash
+npm run db:check-sync   # ✅ 通过后方可继续
+```
+
+**发现不一致时：**
+
+```bash
+npm run mcp:sync        # 自动将 .mcp.json 同步到 .env.local 实例
+npm run db:check-sync   # 再次验证
+```
+
+> ⚠️ 若不一致，migration SQL 会打到错误的数据库，前端毫无感知。
+
+---
+
+
 
 ### 1. 代码与 Schema 一致性对比
 
@@ -18,7 +37,7 @@
 - [ ] Schema 变更已创建 migration 文件（非直接修改 setup.sql）
 - [ ] migration 文件有对应的 rollback 文件
 - [ ] `migration-manifest.yaml` 已更新（status: pending）
-- [ ] `setup.sql` 已同步更新为完整快照
+- [ ] `setup.sql` 由 migration 自动维护，禁止直接修改
 
 ### 3. 必检项目
 

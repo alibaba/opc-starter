@@ -16,6 +16,8 @@
     "test:e2e": "npm --prefix app run test:e2e",
     "test:e2e:headless": "npm --prefix app run test:e2e:headless",
     "test:e2e:demo": "npm --prefix app run test:e2e:demo",
+    "db:check-sync": "node scripts/check-mcp-env-sync.js",
+    "mcp:sync": "node scripts/sync-mcp-to-env.js",
     "cypress:open": "npm --prefix app run cypress:open",
     "cypress:run": "npm --prefix app run cypress:run",
     "ai:check": "npm --prefix app run ai:check"

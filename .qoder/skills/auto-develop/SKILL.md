@@ -21,7 +21,7 @@ description: OPC-Starter 智能开发技能。AI 亲和的 React Boilerplate 项
 |------------|------------|----------|
 | `Agent`、`工具`、`Tool`、`A2UI` | Agent Studio 开发 | `AGENTS.md` → Agent 规范章节 |
 | `组件`、`页面`、`UI`、`样式` | 前端 UI 开发 | `references/coding-constraints.md` → 设计系统 |
-| `数据库`、`SQL`、`表`、`字段` | 数据库变更 | `references/db-sync-checklist.md` |
+| `数据库`、`SQL`、`表`、`字段`、`migration` | 数据库变更 | `references/db-sync-checklist.md`（含 MCP 一致性检查）|
 | `Supabase`、`MCP`、`后端` | Supabase 后端操作 | SKILL.md → Supabase MCP 规范章节 |
 | `测试`、`TDD`、`Cypress`、`Vitest` | 测试开发 | `references/tdd-workflow.md` |
 | `Bug`、`修复`、`异常`、`报错` | 问题排查 | `references/troubleshooting.md` |
@@ -404,10 +404,11 @@ mcp__supabase__execute_sql(sql="ALTER TABLE profiles ADD COLUMN bio TEXT;")
 ### 禁止事项
 
 ```
-❌ 使用 MCP 执行 DDL 后不同步到 setup.sql
-❌ 直接修改 setup.sql 而不通过 MCP 验证执行
-❌ 创建独立的 SQL 迁移文件
+❌ 使用 MCP 执行 DDL 后不同步到 migration 文件
+❌ 直接修改 setup.sql（必须通过 migration 文件）
+❌ 创建独立的 SQL 文件（必须走 migrations/ 目录）
 ❌ Edge Function 仅部署不同步代码
+❌ 未运行 db:check-sync 直接执行 migration
 ```
 
 ---
@@ -597,6 +598,10 @@ npm run build             # 构建验证
 # 开发
 npm run dev           # 启动开发服务器
 npm run dev:test      # 测试模式 (MSW mock)
+
+# DB 一致性检查（migration 前必跑）
+npm run db:check-sync  # 检查 MCP 与 .env.local 是否一致
+npm run mcp:sync       # 自动同步 MCP 配置到 .env.local 实例
 
 # TDD 测试
 npm run test          # 运行单元测试
