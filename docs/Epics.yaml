@@ -1,14 +1,70 @@
 # OPC-Starter Epic 清单
-# 版本: v1.0.0 | 更新: 2026-01-13
+# 版本: v2.0.0 | 更新: 2026-03-19
 
 project:
   name: "OPC-Starter (一人公司启动器)"
-  version: "v1.0.0"
+  version: "v2.0.0"
   tech_stack: "React 19 + TypeScript 5.9 + Vite 7 + Supabase + Tailwind CSS 4.1 + Qwen-Plus + Zod"
   repository: "https://github.com/xxx/opc-starter"  # TODO: 更新为实际仓库地址
 
-# 进行中
-epics_active: []
+# ============================
+# Skills Hub - MVP (Phase 1)
+# ============================
+
+epics_active:
+  - id: "Epic-29"
+    name: "Skills Hub 数据库基础设施"
+    description: "创建 Skills Hub 核心表（skills, skill_versions, skill_likes, skill_favorites, skill_installs）、RLS 策略、触发器、Storage Bucket"
+    status: "ready"
+    total_sp: 8
+    stories_count: 4
+    dependencies: []
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-29"
+
+  - id: "Epic-30"
+    name: "Skills Hub 发现与搜索"
+    description: "首页、即时搜索、分类浏览、SkillCard/SearchBar/EmptyState 组件"
+    status: "ready"
+    total_sp: 13
+    stories_count: 6
+    dependencies: ["Epic-29"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-30"
+
+  - id: "Epic-31"
+    name: "Skills Hub 详情与下载"
+    description: "Skill 详情页、README 渲染（DOMPurify）、版本选择器、CLI 命令复制、Web 下载 Edge Function"
+    status: "ready"
+    total_sp: 10
+    stories_count: 5
+    dependencies: ["Epic-29", "Epic-30"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-31"
+
+  - id: "Epic-32"
+    name: "Skills Hub 发布系统"
+    description: "Skill 发布流程、元数据表单、文件上传、版本管理、skills-publish Edge Function"
+    status: "ready"
+    total_sp: 13
+    stories_count: 6
+    dependencies: ["Epic-29"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-32"
+
+  - id: "Epic-33"
+    name: "Skills Hub 社交互动"
+    description: "点赞/取消点赞、收藏/取消收藏、交互状态查询、登录提示"
+    status: "ready"
+    total_sp: 8
+    stories_count: 4
+    dependencies: ["Epic-29", "Epic-30"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-33"
+
+  - id: "Epic-34"
+    name: "Skills Hub 用户中心"
+    description: "我的 Skills 页面、收藏页面、用户公开主页、导航集成"
+    status: "ready"
+    total_sp: 8
+    stories_count: 4
+    dependencies: ["Epic-29", "Epic-33"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-34"
 
 # 历史归档
 epics_archived:
@@ -26,18 +82,50 @@ epics_archived:
     completed: "2026-01-07"
     note: "作为 OPC-Starter 的前身，已完成 24 个 Epic，169 个 Stories，相关文档已归档清理"
 
-# 待开发 (开源后)
+# ============================
+# Skills Hub - Post-MVP (Phase 2-3)
+# ============================
+
 epics_backlog:
+  # Skills Hub Phase 2
+  - id: "Epic-35"
+    name: "Skills Hub CLI 安装工具"
+    description: "CLI 工具：install/list/search 命令，认证，支持 macOS/Linux"
+    status: "planned"
+    total_sp: 10
+    stories_count: 5
+    dependencies: ["Epic-31"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-35"
+
+  - id: "Epic-36"
+    name: "Skills Hub 作者数据看板"
+    description: "下载趋势图表、安装来源分析、统计概览"
+    status: "planned"
+    total_sp: 5
+    stories_count: 3
+    dependencies: ["Epic-32", "Epic-33"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-36"
+
+  - id: "Epic-37"
+    name: "Skills Hub 评论系统"
+    description: "评论数据模型、评论列表、发表评论、评论管理"
+    status: "planned"
+    total_sp: 8
+    stories_count: 4
+    dependencies: ["Epic-31", "Epic-33"]
+    detail: "docs/planning-artifacts/epics-and-stories.md#epic-37"
+
+  # OPC-Starter 通用功能
   - id: "Epic-26"
     name: "多 LLM Provider 支持"
     description: "支持 OpenAI、Claude、Gemini 等多 LLM 后端"
     status: "planned"
-  
+
   - id: "Epic-27"
     name: "国际化 (i18n)"
     description: "多语言支持"
     status: "planned"
-  
+
   - id: "Epic-28"
     name: "主题系统"
     description: "深色/浅色模式、自定义主题"
@@ -45,6 +133,8 @@ epics_backlog:
 
 # 统计
 statistics:
-  completed: 25  # 包含 Photo Wall 历史 + Epic-25
-  active: 0
-  backlog: 3
+  completed: 25       # 包含 Photo Wall 历史 + Epic-25
+  active: 6           # Skills Hub MVP (Epic-29 ~ Epic-34)
+  backlog: 6          # Skills Hub Post-MVP (35-37) + 通用 (26-28)
+  mvp_total_sp: 60    # Skills Hub MVP 总 Story Points
+  mvp_stories: 29     # Skills Hub MVP 总 Stories

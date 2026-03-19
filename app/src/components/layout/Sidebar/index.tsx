@@ -3,7 +3,19 @@
  * @description 提供主要页面导航链接，支持折叠/展开，集成 Agent 按钮入口
  */
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Users, User, Settings, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  Home,
+  Users,
+  User,
+  Settings,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Upload,
+  Star,
+  BookOpen,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AgentButton } from '@/components/agent/AgentButton'
 
@@ -11,7 +23,11 @@ import { AgentButton } from '@/components/agent/AgentButton'
  * 导航菜单项配置 - OPC-Starter
  */
 const menuItems = [
-  { path: '/', label: '首页', icon: Home },
+  { path: '/', label: 'Skills 广场', icon: Home },
+  { path: '/search', label: '搜索 Skills', icon: Search },
+  { path: '/publish', label: '发布 Skill', icon: Upload },
+  { path: '/my-skills', label: '我的 Skills', icon: BookOpen },
+  { path: '/favorites', label: '我的收藏', icon: Star },
   { path: '/persons', label: '组织管理', icon: Users },
   { path: '/profile', label: '个人中心', icon: User },
   { path: '/settings', label: '设置', icon: Settings },

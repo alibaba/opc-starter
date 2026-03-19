@@ -1,0 +1,118 @@
+# generated: 2026-03-19
+# project: opc-starter
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: docs/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-03-19
+project: opc-starter
+project_key: NOKEY
+tracking_system: file-system
+story_location: docs/implementation-artifacts
+
+development_status:
+  # ── Epic-29: 数据库基础设施 ──────────────────────────────────────
+  epic-29: done
+  29-1-create-skills-hub-core-tables: done
+  29-2-configure-rls-policies: done
+  29-3-create-triggers-and-functions: done
+  29-4-configure-storage-bucket: done
+  epic-29-retrospective: optional
+
+  # ── Epic-30: Skill 发现与搜索 ────────────────────────────────────
+  epic-30: done
+  30-1-typescript-types-and-service-layer: done
+  30-2-home-page-layout-and-popular-latest-lists: done
+  30-3-skillcard-component: done
+  30-4-searchbar-component: done
+  30-5-search-results-page: done
+  30-6-emptystate-component: done
+  epic-30-retrospective: optional
+
+  # ── Epic-31: Skill 详情与下载 ────────────────────────────────────
+  epic-31: done
+  31-1-skill-detail-page-layout: done
+  31-2-readme-render-component: done
+  31-3-installcommand-component: done
+  31-4-versionselector-component: done
+  31-5-web-download-and-edge-function: done
+  epic-31-retrospective: optional
+
+  # ── Epic-32: Skill 发布系统 ──────────────────────────────────────
+  epic-32: done
+  32-1-publish-page-layout: done
+  32-2-skillpublishform-component: done
+  32-3-fileuploader-component: done
+  32-4-skills-publish-edge-function: done
+  32-5-version-management: done
+  32-6-skill-edit-and-delete: done
+  epic-32-retrospective: optional
+
+  # ── Epic-33: 社交互动（点赞/收藏） ──────────────────────────────
+  epic-33: done
+  33-1-like-feature: done
+  33-2-favorite-feature: done
+  33-3-user-interaction-state-query: done
+  33-4-login-prompt-dialog: done
+  epic-33-retrospective: optional
+
+  # ── Epic-34: 用户中心 ────────────────────────────────────────────
+  epic-34: done
+  34-1-my-skills-page: done
+  34-2-my-favorites-page: done
+  34-3-user-public-profile-page: done
+  34-4-top-nav-integration: done
+  epic-34-retrospective: optional
+
+  # ── Epic-35: CLI 安装工具（Post-MVP） ───────────────────────────
+  epic-35: in-progress
+  35-1-cli-project-initialization: ready-for-dev
+  35-2-install-command: ready-for-dev
+  35-3-list-command: ready-for-dev
+  35-4-search-command: ready-for-dev
+  35-5-auth-and-config: ready-for-dev
+  epic-35-retrospective: optional
+
+  # ── Epic-36: 作者数据看板（Post-MVP） ───────────────────────────
+  epic-36: in-progress
+  36-1-dashboard-page: ready-for-dev
+  36-2-download-trend-chart: ready-for-dev
+  36-3-install-source-analysis: ready-for-dev
+  epic-36-retrospective: optional
+
+  # ── Epic-37: 评论系统（Post-MVP） ───────────────────────────────
+  epic-37: in-progress
+  37-1-comment-data-model: ready-for-dev
+  37-2-comment-list-component: ready-for-dev
+  37-3-post-comment: ready-for-dev
+  37-4-comment-management: ready-for-dev
+  epic-37-retrospective: optional
