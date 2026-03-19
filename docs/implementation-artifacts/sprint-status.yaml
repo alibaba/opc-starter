@@ -91,7 +91,10 @@ development_status:
   34-2-my-favorites-page: done
   34-3-user-public-profile-page: done
   34-4-top-nav-integration: done
-  epic-34-retrospective: optional
+  epic-34-retrospective: done
+
+  # ── MVP Retrospective (Epic 29-34) ───────────────────────────────
+  mvp-retrospective: done
 
   # ── Epic-35: CLI 安装工具（Post-MVP） ───────────────────────────
   epic-35: in-progress
