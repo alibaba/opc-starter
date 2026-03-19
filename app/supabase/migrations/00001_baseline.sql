@@ -24,12 +24,21 @@ CREATE TABLE IF NOT EXISTS public._schema_migrations (
   name TEXT NOT NULL,                         -- 'baseline', 'add_xxx'
   description TEXT,
   story TEXT,                                 -- story key, e.g. '1-3-xxx'
+  status TEXT NOT NULL DEFAULT 'applied'      -- 'pending' | 'applied' | 'failed'
+    CHECK (status IN ('pending', 'applied', 'failed')),
   applied_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   execution_time_ms INTEGER,                  -- how long the migration took
-  applied_by TEXT DEFAULT current_user
+  applied_by TEXT DEFAULT current_user,
+  checksum TEXT                               -- SHA256 hash of migration file
 );
 
 COMMENT ON TABLE public._schema_migrations IS 'Migration 版本元数据，由 db-migration workflow 自动维护';
+COMMENT ON COLUMN public._schema_migrations.status IS 'Migration 状态：pending（执行中）、applied（已应用）、failed（失败）';
+COMMENT ON COLUMN public._schema_migrations.checksum IS 'Migration 文件的 SHA256 校验和';
+
+-- Indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_status ON public._schema_migrations(status);
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_applied_at ON public._schema_migrations(applied_at DESC);
 
 -- =====================================================
 -- 0.1 Extensions

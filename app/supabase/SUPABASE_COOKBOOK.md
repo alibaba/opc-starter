@@ -88,12 +88,14 @@ SELECT admin_delete_organization(p_org_id := '<org_id>');
 app/supabase/
 ├── migrations/              # 增量迁移文件
 │   ├── 00001_baseline.sql
-│   └── 00002_add_xxx.sql
+│   ├── 00002_add_xxx.sql
+│   └── TEMPLATE.sql         # 标准模板（复制使用）
 ├── rollbacks/               # 回滚文件
 │   ├── 00001_rollback.sql
 │   └── 00002_rollback.sql
 ├── migration-manifest.yaml  # 版本注册表
-└── setup.sql                # 完整 schema 快照（自动维护）
+├── setup.sql                # 完整 schema 快照（自动维护）
+└── fix_schema_migrations.sql # 补救脚本（修复未记录的 migration）
 ```
 
 ### 查看迁移状态
@@ -103,58 +105,177 @@ app/supabase/
 cat app/supabase/migration-manifest.yaml
 ```
 
-### 执行迁移（db-migration workflow）
+### 创建新 Migration
 
-1. **Agent 自动创建**：dev-story 检测到 schema 变更时，自动创建 migration 文件
-2. **Code Review 审查**：审查 migration 文件和 rollback 文件
-3. **db-migration 执行**：通过 MCP Server 连接阿里云 ADB，在事务中执行迁移
-4. **状态更新**：更新 `migration-manifest.yaml`，重新生成 `setup.sql`
-
-### 手动回滚（紧急情况）
+**步骤 1：复制模板**
 
 ```bash
-# 在 Supabase SQL Editor 中执行对应 rollback 文件
-# 例如回滚 00002：
-cat app/supabase/rollbacks/00002_rollback.sql | pbcopy
-# 然后粘贴到 SQL Editor 执行
+cp app/supabase/migrations/TEMPLATE.sql app/supabase/migrations/00007_your_migration.sql
 ```
+
+**步骤 2：填写元信息**
+
+```sql
+-- Seq: 00007
+-- Name: your_migration_name
+-- Description: 简要描述此 migration 的作用
+-- Story: Epic-XX 或 Story-XX-XX（可选）
+-- Created: YYYY-MM-DD
+```
+
+**步骤 3：编写 DDL**
+
+- 在 `-- 1. DDL 语句` 区域编写 SQL
+- 确保使用 `IF NOT EXISTS` 保证幂等性
+
+**步骤 4：创建 Rollback 文件**
+
+```bash
+cp app/supabase/migrations/00007_your_migration.sql app/supabase/migrations/rollbacks/00007_your_migration_rollback.sql
+# 修改内容为回滚 SQL
+```
+
+### 执行迁移
+
+> **⚠️ 重要原则：所有 SQL 执行统一通过 MCP Server 完成，禁止使用 Node 脚本直接操作数据库。**
+>
+> 后续将提供专用的 migration Skill 进一步简化流程。
+
+**前置条件：安装阿里云 Supabase MCP Server**
+
+如果尚未安装，运行以下命令：
+
+```bash
+npx -y @aliyun-supabase/mcp-server-supabase@latest
+```
+
+安装后需在 IDE 的 MCP 配置中添加该 Server，使 AI Agent 获得数据库连接和 SQL 执行能力。
+
+**执行方式：通过 MCP Server 执行 SQL**
+
+MCP Server 提供数据库连接能力，可直接执行 migration 文件中的 SQL。
+AI Agent 在需要执行 SQL 时，应调用 MCP Server 工具或相关 Skill 完成。
+
+**备用方式：Supabase SQL Editor**
+
+在 MCP Server 不可用时，可在 Supabase Dashboard > SQL Editor 中手动执行。
+
+**执行流程**：
+
+1. 查看 `migration-manifest.yaml`，确认待执行的 migration
+2. **通过 MCP Server 执行 migration SQL 文件**
+3. 确认执行成功后，更新 `migration-manifest.yaml` 中对应条目的 `status` 为 `applied`
+
+### 回滚（紧急情况）
+
+通过 MCP Server 执行对应的 rollback 文件：
+
+```
+app/supabase/migrations/rollbacks/{seq}_{name}_rollback.sql
+```
+
+### Migration 状态追踪
+
+**`_schema_migrations` 表结构**（v1.2.0 增强版）：
+
+```sql
+CREATE TABLE public._schema_migrations (
+  seq TEXT PRIMARY KEY,           -- 序号：00001, 00002...
+  name TEXT NOT NULL,             -- 名称
+  description TEXT,               -- 描述
+  story TEXT,                     -- 关联 Story
+  status TEXT NOT NULL            -- 状态：pending | applied | failed
+    CHECK (status IN ('pending', 'applied', 'failed')),
+  applied_at TIMESTAMPTZ,         -- 执行时间
+  execution_time_ms INTEGER,      -- 执行耗时
+  applied_by TEXT,                -- 执行者
+  checksum TEXT                   -- 文件校验和
+);
+```
+
+**初始化保障机制**：
+
+- `_schema_migrations` 表定义已内置在 `00001_baseline.sql` 和 `setup.sql` 中
+- 新环境初始化时即包含完整的 migration tracking 能力
+- 无需额外执行 migration 来建立 tracking 机制
+
+**状态说明**：
+
+- `pending` - 开始执行但未完成（可能执行中或失败）
+- `applied` - 成功执行
+- `failed` - 执行失败
+
+**修复未记录的 migration**：
+
+如果已在数据库执行了 SQL 但未记录到 `_schema_migrations`，通过 MCP Server 执行 `fix_schema_migrations.sql`。
 
 ### Migration 文件规范
 
-**文件名**：`[5位序号]_[描述].sql`
-
-- 示例：`00002_add_product_visibility.sql`
-
-**文件头模板**：
+**标准模板结构**（使用 `TEMPLATE.sql`）：
 
 ```sql
--- migrations/00002_add_product_visibility.sql
--- Seq: 00002
--- Name: add_product_visibility
--- Story: 1-3-product-visibility
--- Description: products 表增加 visibility 字段
--- Created: 2026-03-15
+-- =====================================================
+-- Migration Template
+-- =====================================================
+-- Seq: 000XX
+-- Name: your_migration_name
+-- Description: 简要描述此 migration 的作用
+-- Story: Epic-XX
+-- Created: YYYY-MM-DD
+-- =====================================================
 
--- ===== UP =====
-ALTER TABLE public.products
-  ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+-- =====================================================
+-- 0. 注册 migration 开始（pending 状态）
+-- =====================================================
+INSERT INTO public._schema_migrations (seq, name, description, story, status, applied_at, applied_by)
+VALUES ('000XX', 'your_migration_name', '描述', 'Epic-XX', 'pending', NULL, current_user)
+ON CONFLICT (seq) DO UPDATE SET status = 'pending', applied_at = NULL, applied_by = current_user;
+
+-- =====================================================
+-- 1. DDL 语句（在此编写实际的 schema 变更）
+-- =====================================================
+-- CREATE TABLE IF NOT EXISTS public.example_table (...);
+
+-- =====================================================
+-- 2. 索引（如果需要）
+-- =====================================================
+-- CREATE INDEX IF NOT EXISTS idx_example ON public.example(...);
+
+-- =====================================================
+-- 3. RLS 策略（如果需要）
+-- =====================================================
+-- ALTER TABLE public.example ENABLE ROW LEVEL SECURITY;
+
+-- =====================================================
+-- 4. 触发器（如果需要）
+-- =====================================================
+-- CREATE TRIGGER example_trigger ON public.example ...;
+
+-- =====================================================
+-- 5. 注册 migration 完成（applied 状态）
+-- =====================================================
+UPDATE public._schema_migrations
+SET status = 'applied', applied_at = NOW(), applied_by = current_user
+WHERE seq = '000XX';
+
+-- =====================================================
+-- End of Migration
+-- =====================================================
 ```
 
-**Rollback 文件模板**：
+**关键要点**：
 
-```sql
--- rollbacks/00002_rollback.sql
--- Rolls back: 00002_add_product_visibility.sql
-
-ALTER TABLE public.products
-  DROP COLUMN IF EXISTS visibility;
-```
+1. **开头插入 pending** - 标记开始执行
+2. **末尾更新 applied** - 标记执行成功
+3. **使用 `IF NOT EXISTS`** - 保证幂等性
+4. **每个 migration 必须有 rollback** - 在 `rollbacks/` 目录
 
 ## 注意事项
 
+- **所有 SQL 执行统一通过 MCP Server**，禁止使用 Node 脚本直接操作数据库
 - **禁止直接修改 `setup.sql`**，必须通过 migration 文件管理 schema 变更
 - 每个 migration 必须有对应的 rollback 文件
 - 使用 `IF NOT EXISTS` / `IF EXISTS` 保证幂等性
-- DDL 操作在 db-migration workflow 中自动开启事务
+- 后续将提供专用的 migration Skill，进一步简化迁移执行流程
 - Supabase JS Client 的 `.then()` 返回 `PromiseLike`，没有 `.finally()` 方法
 - 使用 `async/await` 代替链式调用以避免类型问题

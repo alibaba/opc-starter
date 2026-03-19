@@ -3,11 +3,13 @@
 -- =====================================================
 -- Version: v1.0.0
 -- Created: 2026-01-13
+-- Updated: 2026-03-19 (added migration tracking enhancements)
 -- 
--- Features: Supabase Auth, RLS, Organization Management
+-- Features: Supabase Auth, RLS, Organization Management, Migration Tracking
 -- Usage: Execute in Supabase SQL Editor (PostgreSQL 14+)
 -- 
--- Tables (4):
+-- Tables (5):
+--   - _schema_migrations: Migration 版本跟踪表
 --   - profiles: 用户资料（1:1 auth.users）
 --   - organizations: 组织架构（ltree 层级）
 --   - organization_members: 组织成员关系
@@ -15,7 +17,33 @@
 -- =====================================================
 
 -- =====================================================
--- 0. Extensions
+-- 0. Migration Metadata Table (must be first)
+-- =====================================================
+-- This table is the single source of truth for migration state.
+-- Every migration (including this baseline) registers itself here.
+CREATE TABLE IF NOT EXISTS public._schema_migrations (
+  seq TEXT PRIMARY KEY,                      -- '00001', '00002', ...
+  name TEXT NOT NULL,                         -- 'baseline', 'add_xxx'
+  description TEXT,
+  story TEXT,                                 -- story key, e.g. '1-3-xxx'
+  status TEXT NOT NULL DEFAULT 'applied'      -- 'pending' | 'applied' | 'failed'
+    CHECK (status IN ('pending', 'applied', 'failed')),
+  applied_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  execution_time_ms INTEGER,                  -- how long the migration took
+  applied_by TEXT DEFAULT current_user,
+  checksum TEXT                               -- SHA256 hash of migration file
+);
+
+COMMENT ON TABLE public._schema_migrations IS 'Migration 版本元数据，由 db-migration workflow 自动维护';
+COMMENT ON COLUMN public._schema_migrations.status IS 'Migration 状态：pending（执行中）、applied（已应用）、failed（失败）';
+COMMENT ON COLUMN public._schema_migrations.checksum IS 'Migration 文件的 SHA256 校验和';
+
+-- Indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_status ON public._schema_migrations(status);
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_applied_at ON public._schema_migrations(applied_at DESC);
+
+-- =====================================================
+-- 1. Extensions
 -- =====================================================
 CREATE SCHEMA IF NOT EXISTS extensions;
 
