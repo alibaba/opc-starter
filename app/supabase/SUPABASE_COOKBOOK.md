@@ -187,6 +187,29 @@ MCP Server 是 AI Agent 连接数据库的唯一通道。如果未配置，`db-m
 
 > 详见官方文档：[Supabase MCP 使用指南](https://help.aliyun.com/zh/analyticdb/analyticdb-for-postgresql/supabase-mcp-user-guide)
 
+**不同 IDE 的配置文件位置**：
+
+| IDE                | 配置文件路径                    |
+| ------------------ | ------------------------------- |
+| VS Code (通义灵码) | `~/.lingma/mcp/lingma_mcp.json` |
+| Cursor             | `.cursor/mcp.json`              |
+| Qoder / 其他       | 项目根目录 `.mcp.json`          |
+
+**可选参数**：
+
+- `--read-only`：设置数据库为只读模式（安全模式）
+- `--project-id`：指定项目 ID（如 `spb-xxxxx`）
+- `--region-id`：指定地域（如 `cn-beijing`、`cn-hangzhou`）
+
+**常见问题排查**：
+
+| 问题                                    | 原因                         | 解决                                                                     |
+| --------------------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| VS Code 无法执行工具                    | 未启用智能体自动执行权限     | 设置中搜索 `Mcp Tools In Agent Mode` 并启用"允许智能体自动执行 MCP 工具" |
+| 安装报错 "No matching version found..." | npm 版本不兼容（如 v11.4.x） | 更新 npm 版本后重试                                                      |
+| 运行报错 "User not authorized..."       | 缺少 RAM 权限                | 授予账号 `AliyunGPDBFullAccess` 权限策略                                 |
+| 连接超时或失败                          | 安全组/IP 白名单限制         | 在阿里云 ADB 控制台添加当前 IP 到白名单                                  |
+
 **备用方式：Supabase SQL Editor**
 
 在 MCP Server 不可用时，可在 Supabase Dashboard > SQL Editor 中手动执行。
