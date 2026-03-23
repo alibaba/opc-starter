@@ -94,8 +94,7 @@ app/supabase/
 │   ├── 00001_rollback.sql
 │   └── 00002_rollback.sql
 ├── migration-manifest.yaml  # 版本注册表
-├── setup.sql                # 完整 schema 快照（自动维护）
-└── fix_schema_migrations.sql # 补救脚本（修复未记录的 migration）
+└── setup.sql                # 完整 schema 快照（baseline，自动维护）
 ```
 
 ### 查看迁移状态
@@ -138,23 +137,55 @@ cp app/supabase/migrations/00007_your_migration.sql app/supabase/migrations/roll
 ### 执行迁移
 
 > **⚠️ 重要原则：所有 SQL 执行统一通过 MCP Server 完成，禁止使用 Node 脚本直接操作数据库。**
->
-> 后续将提供专用的 migration Skill 进一步简化流程。
 
-**前置条件：安装阿里云 Supabase MCP Server**
+**前置条件：配置阿里云 Supabase MCP Server**
 
-如果尚未安装，运行以下命令：
+MCP Server 是 AI Agent 连接数据库的唯一通道。如果未配置，`db-migration apply/status` 和 `deploy-esa` 将无法执行。
 
-```bash
-npx -y @aliyun-supabase/mcp-server-supabase@latest
+**步骤 1：开通阿里云 ADB Supabase**
+
+前往 [阿里云 AnalyticDB](https://www.aliyun.com/product/gpdb) 开通 AnalyticDB PostgreSQL（Supabase 模式）。
+
+**步骤 2：获取 AccessKey**
+
+前往 [RAM 控制台](https://ram.console.aliyun.com/manage/ak) 创建 AccessKey，确保拥有 `AliyunGPDBFullAccess` 权限。
+
+**步骤 3：创建 `.mcp.json`**
+
+在项目根目录创建 `.mcp.json`（已在 `.gitignore` 中，不会被提交）：
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@aliyun-supabase/mcp-server-supabase@latest",
+        "--features=aliyun",
+        "--project-id=YOUR_PROJECT_ID",
+        "--region-id=YOUR_REGION_ID"
+      ],
+      "env": {
+        "ALIYUN_ACCESS_TOKEN": "YOUR_ACCESS_KEY_ID|YOUR_ACCESS_KEY_SECRET"
+      }
+    }
+  }
+}
 ```
 
-安装后需在 IDE 的 MCP 配置中添加该 Server，使 AI Agent 获得数据库连接和 SQL 执行能力。
+参数说明：
 
-**执行方式：通过 MCP Server 执行 SQL**
+- `project-id`：在阿里云 ADB 控制台 > 实例列表中获取（格式：`spb-xxxxx`）
+- `region-id`：实例所在地域（如 `cn-beijing`、`cn-hangzhou`）
+- `ALIYUN_ACCESS_TOKEN`：格式为 `AccessKeyId|AccessKeySecret`
 
-MCP Server 提供数据库连接能力，可直接执行 migration 文件中的 SQL。
-AI Agent 在需要执行 SQL 时，应调用 MCP Server 工具或相关 Skill 完成。
+**步骤 4：重启 IDE 并验证**
+
+重启 IDE（VS Code / Cursor / Qoder）后，让 AI 执行："列出我在阿里云上所有 supabase projects"。
+若返回项目列表即配置成功。
+
+> 详见官方文档：[Supabase MCP 使用指南](https://help.aliyun.com/zh/analyticdb/analyticdb-for-postgresql/supabase-mcp-user-guide)
 
 **备用方式：Supabase SQL Editor**
 
@@ -163,8 +194,8 @@ AI Agent 在需要执行 SQL 时，应调用 MCP Server 工具或相关 Skill �
 **执行流程**：
 
 1. 查看 `migration-manifest.yaml`，确认待执行的 migration
-2. **通过 MCP Server 执行 migration SQL 文件**
-3. 确认执行成功后，更新 `migration-manifest.yaml` 中对应条目的 `status` 为 `applied`
+2. **通过 MCP Server 执行 migration SQL 文件**（推荐使用 `db-migration apply`）
+3. 确认执行成功后，manifest 状态会自动更新为 `applied`
 
 ### 回滚（紧急情况）
 
@@ -207,7 +238,13 @@ CREATE TABLE public._schema_migrations (
 
 **修复未记录的 migration**：
 
-如果已在数据库执行了 SQL 但未记录到 `_schema_migrations`，通过 MCP Server 执行 `fix_schema_migrations.sql`。
+如果已在数据库执行了 SQL 但未记录到 `_schema_migrations`，手动通过 MCP Server 执行 INSERT 补录：
+
+```sql
+INSERT INTO public._schema_migrations (seq, name, description, story, status, applied_at, applied_by)
+VALUES ('000XX', 'migration_name', '描述', 'Epic-XX', 'applied', NOW(), current_user)
+ON CONFLICT (seq) DO UPDATE SET status = 'applied';
+```
 
 ### Migration 文件规范
 

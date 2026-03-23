@@ -1,5 +1,107 @@
 <instructions id="deploy-esa">
   <step n="1" goal="Pre-flight Checks">
+    <!-- MCP Server readiness check -->
+    <action>Attempt to call MCP tool `get_supabase_project_api_keys` to retrieve service_role key</action>
+
+    <check if="MCP tool is unavailable, returns connection error, or .mcp.json is not configured">
+      <output>🔧 **MCP Server 未就绪 — 无法执行部署前 Schema 校验**
+
+        部署前需要通过 MCP Server 连接阿里云 ADB Supabase 数据库，
+        校验 pending migrations 状态，确保数据库 schema 与代码一致。
+
+        **请按以下步骤配置：**
+
+        1. **开通阿里云 ADB Supabase**
+           前往 https://www.aliyun.com/product/gpdb 开通 AnalyticDB PostgreSQL（Supabase 模式）
+
+        2. **获取 AccessKey**
+           前往 https://ram.console.aliyun.com/manage/ak 创建 AccessKey
+           确保拥有 `AliyunGPDBFullAccess` 权限
+
+        3. **在项目根目录创建 `.mcp.json`**（已在 .gitignore 中，不会被提交）：
+           ```json
+           {
+             "mcpServers": {
+               "supabase": {
+                 "command": "npx",
+                 "args": [
+                   "-y",
+                   "@aliyun-supabase/mcp-server-supabase@latest",
+                   "--features=aliyun",
+                   "--project-id=YOUR_PROJECT_ID",
+                   "--region-id=YOUR_REGION_ID"
+                 ],
+                 "env": {
+                   "ALIYUN_ACCESS_TOKEN": "YOUR_ACCESS_KEY_ID|YOUR_ACCESS_KEY_SECRET"
+                 }
+               }
+             }
+           }
+           ```
+           - `project-id`: 在阿里云 ADB 控制台 > 实例列表中获取（格式：spb-xxxxx）
+           - `region-id`: 实例所在地域（如 cn-beijing、cn-hangzhou）
+
+        4. **重启 IDE 后验证**
+           让 AI 执行："列出我在阿里云上所有 supabase projects"，若返回项目列表即配置成功。
+
+        详见：https://help.aliyun.com/zh/analyticdb/analyticdb-for-postgresql/supabase-mcp-user-guide
+      </output>
+      <action>HALT — 配置完成后重新运行 deploy-esa</action>
+    </check>
+
+    <!-- MCP is ready, proceed with migration pre-check -->
+    <action>Set {{db_url}} = "https://{{project_id}}.supabase.opentrust.net"</action>
+    <action>Set {{service_key}} = retrieved service_role key</action>
+
+    <!-- Query DB for applied migrations -->
+    <action>Call MCP tool `execute_sql` with:
+      - url: {{db_url}}
+      - api_key: {{service_key}}
+      - sql: "SELECT seq FROM public._schema_migrations ORDER BY seq;"
+    </action>
+    <action>Set {{db_versions}} = list of seq from DB result (or [] if table missing)</action>
+
+    <!-- Compare with local manifest -->
+    <action>Load migration-manifest.yaml</action>
+    <action>Set {{local_versions}} = list of seq from manifest</action>
+    <action>Compute {{pending}} = versions in local manifest but NOT in {{db_versions}}</action>
+
+    <check if="pending migrations exist (local has versions not in DB)">
+      <output>🚫 **Deployment Blocked — Database Out of Sync**
+
+        The following migrations exist locally but are NOT applied in database:
+        {{#each pending}}
+        - [{{seq}}] {{description}}
+        {{/each}}
+
+        Deployment is blocked until all migrations are applied.
+        This is a hard constraint to prevent runtime errors in production.
+      </output>
+
+      <ask>What would you like to do?
+        1. **Apply migrations now** - Run db-migration workflow, then retry deployment
+        2. **Cancel deployment** - Stop and resolve migrations manually
+
+        Choose [1] or [2]:</ask>
+
+      <check if="user chooses '1'">
+        <action>HALT and invoke db-migration workflow with action: apply</action>
+        <output>After migrations are applied, re-run deploy-esa to continue deployment.</output>
+      </check>
+
+      <check if="user chooses '2'">
+        <action>HALT deployment</action>
+        <output>Deployment cancelled. Apply pending migrations and try again.</output>
+      </check>
+
+      <!-- No "proceed anyway" option — pending migrations always block deployment -->
+    </check>
+
+    <check if="no pending migrations">
+      <output>✅ Database schema in sync with local migrations.</output>
+    </check>
+
+    <!-- Original pre-flight checks -->
     <action>Verify ESA CLI is installed</action>
     <check if="ESA CLI not found">
       <ask>ESA CLI not installed. Install now? (y/n)</ask>
