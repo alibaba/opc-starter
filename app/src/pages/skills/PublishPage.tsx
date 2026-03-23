@@ -142,7 +142,7 @@ export function PublishPage() {
     setUploadProgress(0)
 
     try {
-      // 1. 创建 Skill
+      // 1. 创建 Skill 基本信息
       const skill = await skillService.create({
         name: name.trim(),
         description: description.trim(),
@@ -152,18 +152,16 @@ export function PublishPage() {
         readme: readme.trim(),
       })
 
-      // 2. 获取上传签名 URL
-      const { upload_url } = await skillStorageService.publishVersion({
+      // 2. 直接上传文件并创建版本记录（绕过 signed URL）
+      await skillStorageService.publishVersionDirect({
         skill_id: skill.id,
+        skill_slug: skill.slug,
+        user_id: user!.id,
         version: version.trim(),
         changelog: changelog.trim(),
-        file_size: file!.size,
+        file: file!,
+        onProgress: setUploadProgress,
       })
-
-      // 3. 上传文件（模拟进度）
-      setUploadProgress(50)
-      await skillStorageService.uploadWithSignedUrl(upload_url, file!)
-      setUploadProgress(100)
 
       toast({
         title: '发布成功',

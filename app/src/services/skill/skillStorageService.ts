@@ -36,19 +36,44 @@ export const skillStorageService = {
 
   /**
    * 上传文件到 Storage（使用签名 URL）
+   * 支持进度回调
    */
-  async uploadWithSignedUrl(signedUrl: string, file: File): Promise<void> {
-    const response = await fetch(signedUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': file.type || 'application/zip',
-      },
-      body: file,
-    })
+  async uploadWithSignedUrl(
+    signedUrl: string,
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<void> {
+    // 使用 XMLHttpRequest 支持上传进度
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
 
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`)
-    }
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable && onProgress) {
+          const progress = Math.round((event.loaded / event.total) * 100)
+          onProgress(progress)
+        }
+      })
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve()
+        } else {
+          reject(new Error(`Upload failed: ${xhr.statusText}`))
+        }
+      })
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed: Network error'))
+      })
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload aborted'))
+      })
+
+      xhr.open('PUT', signedUrl)
+      xhr.setRequestHeader('Content-Type', file.type || 'application/zip')
+      xhr.send(file)
+    })
   },
 
   /**
@@ -84,7 +109,7 @@ export const skillStorageService = {
   },
 
   /**
-   * 直接上传文件（开发测试用，生产环境使用签名 URL）
+   * 直接上传文件到 Storage
    */
   async uploadFile(file: File, path: string): Promise<{ path: string }> {
     const { data, error } = await supabase.storage.from('skills').upload(path, file, {
@@ -94,6 +119,53 @@ export const skillStorageService = {
 
     if (error) throw error
     return { path: data.path }
+  },
+
+  /**
+   * 直接发布版本（绕过 signed URL，适用于 Aliyun Supabase）
+   * 直接上传文件 + 写入版本记录，不经过 Edge Function
+   */
+  async publishVersionDirect(params: {
+    skill_id: string
+    skill_slug: string
+    user_id: string
+    version: string
+    changelog: string
+    file: File
+    onProgress?: (progress: number) => void
+  }): Promise<{ storage_path: string }> {
+    const storagePath = `${params.user_id}/${params.skill_slug}/${params.version}/package.zip`
+
+    // 1. 直接上传文件到 Storage
+    const { error: uploadError } = await supabase.storage
+      .from('skills')
+      .upload(storagePath, params.file, {
+        contentType: params.file.type || 'application/zip',
+        upsert: true,
+      })
+    if (uploadError) throw uploadError
+    params.onProgress?.(50)
+
+    // 2. 写入版本记录
+    const { error: versionError } = await supabase.from('skill_versions').insert({
+      skill_id: params.skill_id,
+      version: params.version,
+      storage_path: storagePath,
+      file_size: params.file.size,
+      changelog: params.changelog || null,
+    })
+    if (versionError) throw versionError
+    params.onProgress?.(80)
+
+    // 3. 更新 skill 的 latest_version
+    const { error: updateError } = await supabase
+      .from('skills')
+      .update({ latest_version: params.version })
+      .eq('id', params.skill_id)
+    if (updateError) throw updateError
+    params.onProgress?.(100)
+
+    return { storage_path: storagePath }
   },
 
   /**

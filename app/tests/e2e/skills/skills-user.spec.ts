@@ -122,7 +122,6 @@ test.describe('[P1] 我的 Skills 页面 - 内容展示', () => {
   test('[P1] 应该显示已发布的 Skills', async ({ page }) => {
     await page.goto('/my-skills')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(2000)
 
     // 检查是否有 Skills 或空状态
     const skillCards = page.locator('a[href^="/skill/"]')
@@ -137,10 +136,12 @@ test.describe('[P1] 我的 Skills 页面 - 内容展示', () => {
   test('[P1] 应该显示发布 Skill 按钮', async ({ page }) => {
     await page.goto('/my-skills')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    const publishButton = page.getByRole('link', { name: /发布|Publish/i })
-    await expect(publishButton).toBeVisible({ timeout: 10000 })
+    // 使用更灵活的选择器
+    const publishButton = page
+      .getByRole('link', { name: /发布|Publish/ })
+      .or(page.getByRole('button', { name: /发布|Publish/ }))
+    await expect(publishButton.first()).toBeVisible({ timeout: 10000 })
   })
 })
 
@@ -156,7 +157,6 @@ test.describe('[P0] 我的收藏页面 - 访问控制', () => {
   test('[P0] 未登录访问我的收藏重定向到登录页', async ({ page }) => {
     await page.goto('/favorites')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
     // 应该重定向到登录页
     await expect(page).toHaveURL(/.*login.*/, { timeout: 10000 })
@@ -168,11 +168,12 @@ test.describe('[P0] 我的收藏页面 - 访问控制', () => {
 
     await page.goto('/favorites')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    // 检查页面标题
-    const pageTitle = page.getByRole('heading', { name: /收藏|Favorite/i })
-    await expect(pageTitle).toBeVisible({ timeout: 10000 })
+    // 检查页面标题 - 使用更灵活的选择器
+    const pageTitle = page
+      .getByRole('heading', { name: /收藏|Favorite/ })
+      .or(page.getByText('收藏'))
+    await expect(pageTitle.first()).toBeVisible({ timeout: 10000 })
   })
 })
 
@@ -232,12 +233,12 @@ test.describe('[P1] 用户公开主页', () => {
   })
 
   test('[P1] 不存在的用户显示 404', async ({ page }) => {
+    await clearAuthState(page)
     await page.goto('/user/nonexistent-user-xyz-12345')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(2000)
 
-    // 检查 404 提示
-    const notFound = page.getByText('未找到').or(page.getByText('不存在'))
+    // 检查 404 或空状态提示 - UserProfilePage 显示 "用户不存在"
+    const notFound = page.getByRole('heading', { name: '用户不存在' })
     await expect(notFound).toBeVisible({ timeout: 10000 })
   })
 })

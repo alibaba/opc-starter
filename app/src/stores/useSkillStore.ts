@@ -8,6 +8,9 @@ import { skillService } from '@/services/skill'
 import type { Skill, SkillSearchParams } from '@/types/skill'
 
 interface SkillState {
+  // 错误状态
+  error: string | null
+
   // 搜索状态
   searchParams: SkillSearchParams
   searchResults: Skill[]
@@ -31,6 +34,8 @@ interface SkillState {
   isLoadingUserFavorites: boolean
 
   // Actions
+  setError: (error: string | null) => void
+  clearError: () => void
   setSearchParams: (params: Partial<SkillSearchParams>) => void
   search: () => Promise<void>
   loadMore: () => Promise<void>
@@ -49,6 +54,8 @@ interface SkillState {
 
 export const useSkillStore = create<SkillState>((set, get) => ({
   // 初始状态
+  error: null,
+
   searchParams: { sort: 'downloads', per_page: 20, page: 1 },
   searchResults: [],
   isSearching: false,
@@ -67,6 +74,10 @@ export const useSkillStore = create<SkillState>((set, get) => ({
   isLoadingUserSkills: false,
   isLoadingUserFavorites: false,
 
+  // Error Actions
+  setError: (error) => set({ error }),
+  clearError: () => set({ error: null }),
+
   // Actions
   setSearchParams: (params) => {
     set((state) => ({
@@ -76,7 +87,7 @@ export const useSkillStore = create<SkillState>((set, get) => ({
 
   search: async () => {
     const { searchParams } = get()
-    set({ isSearching: true })
+    set({ isSearching: true, error: null })
 
     try {
       const result = await skillService.search(searchParams)
@@ -85,8 +96,9 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         searchTotal: result.total,
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '搜索失败，请重试'
       console.error('Search failed:', error)
-      set({ searchResults: [], searchTotal: 0 })
+      set({ searchResults: [], searchTotal: 0, error: message })
     } finally {
       set({ isSearching: false })
     }
@@ -96,7 +108,7 @@ export const useSkillStore = create<SkillState>((set, get) => ({
     const { searchParams, searchResults } = get()
     const nextPage = (searchParams.page || 1) + 1
 
-    set({ isSearching: true })
+    set({ isSearching: true, error: null })
 
     try {
       const result = await skillService.search({
@@ -108,38 +120,44 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         searchParams: { ...searchParams, page: nextPage },
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '加载更多失败，请重试'
       console.error('Load more failed:', error)
+      set({ error: message })
     } finally {
       set({ isSearching: false })
     }
   },
 
   loadPopular: async () => {
-    set({ isLoadingPopular: true })
+    set({ isLoadingPopular: true, error: null })
     try {
       const skills = await skillService.getPopular(10)
       set({ popularSkills: skills })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '加载热门 Skill 失败'
       console.error('Load popular failed:', error)
+      set({ error: message })
     } finally {
       set({ isLoadingPopular: false })
     }
   },
 
   loadLatest: async () => {
-    set({ isLoadingLatest: true })
+    set({ isLoadingLatest: true, error: null })
     try {
       const skills = await skillService.getLatest(10)
       set({ latestSkills: skills })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '加载最新 Skill 失败'
       console.error('Load latest failed:', error)
+      set({ error: message })
     } finally {
       set({ isLoadingLatest: false })
     }
   },
 
   loadSkill: async (slug: string) => {
-    set({ isLoadingSkill: true, currentSkill: null })
+    set({ isLoadingSkill: true, currentSkill: null, error: null })
     try {
       const skill = await skillService.getBySlug(slug)
       if (skill) {
@@ -150,14 +168,16 @@ export const useSkillStore = create<SkillState>((set, get) => ({
       }
       set({ currentSkill: skill })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '加载 Skill 详情失败'
       console.error('Load skill failed:', error)
+      set({ error: message })
     } finally {
       set({ isLoadingSkill: false })
     }
   },
 
   loadUserSkills: async () => {
-    set({ isLoadingUserSkills: true })
+    set({ isLoadingUserSkills: true, error: null })
     try {
       const { supabase } = await import('@/lib/supabase/client')
       const {
@@ -168,14 +188,16 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         set({ userSkills: skills })
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : '加载我的 Skill 失败'
       console.error('Load user skills failed:', error)
+      set({ error: message })
     } finally {
       set({ isLoadingUserSkills: false })
     }
   },
 
   loadUserFavorites: async () => {
-    set({ isLoadingUserFavorites: true })
+    set({ isLoadingUserFavorites: true, error: null })
     try {
       const { supabase } = await import('@/lib/supabase/client')
       const {
@@ -186,7 +208,9 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         set({ userFavorites: skills })
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : '加载收藏失败'
       console.error('Load user favorites failed:', error)
+      set({ error: message })
     } finally {
       set({ isLoadingUserFavorites: false })
     }
@@ -215,7 +239,9 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         ),
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '点赞失败，请重试'
       console.error('Like failed:', error)
+      set({ error: message })
     }
   },
 
@@ -246,7 +272,9 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         ),
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '取消点赞失败，请重试'
       console.error('Unlike failed:', error)
+      set({ error: message })
     }
   },
 
@@ -273,7 +301,9 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         ),
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '收藏失败，请重试'
       console.error('Favorite failed:', error)
+      set({ error: message })
     }
   },
 
@@ -306,7 +336,9 @@ export const useSkillStore = create<SkillState>((set, get) => ({
         userFavorites: userFavorites.filter((s) => s.id !== skillId),
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : '取消收藏失败，请重试'
       console.error('Unfavorite failed:', error)
+      set({ error: message })
     }
   },
 

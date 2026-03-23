@@ -30,7 +30,7 @@ export function AuthorCard({ author, skillsCount, totalDownloads }: AuthorCardPr
       <div>
         <p className="font-semibold text-lg">{author.full_name ?? '匿名用户'}</p>
         <p className="text-sm text-muted-foreground">
-          {skillsCount} 个 Skills &middot; {totalDownloads} 次下载
+          {skillsCount} 个 Skills · {totalDownloads} 次下载
         </p>
       </div>
     </div>

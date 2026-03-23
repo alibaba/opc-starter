@@ -41,6 +41,9 @@ const UserFavoritesPage = lazy(() =>
 const UserProfilePage = lazy(() =>
   import('@/pages/skills/UserProfilePage').then((m) => ({ default: m.UserProfilePage }))
 )
+const SkillEditPage = lazy(() =>
+  import('@/pages/skills/SkillEditPage').then((m) => ({ default: m.SkillEditPage }))
+)
 
 /**
  * 路由配置 - OPC-Starter
@@ -52,6 +55,10 @@ export const router = createBrowserRouter([
   {
     path: '/skill/:slug',
     element: <SkillDetailPage />,
+  },
+  {
+    path: '/skill/:slug/edit',
+    element: <SkillEditPage />,
   },
   {
     path: '/user/:userId',

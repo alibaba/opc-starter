@@ -89,17 +89,10 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    // Generate signed download URL (5 minutes expiry)
-    const { data: signedUrlData, error: urlError } = await supabaseClient.storage
-      .from('skills')
-      .createSignedUrl(version.storage_path, 300)
-
-    if (urlError) {
-      return new Response(JSON.stringify({ error: urlError.message }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
+    // Generate download URL
+    // 由于 Aliyun Supabase 不支持 storage.sign_url，我们使用公开 URL
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+    const downloadUrl = `${supabaseUrl}/storage/v1/object/public/skills/${version.storage_path}`
 
     // Get current user for install record
     const {
@@ -118,7 +111,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        download_url: signedUrlData.signedUrl,
+        download_url: downloadUrl,
         version: version.version,
         file_size: version.file_size,
         file_hash: version.file_hash,

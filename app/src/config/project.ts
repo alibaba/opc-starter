@@ -27,7 +27,6 @@ export interface ProjectConfig {
 function getEnvVar(key: string, defaultValue: string): string {
   // 在浏览器环境中
   if (typeof window !== 'undefined' && window.location) {
-    // @ts-expect-error: import.meta.env typing varies between environments
     return import.meta.env?.[key] || defaultValue
   }
 

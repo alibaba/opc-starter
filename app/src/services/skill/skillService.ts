@@ -15,6 +15,32 @@ import type {
 } from '@/types/skill'
 
 /**
+ * 转义 LIKE 查询中的特殊字符，防止 SQL 注入
+ * PostgREST/ilike 特殊字符: % _ \
+ */
+function escapeLikePattern(str: string): string {
+  return str.replace(/[%_\\]/g, '\\$&')
+}
+
+/**
+ * 从 Skill 名称生成 slug
+ * 规则：小写、空格转连字符、只保留字母数字和连字符、去掉首尾连字符
+ */
+function generateSlug(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/[\u4e00-\u9fa5]/g, '') // 移除中文字符（可选）
+    .replace(/[^a-z0-9\s-]/g, '') // 只保留字母、数字、空格、连字符
+    .trim()
+    .replace(/\s+/g, '-') // 空格转连字符
+    .replace(/-+/g, '-') // 多个连字符合并
+    .replace(/^-|-$/g, '') // 去掉首尾连字符
+  // 追加随机后缀确保唯一性
+  const suffix = Math.random().toString(36).substring(2, 7)
+  return base ? `${base}-${suffix}` : `skill-${suffix}`
+}
+
+/**
  * 构建搜索查询
  */
 function buildSearchQuery(params: SkillSearchParams) {
@@ -26,9 +52,9 @@ function buildSearchQuery(params: SkillSearchParams) {
     )
     .eq('visibility', 'public')
 
-  // 关键词搜索（名称、描述、标签）
+  // 关键词搜索（名称、描述、标签）- 使用转义防止注入
   if (params.query) {
-    const keyword = params.query.trim()
+    const keyword = escapeLikePattern(params.query.trim())
     query = query.or(`name.ilike.%${keyword}%,description.ilike.%${keyword}%,tags.cs.{${keyword}}`)
   }
 
@@ -181,6 +207,7 @@ export const skillService = {
       .insert({
         ...skill,
         author_id: userData.user.id,
+        slug: generateSlug(skill.name),
       })
       .select('*, author:profiles(id, full_name, avatar_url)')
       .single()
@@ -438,5 +465,21 @@ export const skillService = {
       { value: 'cline', label: 'Cline' },
       { value: 'windsurf', label: 'Windsurf' },
     ]
+  },
+
+  /**
+   * 获取用户公开资料
+   */
+  async getUserProfile(
+    userId: string
+  ): Promise<{ id: string; full_name: string | null; avatar_url: string | null } | null> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .eq('id', userId)
+      .single()
+
+    if (error || !data) return null
+    return data
   },
 }

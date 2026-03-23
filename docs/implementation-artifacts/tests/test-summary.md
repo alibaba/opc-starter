@@ -1,24 +1,60 @@
 # Test Automation Summary
 
+**生成日期**: 2026-03-20  
+**项目**: OPC-Starter  
+**测试框架**: Playwright + Vitest
+
+---
+
 ## Generated Tests
 
-### E2E Tests (Playwright)
+### 新增 E2E 测试文件
+
+#### 1. `tests/e2e/skills/skills-edit.spec.ts`
+**Skill 编辑页面 E2E 测试** (24 个测试用例)
+
+- **访问控制** (3 tests): 未登录重定向、已登录访问、非作者权限检查
+- **表单预填充** (6 tests): 名称、描述、版本号、README、平台、标签
+- **编辑功能** (6 tests): 修改名称、描述、README、标签、平台、可见性
+- **新版本上传** (4 tests): 上传区域、版本号、版本说明、文件选择
+- **表单验证** (3 tests): 名称非空、描述非空、平台选择
+- **取消和导航** (2 tests): 取消返回、从详情页进入
+
+#### 2. `tests/e2e/skills/skills-interactions.spec.ts`
+**社交互动 E2E 测试** (16 个测试用例)
+
+- **点赞功能 - 未登录** (4 tests): 显示按钮、登录提示、登录按钮、取消提示
+- **点赞功能 - 已登录** (3 tests): 点击点赞、数字变化、取消点赞
+- **收藏功能 - 未登录** (2 tests): 显示按钮、登录提示
+- **收藏功能 - 已登录** (3 tests): 点击收藏、收藏列表、取消收藏
+- **Skill 卡片互动** (3 tests): 首页点赞数、首页下载数、搜索页互动数据
+- **状态同步** (1 test): 刷新后状态保持
+
+### 已有 E2E 测试 (Playwright)
 
 #### Functional Tests
 
 | File | Description | Test Cases |
 |------|-------------|------------|
 | `tests/e2e/skills/skills-home.spec.ts` | Skills Hub 首页测试 | 12 tests |
-| `tests/e2e/skills/skills-search.spec.ts` | Skills Hub 搜索页测试 | 13 tests |
-| `tests/e2e/skills/skills-detail.spec.ts` | Skills Hub 详情页测试 | 14 tests |
-| `tests/e2e/skills/skills-publish.spec.ts` | Skills Hub 发布页测试 | 11 tests |
-| `tests/e2e/skills/skills-user.spec.ts` | Skills Hub 用户中心测试 | 12 tests |
+| `tests/e2e/skills/skills-search.spec.ts` | Skills Hub 搜索页测试 | 22 tests |
+| `tests/e2e/skills/skills-detail.spec.ts` | Skills Hub 详情页测试 | 16 tests |
+| `tests/e2e/skills/skills-publish.spec.ts` | Skills Hub 发布页测试 | 10 tests |
+| `tests/e2e/skills/skills-delete.spec.ts` | Skill 删除测试 | 14 tests |
+| `tests/e2e/skills/skills-upload-download.spec.ts` | 上传下载测试 | 14 tests |
+| `tests/e2e/skills/skills-user.spec.ts` | Skills Hub 用户中心测试 | 11 tests |
+| `tests/e2e/auth/login.spec.ts` | 登录测试 | 8 tests |
+| `tests/e2e/auth/register.spec.ts` | 注册测试 | 12 tests |
+| `tests/e2e/dashboard.spec.ts` | Dashboard 测试 | 4 tests |
+| `tests/e2e/profile.spec.ts` | 个人资料测试 | 4 tests |
+| `tests/e2e/settings.spec.ts` | 设置测试 | 4 tests |
+| `tests/e2e/persons.spec.ts` | 人员管理测试 | 3 tests |
 
 #### Demo Tests (可视化演示)
 
 | File | Description | Test Cases |
 |------|-------------|------------|
-| `tests/e2e/demo/demo-auth.spec.ts` | 认证流程演示（登录/注册/错误处理） | 5 tests |
+| `tests/e2e/demo/demo-auth.spec.ts` | 认证流程演示 | 5 tests |
 | `tests/e2e/demo/demo-skills-hub.spec.ts` | Skills Hub 完整流程演示 | 6 tests |
 | `tests/e2e/demo/demo-ui-interactions.spec.ts` | UI 交互与视觉效果演示 | 8 tests |
 
@@ -28,6 +64,11 @@
 |------|-------------|------------|
 | `src/stores/__tests__/useSkillStore.test.ts` | Skill Store 状态管理测试 | 21 tests |
 | `src/types/__tests__/skill.test.ts` | Skill 类型定义测试 | 18 tests |
+| `src/types/__tests__/error.test.ts` | 错误类型测试 | - |
+| `src/pages/__tests__/PersonsPage.test.tsx` | Persons 页面测试 | - |
+| `src/pages/__tests__/ProfilePage.test.tsx` | Profile 页面测试 | - |
+| `src/components/layout/Sidebar/__tests__/Sidebar.test.tsx` | Sidebar 测试 | - |
+| `src/components/agent/a2ui/__tests__/*.test.tsx` | A2UI 组件测试 | - |
 
 ## Coverage
 
@@ -35,21 +76,30 @@
 
 | Epic | Feature | E2E Tests | Unit Tests |
 |------|---------|-----------|------------|
+| Epic 29 | 数据库基础设施 | - | - |
 | Epic 30 | Skill 发现与搜索 | ✅ skills-home, skills-search | ✅ useSkillStore |
-| Epic 31 | Skill 详情与下载 | ✅ skills-detail | ✅ skill types |
-| Epic 32 | Skill 发布系统 | ✅ skills-publish | - |
-| Epic 33 | 社交互动（点赞/收藏） | ✅ skills-detail (社交功能) | ✅ useSkillStore (like/unlike) |
-| Epic 34 | 用户中心 | ✅ skills-user | ✅ useSkillStore (userSkills/userFavorites) |
+| Epic 31 | Skill 详情与下载 | ✅ skills-detail, skills-upload-download | ✅ skill types |
+| Epic 32 | Skill 发布系统 | ✅ skills-publish, skills-edit (新增) | - |
+| Epic 33 | 社交互动（点赞/收藏） | ✅ skills-detail, skills-interactions (新增) | ✅ useSkillStore |
+| Epic 34 | 用户中心 | ✅ skills-user | ✅ useSkillStore |
+
+### Post-MVP Features (Epic 35-37)
+
+| Epic | Feature | 状态 | E2E Tests |
+|------|---------|------|-----------|
+| Epic 35 | CLI 安装工具 | 🚧 开发中 | - |
+| Epic 36 | 作者数据看板 | 🚧 开发中 | - |
+| Epic 37 | 评论系统 | 🚧 开发中 | - |
 
 ### Test Priority Distribution
 
-| Priority | E2E Tests | Unit Tests |
-|----------|-----------|------------|
-| P0 (Critical) | 8 | - |
-| P1 (Important) | 35 | - |
-| P2 (Nice to have) | 19 | - |
-| Demo (演示) | 19 | - |
-| **Total** | **81** | **39** |
+| Priority | E2E Tests | 说明 |
+|----------|-----------|------|
+| P0 (Critical) | 20 | 核心功能路径 |
+| P1 (Important) | 55 | 主要功能覆盖 |
+| P2 (Nice to have) | 30 | 边缘场景 |
+| Demo (演示) | 19 | 可视化演示 |
+| **Total** | **~174** | **含新增 40 个** |
 
 ## Demo Tests Details
 

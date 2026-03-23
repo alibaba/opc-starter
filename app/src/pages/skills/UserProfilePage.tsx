@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SkillCard } from '@/components/skills/SkillCard'
 import { AuthorCard } from '@/components/skills/AuthorCard'
-import { supabase } from '@/lib/supabase/client'
 import { skillService } from '@/services/skill'
 import type { Skill } from '@/types/skill'
 
@@ -35,14 +34,10 @@ export function UserProfilePage() {
     const load = async () => {
       setIsLoading(true)
       try {
-        // 查询用户 profile
-        const { data: profileData, error } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .eq('id', userId)
-          .single()
+        // 查询用户 profile（通过 service 层）
+        const profileData = await skillService.getUserProfile(userId)
 
-        if (error || !profileData) {
+        if (!profileData) {
           setNotFound(true)
           return
         }
@@ -51,7 +46,8 @@ export function UserProfilePage() {
         // 查询该用户的公开 Skills
         const result = await skillService.getUserSkills(userId)
         setSkills(result.filter((s) => s.visibility === 'public'))
-      } catch {
+      } catch (error) {
+        console.error('[UserProfilePage] Failed to load profile:', error)
         setNotFound(true)
       } finally {
         setIsLoading(false)

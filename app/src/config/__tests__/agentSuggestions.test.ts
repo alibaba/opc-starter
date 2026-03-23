@@ -5,7 +5,12 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { getContextualSuggestions, PAGE_SUGGESTIONS, GLOBAL_SUGGESTIONS } from '../agentSuggestions'
+import {
+  getContextualSuggestions,
+  PAGE_SUGGESTIONS,
+  GLOBAL_SUGGESTIONS,
+  NAVIGATION_HINTS,
+} from '../agentSuggestions'
 import type { AgentContext } from '@/types/agent'
 
 // 创建基础上下文
@@ -138,6 +143,63 @@ describe('agentSuggestions', () => {
     it('应该包含通用推荐', () => {
       expect(GLOBAL_SUGGESTIONS.length).toBeGreaterThan(0)
       expect(GLOBAL_SUGGESTIONS.some((s) => s.text.includes('搜索'))).toBe(true)
+    })
+
+    it('每个推荐项应该有文本和图标', () => {
+      GLOBAL_SUGGESTIONS.forEach((s) => {
+        expect(s.text).toBeTruthy()
+        expect(s.icon).toBeTruthy()
+      })
+    })
+  })
+
+  describe('NAVIGATION_HINTS', () => {
+    it('应该为每个页面类型定义导航提示', () => {
+      const expectedPages = [
+        'dashboard',
+        'persons',
+        'profile',
+        'settings',
+        'cloud-storage',
+        'other',
+      ]
+      expectedPages.forEach((page) => {
+        expect(NAVIGATION_HINTS[page as keyof typeof NAVIGATION_HINTS]).toBeDefined()
+        expect(typeof NAVIGATION_HINTS[page as keyof typeof NAVIGATION_HINTS]).toBe('string')
+      })
+    })
+  })
+
+  describe('navigationHint 逻辑', () => {
+    it('应该为需要其他页面的推荐添加 navigationHint', () => {
+      // 创建一个带有 requiresPage 的推荐场景
+      const context = createBaseContext('dashboard')
+      const result = getContextualSuggestions(context)
+
+      // 所有推荐都不需要特定页面（dashboard推荐都是当前页面的）
+      // 所以不应该有 navigationHint
+      result.suggestions.forEach((s) => {
+        if (!s.requiresPage || s.requiresPage === 'dashboard') {
+          expect(s.navigationHint).toBeUndefined()
+        }
+      })
+    })
+
+    it('每个页面推荐项应该都有 text 和 icon', () => {
+      const pages: AgentContext['currentPage'][] = [
+        'dashboard',
+        'persons',
+        'profile',
+        'settings',
+        'cloud-storage',
+        'other',
+      ]
+      pages.forEach((page) => {
+        PAGE_SUGGESTIONS[page].suggestions.forEach((s) => {
+          expect(s.text).toBeTruthy()
+          expect(s.icon).toBeTruthy()
+        })
+      })
     })
   })
 })

@@ -40,8 +40,13 @@ describe('Sidebar', () => {
   it('应该显示基础导航菜单项', () => {
     renderWithRouter(<Sidebar />)
 
-    // OPC-Starter 菜单项
-    expect(screen.getByText('首页')).toBeInTheDocument()
+    // Skills Hub 菜单项
+    expect(screen.getByText('Skills 广场')).toBeInTheDocument()
+    expect(screen.getByText('搜索 Skills')).toBeInTheDocument()
+    expect(screen.getByText('发布 Skill')).toBeInTheDocument()
+    expect(screen.getByText('我的 Skills')).toBeInTheDocument()
+    expect(screen.getByText('我的收藏')).toBeInTheDocument()
+    // 其他菜单项
     expect(screen.getByText('组织管理')).toBeInTheDocument()
     expect(screen.getByText('个人中心')).toBeInTheDocument()
     expect(screen.getByText('设置')).toBeInTheDocument()
@@ -62,7 +67,7 @@ describe('Sidebar', () => {
     mockPathname = '/'
     renderWithRouter(<Sidebar />)
 
-    const homeLinks = screen.getAllByText('首页')
+    const homeLinks = screen.getAllByText('Skills 广场')
     const homeLink = homeLinks[0].closest('a')
 
     expect(homeLink?.className).toContain('bg-primary')
@@ -88,7 +93,7 @@ describe('Sidebar', () => {
 
     renderWithRouter(<Sidebar isOpen={true} onClose={mockOnClose} />)
 
-    const homeLink = screen.getAllByText('首页')[0]
+    const homeLink = screen.getAllByText('Skills 广场')[0]
     await user.click(homeLink)
 
     expect(mockOnClose).toHaveBeenCalled()
@@ -134,8 +139,11 @@ describe('Sidebar', () => {
   it('导航链接应该有正确的路径', () => {
     renderWithRouter(<Sidebar />)
 
-    const homeLink = screen.getAllByText('首页')[0].closest('a')
+    const homeLink = screen.getAllByText('Skills 广场')[0].closest('a')
     expect(homeLink).toHaveAttribute('href', '/')
+
+    const searchLink = screen.getAllByText('搜索 Skills')[0].closest('a')
+    expect(searchLink).toHaveAttribute('href', '/search')
 
     const organizationLink = screen.getAllByText('组织管理')[0].closest('a')
     expect(organizationLink).toHaveAttribute('href', '/persons')

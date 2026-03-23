@@ -43,6 +43,7 @@ coverage/
 
 # Playwright 测试产物（本地保留，不入仓库）
 app/playwright-report/
+app/playwright-visual-report/
 app/test-results/
 test-results/
 .playwright-cli/
@@ -59,6 +60,8 @@ RDS迁移记录.md
 .mcp.json
 .swarm
 opencode.json
+test-request.js
+docs/project-scan-report.json
 
 # swarm
 .swarm/worktrees/

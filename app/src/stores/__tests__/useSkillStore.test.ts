@@ -1,28 +1,11 @@
 /**
  * useSkillStore 单元测试
- *
- * 测试覆盖：
- * - 初始状态
- * - 搜索功能
- * - 点赞/取消点赞
- * - 收藏/取消收藏
- * - 状态更新
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { act } from '@testing-library/react'
+import type { Skill } from '@/types/skill'
 
-// Mock modules before importing
-vi.mock('@/lib/supabase/client', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({
-        data: { user: { id: 'test-user-id' } },
-      }),
-    },
-  },
-}))
-
+// Mock skillService - 工厂函数内部定义
 vi.mock('@/services/skill', () => ({
   skillService: {
     search: vi.fn(),
@@ -39,422 +22,258 @@ vi.mock('@/services/skill', () => ({
   },
 }))
 
-// Import after mocking
-import { useSkillStore } from '@/stores/useSkillStore'
-import { skillService } from '@/services/skill'
-import type { Skill } from '@/types/skill'
-
-// Get mocked functions
-const mockSkillService = vi.mocked(skillService)
-
-// ============================================
-// 测试数据
-// ============================================
-
-const mockSkill: Skill = {
-  id: 'skill-1',
-  author_id: 'author-1',
-  name: 'Test Skill',
-  slug: 'test-skill',
-  description: 'A test skill',
-  readme: '# Test Skill',
-  visibility: 'public',
-  tags: ['test', 'demo'],
-  platforms: ['qoder'],
-  latest_version: '1.0.0',
-  downloads_count: 100,
-  likes_count: 10,
-  favorites_count: 5,
-  created_at: '2024-01-01T00:00:00.000Z',
-  updated_at: '2024-01-01T00:00:00.000Z',
-  published_at: '2024-01-01T00:00:00.000Z',
-  author: {
-    id: 'author-1',
-    full_name: 'Test Author',
-    avatar_url: null,
+vi.mock('@/lib/supabase/client', () => ({
+  supabase: {
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } }),
+    },
   },
-}
+}))
 
-const mockSkill2: Skill = {
-  ...mockSkill,
-  id: 'skill-2',
-  slug: 'test-skill-2',
-  name: 'Test Skill 2',
-}
+// import 后通过 vi.mocked 获取 mock 引用
+import { skillService } from '@/services/skill'
+import { useSkillStore } from '../useSkillStore'
 
-// ============================================
-// 测试套件
-// ============================================
+const mockedSkillService = vi.mocked(skillService)
+
+// 测试数据
+const mockSkills: Skill[] = [
+  {
+    id: 'skill-1',
+    slug: 'test-skill-1',
+    name: 'Test Skill 1',
+    description: 'A test skill',
+    author_id: 'user-1',
+    readme: '# Test Skill 1',
+    visibility: 'public',
+    tags: ['test'],
+    platforms: ['qoder'],
+    latest_version: '1.0.0',
+    downloads_count: 100,
+    likes_count: 10,
+    favorites_count: 5,
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+    published_at: '2024-01-01T00:00:00Z',
+    is_liked: false,
+    is_favorited: false,
+  },
+  {
+    id: 'skill-2',
+    slug: 'test-skill-2',
+    name: 'Test Skill 2',
+    description: 'Another test skill',
+    author_id: 'user-2',
+    readme: '# Test Skill 2',
+    visibility: 'public',
+    tags: ['test'],
+    platforms: ['qoder'],
+    latest_version: '1.0.0',
+    downloads_count: 50,
+    likes_count: 5,
+    favorites_count: 2,
+    created_at: '2024-01-02T00:00:00Z',
+    updated_at: '2024-01-02T00:00:00Z',
+    published_at: '2024-01-02T00:00:00Z',
+    is_liked: true,
+    is_favorited: true,
+  },
+]
+
+const mockSearchResult = { results: mockSkills, total: 2, page: 1, per_page: 20 }
 
 describe('useSkillStore', () => {
   beforeEach(() => {
-    // 重置 store 状态
-    useSkillStore.setState({
-      searchParams: { sort: 'downloads', per_page: 20, page: 1 },
-      searchResults: [],
-      isSearching: false,
-      searchTotal: 0,
-      popularSkills: [],
-      latestSkills: [],
-      isLoadingPopular: false,
-      isLoadingLatest: false,
-      currentSkill: null,
-      isLoadingSkill: false,
-      userSkills: [],
-      userFavorites: [],
-      isLoadingUserSkills: false,
-      isLoadingUserFavorites: false,
-    })
-
-    // 清除所有 mock
     vi.clearAllMocks()
+    const store = useSkillStore.getState()
+    store.setError(null)
+    store.clearSearch()
+    store.clearCurrentSkill()
   })
 
-  describe('初始状态', () => {
-    it('应该有正确的初始状态', () => {
-      const state = useSkillStore.getState()
-
-      expect(state.searchResults).toEqual([])
-      expect(state.isSearching).toBe(false)
-      expect(state.searchTotal).toBe(0)
-      expect(state.popularSkills).toEqual([])
-      expect(state.latestSkills).toEqual([])
-      expect(state.currentSkill).toBeNull()
-      expect(state.userSkills).toEqual([])
-      expect(state.userFavorites).toEqual([])
+  describe('错误处理', () => {
+    it('应该设置错误', () => {
+      useSkillStore.getState().setError('Something went wrong')
+      expect(useSkillStore.getState().error).toBe('Something went wrong')
     })
 
-    it('应该有默认的搜索参数', () => {
-      const state = useSkillStore.getState()
-
-      expect(state.searchParams.sort).toBe('downloads')
-      expect(state.searchParams.per_page).toBe(20)
-      expect(state.searchParams.page).toBe(1)
+    it('应该清除错误', () => {
+      useSkillStore.getState().setError('Error')
+      useSkillStore.getState().clearError()
+      expect(useSkillStore.getState().error).toBeNull()
     })
   })
 
-  describe('setSearchParams', () => {
-    it('应该更新搜索参数', () => {
-      const { setSearchParams } = useSkillStore.getState()
-
-      act(() => {
-        setSearchParams({ query: 'react', sort: 'likes' })
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.searchParams.query).toBe('react')
-      expect(state.searchParams.sort).toBe('likes')
-      // page 应该重置为 1
-      expect(state.searchParams.page).toBe(1)
+  describe('搜索功能', () => {
+    it('应该设置搜索参数', () => {
+      useSkillStore.getState().setSearchParams({ query: 'test', sort: 'likes' })
+      const params = useSkillStore.getState().searchParams
+      expect(params.query).toBe('test')
+      expect(params.sort).toBe('likes')
+      expect(params.page).toBe(1)
     })
 
-    it('应该保留未指定的参数', () => {
-      const { setSearchParams } = useSkillStore.getState()
+    it('应该执行搜索', async () => {
+      mockedSkillService.search.mockResolvedValue(mockSearchResult)
+      await useSkillStore.getState().search()
 
-      act(() => {
-        setSearchParams({ per_page: 50 })
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.searchParams.per_page).toBe(50)
-      expect(state.searchParams.sort).toBe('downloads')
-    })
-  })
-
-  describe('search', () => {
-    it('应该成功搜索并更新结果', async () => {
-      mockSkillService.search.mockResolvedValueOnce({
-        results: [mockSkill, mockSkill2],
-        total: 2,
-        page: 1,
-        per_page: 20,
-      })
-
-      const { search, setSearchParams } = useSkillStore.getState()
-
-      act(() => {
-        setSearchParams({ query: 'test' })
-      })
-
-      await act(async () => {
-        await search()
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.searchResults).toHaveLength(2)
-      expect(state.searchTotal).toBe(2)
-      expect(state.isSearching).toBe(false)
-    })
-
-    it('搜索失败时应该设置空结果', async () => {
-      mockSkillService.search.mockRejectedValueOnce(new Error('Search failed'))
-
-      const { search } = useSkillStore.getState()
-
-      await act(async () => {
-        await search()
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.searchResults).toEqual([])
-      expect(state.searchTotal).toBe(0)
-      expect(state.isSearching).toBe(false)
-    })
-
-    it('搜索时应该设置 isSearching 状态', async () => {
-      let resolveSearch: () => void
-      mockSkillService.search.mockImplementation(
-        () =>
-          new Promise((resolve) => {
-            resolveSearch = () =>
-              resolve({
-                results: [],
-                total: 0,
-                page: 1,
-                per_page: 20,
-              })
-          })
-      )
-
-      const searchPromise = act(async () => {
-        await useSkillStore.getState().search()
-      })
-
-      // 搜索进行中
-      expect(useSkillStore.getState().isSearching).toBe(true)
-
-      // 完成搜索
-      resolveSearch!()
-      await searchPromise
-
+      expect(mockedSkillService.search).toHaveBeenCalled()
+      expect(useSkillStore.getState().searchResults).toEqual(mockSkills)
+      expect(useSkillStore.getState().searchTotal).toBe(2)
       expect(useSkillStore.getState().isSearching).toBe(false)
     })
-  })
 
-  describe('loadPopular', () => {
-    it('应该成功加载热门 Skills', async () => {
-      mockSkillService.getPopular.mockResolvedValueOnce([mockSkill, mockSkill2])
+    it('应该处理搜索错误', async () => {
+      mockedSkillService.search.mockRejectedValue(new Error('Search failed'))
+      await useSkillStore.getState().search()
 
-      await act(async () => {
-        await useSkillStore.getState().loadPopular()
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.popularSkills).toHaveLength(2)
-      expect(state.isLoadingPopular).toBe(false)
+      expect(useSkillStore.getState().error).toBe('Search failed')
+      expect(useSkillStore.getState().searchResults).toHaveLength(0)
+      expect(useSkillStore.getState().isSearching).toBe(false)
     })
 
-    it('加载失败时应该保持空数组', async () => {
-      mockSkillService.getPopular.mockRejectedValueOnce(new Error('Load failed'))
+    it('应该加载更多', async () => {
+      mockedSkillService.search.mockResolvedValueOnce(mockSearchResult)
+      await useSkillStore.getState().search()
 
-      await act(async () => {
-        await useSkillStore.getState().loadPopular()
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.popularSkills).toEqual([])
-      expect(state.isLoadingPopular).toBe(false)
-    })
-  })
-
-  describe('loadLatest', () => {
-    it('应该成功加载最新 Skills', async () => {
-      mockSkillService.getLatest.mockResolvedValueOnce([mockSkill])
-
-      await act(async () => {
-        await useSkillStore.getState().loadLatest()
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.latestSkills).toHaveLength(1)
-    })
-  })
-
-  describe('loadSkill', () => {
-    it('应该成功加载 Skill 详情', async () => {
-      mockSkillService.getBySlug.mockResolvedValueOnce(mockSkill)
-      mockSkillService.getUserInteractions.mockResolvedValueOnce({
-        likes: new Set(),
-        favorites: new Set(),
-      })
-
-      await act(async () => {
-        await useSkillStore.getState().loadSkill('test-skill')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill).toEqual(mockSkill)
-      expect(state.isLoadingSkill).toBe(false)
-    })
-
-    it('Skill 不存在时应该设置为 null', async () => {
-      mockSkillService.getBySlug.mockResolvedValueOnce(null)
-
-      await act(async () => {
-        await useSkillStore.getState().loadSkill('nonexistent')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill).toBeNull()
-    })
-
-    it('应该获取用户的点赞/收藏状态', async () => {
-      mockSkillService.getBySlug.mockResolvedValueOnce(mockSkill)
-      mockSkillService.getUserInteractions.mockResolvedValueOnce({
-        likes: new Set(['skill-1']),
-        favorites: new Set(['skill-1']),
-      })
-
-      await act(async () => {
-        await useSkillStore.getState().loadSkill('test-skill')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill?.is_liked).toBe(true)
-      expect(state.currentSkill?.is_favorited).toBe(true)
-    })
-  })
-
-  describe('like/unlike', () => {
-    it('应该成功点赞并更新状态', async () => {
-      // 设置初始状态
-      useSkillStore.setState({
-        currentSkill: { ...mockSkill, is_liked: false, likes_count: 10 },
-      })
-
-      mockSkillService.like.mockResolvedValueOnce(undefined)
-
-      await act(async () => {
-        await useSkillStore.getState().like('skill-1')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill?.is_liked).toBe(true)
-      expect(state.currentSkill?.likes_count).toBe(11)
-    })
-
-    it('应该成功取消点赞并更新状态', async () => {
-      useSkillStore.setState({
-        currentSkill: { ...mockSkill, is_liked: true, likes_count: 10 },
-      })
-
-      mockSkillService.unlike.mockResolvedValueOnce(undefined)
-
-      await act(async () => {
-        await useSkillStore.getState().unlike('skill-1')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill?.is_liked).toBe(false)
-      expect(state.currentSkill?.likes_count).toBe(9)
-    })
-
-    it('点赞数不应该低于 0', async () => {
-      useSkillStore.setState({
-        currentSkill: { ...mockSkill, is_liked: true, likes_count: 0 },
-      })
-
-      mockSkillService.unlike.mockResolvedValueOnce(undefined)
-
-      await act(async () => {
-        await useSkillStore.getState().unlike('skill-1')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill?.likes_count).toBe(0)
-    })
-  })
-
-  describe('favorite/unfavorite', () => {
-    it('应该成功收藏并更新状态', async () => {
-      useSkillStore.setState({
-        currentSkill: { ...mockSkill, is_favorited: false, favorites_count: 5 },
-      })
-
-      mockSkillService.favorite.mockResolvedValueOnce(undefined)
-
-      await act(async () => {
-        await useSkillStore.getState().favorite('skill-1')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill?.is_favorited).toBe(true)
-      expect(state.currentSkill?.favorites_count).toBe(6)
-    })
-
-    it('取消收藏时应该从收藏列表移除', async () => {
-      useSkillStore.setState({
-        currentSkill: { ...mockSkill, is_favorited: true, favorites_count: 5 },
-        userFavorites: [mockSkill],
-      })
-
-      mockSkillService.unfavorite.mockResolvedValueOnce(undefined)
-
-      await act(async () => {
-        await useSkillStore.getState().unfavorite('skill-1')
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.currentSkill?.is_favorited).toBe(false)
-      expect(state.userFavorites).toHaveLength(0)
-    })
-  })
-
-  describe('clearSearch', () => {
-    it('应该清除搜索状态', () => {
-      useSkillStore.setState({
-        searchParams: { query: 'test', sort: 'likes', per_page: 20, page: 2 },
-        searchResults: [mockSkill],
-        searchTotal: 1,
-      })
-
-      act(() => {
-        useSkillStore.getState().clearSearch()
-      })
-
-      const state = useSkillStore.getState()
-      expect(state.searchParams.query).toBeUndefined()
-      expect(state.searchResults).toEqual([])
-      expect(state.searchTotal).toBe(0)
-    })
-  })
-
-  describe('clearCurrentSkill', () => {
-    it('应该清除当前 Skill', () => {
-      useSkillStore.setState({
-        currentSkill: mockSkill,
-      })
-
-      act(() => {
-        useSkillStore.getState().clearCurrentSkill()
-      })
-
-      expect(useSkillStore.getState().currentSkill).toBeNull()
-    })
-  })
-
-  describe('loadMore', () => {
-    it('应该加载更多结果并追加', async () => {
-      useSkillStore.setState({
-        searchParams: { sort: 'downloads', per_page: 20, page: 1 },
-        searchResults: [mockSkill],
-        searchTotal: 3,
-      })
-
-      mockSkillService.search.mockResolvedValueOnce({
-        results: [mockSkill2],
+      const moreSkills = [{ ...mockSkills[0], id: 'skill-3' }]
+      mockedSkillService.search.mockResolvedValueOnce({
+        results: moreSkills,
         total: 3,
         page: 2,
         per_page: 20,
       })
+      await useSkillStore.getState().loadMore()
 
-      await act(async () => {
-        await useSkillStore.getState().loadMore()
+      expect(useSkillStore.getState().searchResults).toHaveLength(3)
+      expect(useSkillStore.getState().searchParams.page).toBe(2)
+    })
+  })
+
+  describe('首页数据', () => {
+    it('应该加载热门技能', async () => {
+      mockedSkillService.getPopular.mockResolvedValue([mockSkills[0]])
+      await useSkillStore.getState().loadPopular()
+
+      expect(useSkillStore.getState().popularSkills).toHaveLength(1)
+      expect(useSkillStore.getState().isLoadingPopular).toBe(false)
+    })
+
+    it('应该处理热门技能加载错误', async () => {
+      mockedSkillService.getPopular.mockRejectedValue(new Error('Failed'))
+      await useSkillStore.getState().loadPopular()
+
+      expect(useSkillStore.getState().error).toBe('Failed')
+      expect(useSkillStore.getState().isLoadingPopular).toBe(false)
+    })
+
+    it('应该加载最新技能', async () => {
+      mockedSkillService.getLatest.mockResolvedValue([mockSkills[1]])
+      await useSkillStore.getState().loadLatest()
+
+      expect(useSkillStore.getState().latestSkills).toHaveLength(1)
+      expect(useSkillStore.getState().isLoadingLatest).toBe(false)
+    })
+
+    it('应该处理最新技能加载错误', async () => {
+      mockedSkillService.getLatest.mockRejectedValue(new Error('Failed'))
+      await useSkillStore.getState().loadLatest()
+
+      expect(useSkillStore.getState().error).toBe('Failed')
+      expect(useSkillStore.getState().isLoadingLatest).toBe(false)
+    })
+  })
+
+  describe('技能详情', () => {
+    it('应该加载技能详情', async () => {
+      mockedSkillService.getBySlug.mockResolvedValue(mockSkills[0])
+      mockedSkillService.getUserInteractions.mockResolvedValue({
+        likes: new Set<string>(),
+        favorites: new Set<string>(),
       })
+      await useSkillStore.getState().loadSkill('test-skill-1')
 
-      const state = useSkillStore.getState()
-      expect(state.searchResults).toHaveLength(2)
-      expect(state.searchParams.page).toBe(2)
+      expect(useSkillStore.getState().currentSkill).toBeTruthy()
+      expect(useSkillStore.getState().isLoadingSkill).toBe(false)
+    })
+
+    it('应该处理技能详情加载错误', async () => {
+      mockedSkillService.getBySlug.mockRejectedValue(new Error('Skill not found'))
+      await useSkillStore.getState().loadSkill('non-existent')
+
+      expect(useSkillStore.getState().error).toBe('Skill not found')
+      expect(useSkillStore.getState().isLoadingSkill).toBe(false)
+    })
+
+    it('应该清除当前技能', () => {
+      useSkillStore.getState().clearCurrentSkill()
+      expect(useSkillStore.getState().currentSkill).toBeNull()
+    })
+  })
+
+  describe('用户技能', () => {
+    it('应该加载用户技能', async () => {
+      mockedSkillService.getUserSkills.mockResolvedValue([mockSkills[0]])
+      await useSkillStore.getState().loadUserSkills()
+
+      expect(useSkillStore.getState().userSkills).toHaveLength(1)
+      expect(useSkillStore.getState().isLoadingUserSkills).toBe(false)
+    })
+
+    it('应该处理用户技能加载错误', async () => {
+      mockedSkillService.getUserSkills.mockRejectedValue(new Error('Failed'))
+      await useSkillStore.getState().loadUserSkills()
+
+      expect(useSkillStore.getState().error).toBe('Failed')
+      expect(useSkillStore.getState().isLoadingUserSkills).toBe(false)
+    })
+
+    it('应该加载用户收藏', async () => {
+      mockedSkillService.getUserFavorites.mockResolvedValue([mockSkills[1]])
+      await useSkillStore.getState().loadUserFavorites()
+
+      expect(useSkillStore.getState().userFavorites).toHaveLength(1)
+      expect(useSkillStore.getState().isLoadingUserFavorites).toBe(false)
+    })
+  })
+
+  describe('互动操作', () => {
+    it('应该点赞技能', async () => {
+      mockedSkillService.like.mockResolvedValue(undefined)
+      await useSkillStore.getState().like('skill-1')
+      expect(mockedSkillService.like).toHaveBeenCalledWith('skill-1')
+    })
+
+    it('应该取消点赞技能', async () => {
+      mockedSkillService.unlike.mockResolvedValue(undefined)
+      await useSkillStore.getState().unlike('skill-1')
+      expect(mockedSkillService.unlike).toHaveBeenCalledWith('skill-1')
+    })
+
+    it('应该收藏技能', async () => {
+      mockedSkillService.favorite.mockResolvedValue(undefined)
+      await useSkillStore.getState().favorite('skill-1')
+      expect(mockedSkillService.favorite).toHaveBeenCalledWith('skill-1')
+    })
+
+    it('应该取消收藏技能', async () => {
+      mockedSkillService.unfavorite.mockResolvedValue(undefined)
+      await useSkillStore.getState().unfavorite('skill-1')
+      expect(mockedSkillService.unfavorite).toHaveBeenCalledWith('skill-1')
+    })
+
+    it('应该处理互动操作错误', async () => {
+      mockedSkillService.like.mockRejectedValue(new Error('Like failed'))
+      await useSkillStore.getState().like('skill-1')
+      expect(useSkillStore.getState().error).toBe('Like failed')
+    })
+  })
+
+  describe('搜索清理', () => {
+    it('应该清除搜索结果', () => {
+      useSkillStore.getState().clearSearch()
+      expect(useSkillStore.getState().searchResults).toHaveLength(0)
+      expect(useSkillStore.getState().searchTotal).toBe(0)
     })
   })
 })

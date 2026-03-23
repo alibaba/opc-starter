@@ -189,47 +189,60 @@ test.describe('🎬 演示模式 - Skills Hub 完整流程', () => {
   test('🎬 Scene 2: 搜索 - 关键词搜索与平台筛选', async ({ page }) => {
     console.log('\n🎬 Scene 2: 搜索功能演示')
 
-    // Step 1: 访问首页并使用 SearchBar
+    // Step 1: 访问首页并使用 SearchBar（原地搜索，不跳转）
     console.log('  📍 使用首页搜索框')
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(600)
 
-    // 在 Hero SearchBar 输入关键词
+    // 在 Hero SearchBar 输入关键词（原地展示结果）
     const searchInput = page.locator('input[type="search"], input[placeholder*="搜索"]').first()
     if (await searchInput.isVisible().catch(() => false)) {
       await highlightElement(page, 'input[type="search"], input[placeholder*="搜索"]', 500)
       await typeWithEffect(page, 'input[type="search"], input[placeholder*="搜索"]', 'typescript', {
         delay: 60,
       })
-      await page.waitForTimeout(500)
-      // 按 Enter 跳转到搜索页
-      await searchInput.press('Enter')
-      await page.waitForLoadState('networkidle')
-      await page.waitForTimeout(600)
+      // 等待 debounce + 搜索完成，结果原地展示
+      await page.waitForTimeout(1500)
     } else {
-      // 直接导航到搜索页
-      await page.goto('/search?q=typescript')
-      await page.waitForLoadState('networkidle')
+      console.log('  ⚠️  首页搜索框不可见，跳过搜索演示')
+      return
     }
 
-    // Step 2: 展示搜索结果
-    console.log('  📍 查看搜索结果')
+    // Step 2: 展示首页原地搜索结果
+    console.log('  📍 查看搜索结果（首页原地展示）')
+    // URL 应保持在首页
+    const currentUrl = page.url()
+    if (!currentUrl.includes('/search')) {
+      console.log('  ✅ 搜索结果在首页原地展示（无跳转）')
+    }
     await page.waitForTimeout(800)
-    await screenshot(page, 'search-results')
+    await screenshot(page, 'search-results-inline')
 
-    // Step 3: 使用平台筛选
-    console.log('  📍 使用平台筛选')
+    // Step 3: 演示独立搜索页的平台筛选功能
+    console.log('  📍 演示独立搜索页的平台筛选')
     await page.goto('/search')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(500)
 
-    // 输入搜索词
-    const searchPageInput = page.locator('input').first()
-    if (await searchPageInput.isVisible().catch(() => false)) {
-      await highlightElement(page, 'input', 400)
-      await typeWithEffect(page, 'input', 'react', { delay: 50 })
-      await page.waitForTimeout(400)
+    // 若跳转到登录页则跳过（搜索页需要登录）
+    const isOnLoginPage = page.url().includes('/login') || page.url().includes('/auth')
+    if (isOnLoginPage) {
+      console.log('  ⚠️  搜索页需要登录，跳过平台筛选演示')
+    } else {
+      // 输入搜索词（使用搜索框专用选择器，避免匹配登录表单）
+      const searchPageInput = page
+        .locator(
+          'input[type="search"], input[placeholder*="搜索"], input[name*="search"], input[name*="q"]'
+        )
+        .first()
+      if (await searchPageInput.isVisible().catch(() => false)) {
+        const searchSelector =
+          'input[type="search"], input[placeholder*="搜索"], input[name*="search"], input[name*="q"]'
+        await highlightElement(page, searchSelector, 400)
+        await typeWithEffect(page, searchSelector, 'react', { delay: 50 })
+        await page.waitForTimeout(400)
+      }
     }
 
     // 点击筛选器按钮
@@ -450,13 +463,22 @@ test.describe('🎬 演示模式 - Skills Hub 完整流程', () => {
       })
     }
 
-    // --- Part 2: 搜索 Skill ---
-    console.log('  🔍 Part 2: 搜索 Skill')
-    await page.goto('/search?q=typescript&sort=downloads')
+    // --- Part 2: 搜索 Skill（首页原地搜索） ---
+    console.log('  🔍 Part 2: 在首页搜索 Skill')
+    // 回到首页进行搜索
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(800)
+    await page.waitForTimeout(500)
 
-    // 高亮搜索结果区域
+    const journeySearchInput = page
+      .locator('input[type="search"], input[placeholder*="搜索"]')
+      .first()
+    if (await journeySearchInput.isVisible().catch(() => false)) {
+      await journeySearchInput.fill('typescript')
+      await page.waitForTimeout(1200) // 等待 debounce + 搜索
+    }
+
+    // 高亮搜索结果区域（首页原地展示）
     const results = page.locator('[href^="/skill/"]').first()
     if (await results.isVisible().catch(() => false)) {
       await results.evaluate((el: HTMLElement) => {

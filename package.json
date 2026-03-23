@@ -21,5 +21,11 @@
     "cypress:open": "npm --prefix app run cypress:open",
     "cypress:run": "npm --prefix app run cypress:run",
     "ai:check": "npm --prefix app run ai:check"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5"
+  },
+  "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.15"
   }
 }

@@ -7,6 +7,8 @@
  * - 最新 Skills 展示
  * - 搜索栏功能
  * - 导航跳转
+ *
+ * 注意：首页是 SkillsSquarePage，需要登录才能访问
  */
 
 import { test, expect, Page } from '@playwright/test'
@@ -16,6 +18,7 @@ import { test, expect, Page } from '@playwright/test'
 // ============================================
 
 const TEST_USER = {
+  id: 'test-user-id-12345',
   email: 'test@example.com',
   password: '888888',
 }
@@ -42,7 +45,7 @@ async function mockAuthUser(page: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        id: 'test-user-id-12345',
+        id: TEST_USER.id,
         email: TEST_USER.email,
         aud: 'authenticated',
         role: 'authenticated',
@@ -64,12 +67,22 @@ async function mockAuthUser(page: Page) {
         expires_at: Date.now() / 1000 + 3600,
         token_type: 'bearer',
         user: {
-          id: 'test-user-id-12345',
+          id: TEST_USER.id,
           email: TEST_USER.email,
         },
       }),
     })
   })
+}
+
+async function loginAsTestUser(page: Page) {
+  await page.goto('/login')
+  await page.waitForLoadState('networkidle')
+  await page.fill('#email', TEST_USER.email)
+  await page.fill('#password', TEST_USER.password)
+  await page.click('button[type="submit"]')
+  await page.waitForURL(/.*localhost.*/, { timeout: 15000 }).catch(() => {})
+  await page.waitForTimeout(1000)
 }
 
 // ============================================
@@ -79,15 +92,16 @@ async function mockAuthUser(page: Page) {
 test.describe('[P0] Skills Hub 首页 - 核心展示', () => {
   test.beforeEach(async ({ page }) => {
     await clearAuthState(page)
+    await mockAuthUser(page)
+    await loginAsTestUser(page)
   })
 
   test('[P0] 应该显示首页 Hero 区域', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    // 检查 Hero 区域标题
-    const heroHeading = page.getByRole('heading', { name: 'Skills Hub' })
+    // 检查 Hero 区域标题 - SkillsSquarePage 使用 h1
+    const heroHeading = page.getByRole('heading', { name: 'Skills Hub', level: 1 })
     await expect(heroHeading).toBeVisible({ timeout: 10000 })
 
     // 检查副标题
@@ -97,40 +111,39 @@ test.describe('[P0] Skills Hub 首页 - 核心展示', () => {
   test('[P0] 应该显示搜索栏', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    // 检查搜索栏存在
-    const searchInput = page.locator('input[type="search"], input[placeholder*="搜索"]').first()
+    // SearchBar 组件的 placeholder 是 "搜索 AI Skills..."
+    const searchInput = page.getByPlaceholder('搜索 AI Skills...')
     await expect(searchInput).toBeVisible({ timeout: 10000 })
   })
 
   test('[P0] 应该显示热门 Skills 区域', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1500)
 
-    // 检查热门 Skills 标题
-    const popularHeading = page.getByRole('heading', { name: '热门 Skills' })
+    // 检查热门 Skills 标题 - SkillsSquarePage 使用 h2
+    const popularHeading = page.getByRole('heading', { name: '热门 Skills', level: 2 })
     await expect(popularHeading).toBeVisible({ timeout: 10000 })
   })
 
   test('[P0] 应该显示最新 Skills 区域', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1500)
 
-    // 检查最新 Skills 标题
-    const latestHeading = page.getByRole('heading', { name: '最新发布' })
+    // 检查最新 Skills 标题 - SkillsSquarePage 使用 h2
+    const latestHeading = page.getByRole('heading', { name: '最新发布', level: 2 })
     await expect(latestHeading).toBeVisible({ timeout: 10000 })
   })
 
   test('[P0] 应该显示发布 Skill 的 CTA 区域', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    // 检查 CTA 文案
-    await expect(page.getByText('有 Skill 要分享？')).toBeVisible({ timeout: 10000 })
+    // 检查 CTA 文案 - SkillsSquarePage 使用 h2
+    await expect(page.getByRole('heading', { name: '有 Skill 要分享？', level: 2 })).toBeVisible({
+      timeout: 10000,
+    })
+    // 发布按钮是 Link 组件
     await expect(page.getByRole('link', { name: '发布 Skill' })).toBeVisible()
   })
 })
@@ -138,14 +151,15 @@ test.describe('[P0] Skills Hub 首页 - 核心展示', () => {
 test.describe('[P1] Skills Hub 首页 - 搜索功能', () => {
   test.beforeEach(async ({ page }) => {
     await clearAuthState(page)
+    await mockAuthUser(page)
+    await loginAsTestUser(page)
   })
 
   test('[P1] 搜索栏可以输入关键词', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    const searchInput = page.locator('input[type="search"], input[placeholder*="搜索"]').first()
+    const searchInput = page.getByPlaceholder('搜索 AI Skills...')
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
     await searchInput.fill('react')
@@ -155,15 +169,15 @@ test.describe('[P1] Skills Hub 首页 - 搜索功能', () => {
   test('[P1] 按 Enter 键跳转到搜索页', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    const searchInput = page.locator('input[type="search"], input[placeholder*="搜索"]').first()
+    const searchInput = page.getByPlaceholder('搜索 AI Skills...')
     await expect(searchInput).toBeVisible({ timeout: 10000 })
 
     await searchInput.fill('typescript')
     await searchInput.press('Enter')
 
     // 应该跳转到搜索页
+    await page.waitForURL(/.*search.*/, { timeout: 5000 }).catch(() => {})
     await expect(page).toHaveURL(/.*search.*/, { timeout: 10000 })
   })
 })
@@ -171,14 +185,15 @@ test.describe('[P1] Skills Hub 首页 - 搜索功能', () => {
 test.describe('[P1] Skills Hub 首页 - 导航', () => {
   test.beforeEach(async ({ page }) => {
     await clearAuthState(page)
+    await mockAuthUser(page)
+    await loginAsTestUser(page)
   })
 
   test('[P1] 点击查看全部跳转到搜索页', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
-    // 点击热门区域的"查看全部"
+    // 点击热门区域的"查看全部" - 是一个 Link 组件
     const viewAllLink = page.getByRole('link', { name: '查看全部' }).first()
     if (await viewAllLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await viewAllLink.click()
@@ -186,31 +201,31 @@ test.describe('[P1] Skills Hub 首页 - 导航', () => {
     }
   })
 
-  test('[P1] 点击发布 Skill 跳转到发布页（需登录）', async ({ page }) => {
+  test('[P1] 点击发布 Skill 跳转到发布页', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(1000)
 
     const publishLink = page.getByRole('link', { name: '发布 Skill' })
     await expect(publishLink).toBeVisible({ timeout: 10000 })
     await publishLink.click()
 
-    // 未登录应该重定向到登录页
-    await page.waitForURL(/.*login.*/, { timeout: 10000 }).catch(() => {})
+    // 已登录应该跳转到发布页
+    await expect(page).toHaveURL(/.*publish.*/, { timeout: 10000 })
   })
 })
 
 test.describe('[P1] Skills Hub 首页 - Skill 卡片', () => {
   test.beforeEach(async ({ page }) => {
     await clearAuthState(page)
+    await mockAuthUser(page)
+    await loginAsTestUser(page)
   })
 
   test('[P1] 应该显示 Skill 卡片', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(2000)
 
-    // 检查是否有 Skill 卡片
+    // 检查是否有 Skill 卡片 - SkillCard 是 Link 组件
     const skillCards = page.locator('a[href^="/skill/"]')
     const count = await skillCards.count()
 
@@ -223,7 +238,6 @@ test.describe('[P1] Skills Hub 首页 - Skill 卡片', () => {
   test('[P1] 点击 Skill 卡片跳转到详情页', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(2000)
 
     const skillCard = page.locator('a[href^="/skill/"]').first()
     if (await skillCard.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -234,6 +248,12 @@ test.describe('[P1] Skills Hub 首页 - Skill 卡片', () => {
 })
 
 test.describe('[P2] Skills Hub 首页 - 加载状态', () => {
+  test.beforeEach(async ({ page }) => {
+    await clearAuthState(page)
+    await mockAuthUser(page)
+    await loginAsTestUser(page)
+  })
+
   test('[P2] 应该显示加载骨架屏', async ({ page }) => {
     // 拦截请求延迟以观察加载状态
     await page.route('**/rest/v1/skills**', async (route) => {
@@ -242,9 +262,9 @@ test.describe('[P2] Skills Hub 首页 - 加载状态', () => {
     })
 
     await page.goto('/')
-    // 快速检查骨架屏
-    const skeleton = page.locator('[class*="skeleton"], [class*="animate-pulse"]')
-    // 骨架屏可能很快消失，不强制断言
+    // 快速检查骨架屏（可能很快消失，不强制断言）
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _skeleton = page.locator('[class*="skeleton"], [class*="animate-pulse"]')
     await page.waitForLoadState('networkidle')
   })
 })

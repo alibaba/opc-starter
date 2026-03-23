@@ -32,6 +32,26 @@ const REST_URL_PATTERNS = {
     /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/ai_fusion_tasks/,
     'https://*.supabase.co/rest/v1/ai_fusion_tasks',
   ],
+  skills: [
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/skills/,
+    'https://*.supabase.co/rest/v1/skills',
+  ],
+  skill_versions: [
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/skill_versions/,
+    'https://*.supabase.co/rest/v1/skill_versions',
+  ],
+  skill_likes: [
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/skill_likes/,
+    'https://*.supabase.co/rest/v1/skill_likes',
+  ],
+  skill_favorites: [
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/skill_favorites/,
+    'https://*.supabase.co/rest/v1/skill_favorites',
+  ],
+  skill_installs: [
+    /http:\/\/localhost:\d+\/supabase-proxy\/rest\/v1\/skill_installs/,
+    'https://*.supabase.co/rest/v1/skill_installs',
+  ],
 }
 
 // Mock 数据
@@ -99,6 +119,87 @@ const MOCK_ORGANIZATIONS: Record<string, unknown>[] = []
 
 const MOCK_AI_FUSION_TASKS: Record<string, unknown>[] = []
 
+// Skills Hub mock 数据
+const MOCK_SKILLS: Record<string, unknown>[] = [
+  {
+    id: 'mock-skill-1',
+    author_id: 'test-user-id-12345',
+    name: 'React Best Practices',
+    slug: 'react-best-practices',
+    description: '一个包含 React 开发最佳实践的 Skill，适用于 Qoder 和 Cursor。',
+    readme: '## React Best Practices\n\n本 Skill 包含常见的 React 开发规范和最佳实践。',
+    visibility: 'public',
+    tags: ['react', 'typescript', 'best-practices'],
+    platforms: ['qoder', 'cursor'],
+    latest_version: '1.0.0',
+    downloads_count: 42,
+    likes_count: 12,
+    favorites_count: 8,
+    created_at: '2026-03-01T00:00:00.000Z',
+    updated_at: '2026-03-15T00:00:00.000Z',
+    published_at: '2026-03-01T00:00:00.000Z',
+    author: {
+      id: 'test-user-id-12345',
+      full_name: '测试用户',
+      avatar_url: null,
+    },
+  },
+  {
+    id: 'mock-skill-2',
+    author_id: 'test-user-id-12345',
+    name: 'TypeScript Strict Mode',
+    slug: 'typescript-strict-mode',
+    description: '严格 TypeScript 配置和类型安全规范，适合大型项目。',
+    readme: '## TypeScript Strict Mode\n\n本 Skill 启用所有 TypeScript 严格检查。',
+    visibility: 'public',
+    tags: ['typescript', 'strict', 'types'],
+    platforms: ['qoder', 'cursor', 'windsurf'],
+    latest_version: '2.1.0',
+    downloads_count: 88,
+    likes_count: 31,
+    favorites_count: 15,
+    created_at: '2026-02-15T00:00:00.000Z',
+    updated_at: '2026-03-10T00:00:00.000Z',
+    published_at: '2026-02-15T00:00:00.000Z',
+    author: {
+      id: 'test-user-id-12345',
+      full_name: '测试用户',
+      avatar_url: null,
+    },
+  },
+]
+
+const MOCK_SKILL_VERSIONS: Record<string, unknown>[] = [
+  {
+    id: 'mock-version-1',
+    skill_id: 'mock-skill-1',
+    version: '1.0.0',
+    storage_path: 'test-user-id-12345/react-best-practices/1.0.0/package.zip',
+    file_size: 12345,
+    file_hash: 'sha256:abc123',
+    readme: null,
+    changelog: '初始版本发布',
+    metadata: {},
+    created_at: '2026-03-01T00:00:00.000Z',
+  },
+  {
+    id: 'mock-version-2',
+    skill_id: 'mock-skill-2',
+    version: '2.1.0',
+    storage_path: 'test-user-id-12345/typescript-strict-mode/2.1.0/package.zip',
+    file_size: 8192,
+    file_hash: 'sha256:def456',
+    readme: null,
+    changelog: '新增更多严格类型检查规则',
+    metadata: {},
+    created_at: '2026-03-10T00:00:00.000Z',
+  },
+]
+
+const MOCK_SKILL_LIKES: Record<string, unknown>[] = []
+const MOCK_SKILL_FAVORITES: Record<string, unknown>[] = []
+const MOCK_SKILL_INSTALLS: Record<string, unknown>[] = []
+
 // 数据存储
 const dataStore: Record<string, Record<string, unknown>[]> = {
   photos: [...MOCK_PHOTOS],
@@ -107,9 +208,14 @@ const dataStore: Record<string, Record<string, unknown>[]> = {
   profiles: [...MOCK_PROFILES],
   organizations: [...MOCK_ORGANIZATIONS],
   ai_fusion_tasks: [...MOCK_AI_FUSION_TASKS],
+  skills: [...MOCK_SKILLS],
+  skill_versions: [...MOCK_SKILL_VERSIONS],
+  skill_likes: [...MOCK_SKILL_LIKES],
+  skill_favorites: [...MOCK_SKILL_FAVORITES],
+  skill_installs: [...MOCK_SKILL_INSTALLS],
 }
 
-// 通用 GET 处理器 - 支持 select, order, eq 等查询参数
+// 通用 GET 处理器 - 支持 select, order, eq, single 等查询参数
 const handleGet =
   (tableName: string) =>
   async ({ request }: { request: Request }) => {
@@ -123,8 +229,16 @@ const handleGet =
       order: url.searchParams.get('order'),
     })
 
+    // 处理 eq 过滤条件
+    let result = [...data]
+    url.searchParams.forEach((value, key) => {
+      if (value.startsWith('eq.')) {
+        const filterValue = value.replace('eq.', '')
+        result = result.filter((item) => item[key] === filterValue)
+      }
+    })
+
     // 简单模拟排序
-    const result = [...data]
     const order = url.searchParams.get('order')
     if (order) {
       const [field, direction] = order.split('.')
@@ -148,6 +262,27 @@ const handleGet =
           'Content-Range': `0-${result.length - 1}/${result.length}`,
         },
       })
+    }
+
+    // 处理 .single() 请求 - 返回单个对象或错误
+    const accept = request.headers.get('Accept') || ''
+    if (
+      prefer?.includes('return=representation') ||
+      accept.includes('application/vnd.pgrst.object+json')
+    ) {
+      if (result.length === 0) {
+        // 返回 PGRST116 错误（未找到）
+        return HttpResponse.json(
+          {
+            code: 'PGRST116',
+            details: 'No rows found',
+            hint: null,
+            message: 'JSON object requested, multiple (or no) rows returned',
+          },
+          { status: 406 }
+        )
+      }
+      return HttpResponse.json(result[0])
     }
 
     return HttpResponse.json(result)
@@ -289,5 +424,40 @@ export const supabaseRestHandlers = [
     http.post(pattern, handlePost('ai_fusion_tasks')),
     http.patch(pattern, handlePatch('ai_fusion_tasks')),
     http.delete(pattern, handleDelete('ai_fusion_tasks')),
+  ]),
+
+  // Skills
+  ...REST_URL_PATTERNS.skills.flatMap((pattern) => [
+    http.get(pattern, handleGet('skills')),
+    http.post(pattern, handlePost('skills')),
+    http.patch(pattern, handlePatch('skills')),
+    http.delete(pattern, handleDelete('skills')),
+  ]),
+
+  // Skill Versions
+  ...REST_URL_PATTERNS.skill_versions.flatMap((pattern) => [
+    http.get(pattern, handleGet('skill_versions')),
+    http.post(pattern, handlePost('skill_versions')),
+    http.delete(pattern, handleDelete('skill_versions')),
+  ]),
+
+  // Skill Likes
+  ...REST_URL_PATTERNS.skill_likes.flatMap((pattern) => [
+    http.get(pattern, handleGet('skill_likes')),
+    http.post(pattern, handlePost('skill_likes')),
+    http.delete(pattern, handleDelete('skill_likes')),
+  ]),
+
+  // Skill Favorites
+  ...REST_URL_PATTERNS.skill_favorites.flatMap((pattern) => [
+    http.get(pattern, handleGet('skill_favorites')),
+    http.post(pattern, handlePost('skill_favorites')),
+    http.delete(pattern, handleDelete('skill_favorites')),
+  ]),
+
+  // Skill Installs
+  ...REST_URL_PATTERNS.skill_installs.flatMap((pattern) => [
+    http.get(pattern, handleGet('skill_installs')),
+    http.post(pattern, handlePost('skill_installs')),
   ]),
 ]
