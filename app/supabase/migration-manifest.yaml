@@ -1,0 +1,17 @@
+# OPC-Starter Migration Manifest
+# 数据库迁移版本注册表
+# 由 db-migration workflow 自动维护
+
+schema_version: "1.2.0"
+last_migration: "00001"
+
+migrations:
+  - seq: "00001"
+    name: "baseline"
+    description: "OPC-Starter v1.0 初始 schema（含增强的 migration tracking）：_schema_migrations, profiles, organizations, organization_members, agent_threads/messages/actions"
+    story: null
+    created_at: "2026-01-13"
+    applied_at: "2026-01-13"
+    status: "applied"        # applied | pending | failed | rolled-back
+    checksum: "sha256:baseline-enhanced"
+    rollback: "rollbacks/00001_rollback.sql"

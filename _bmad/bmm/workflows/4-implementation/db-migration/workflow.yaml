@@ -1,0 +1,27 @@
+# Database Migration Workflow
+name: db-migration
+description: 'Manage database migrations: create, apply, rollback, status. Use when you need to manage schema changes or check migration status'
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+user_skill_level: "{config_source}:user_skill_level"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+
+# Workflow components
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/db-migration"
+instructions: "{installed_path}/instructions.xml"
+validation: "{installed_path}/checklist.md"
+
+# Migration paths
+migrations_dir: "{project-root}/app/supabase/migrations"
+rollbacks_dir: "{project-root}/app/supabase/rollbacks"
+manifest_file: "{project-root}/app/supabase/migration-manifest.yaml"
+
+# Action types: create, apply, rollback, status
+action: ""
+migration_version: ""
+
+project_context: "**/project-context.md"
