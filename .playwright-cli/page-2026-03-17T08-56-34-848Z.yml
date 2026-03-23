@@ -1,0 +1,156 @@
+- generic [ref=e25]:
+  - complementary [ref=e26]:
+    - generic [ref=e28]:
+      - heading "OPC-Starter" [level=1] [ref=e29]
+      - paragraph [ref=e30]: 一人公司启动器
+    - navigation [ref=e31]:
+      - list [ref=e32]:
+        - listitem [ref=e33]:
+          - link "首页" [ref=e34] [cursor=pointer]:
+            - /url: /
+            - img [ref=e35]
+            - generic [ref=e38]: 首页
+        - listitem [ref=e39]:
+          - link "组织管理" [ref=e40] [cursor=pointer]:
+            - /url: /persons
+            - img [ref=e41]
+            - generic [ref=e46]: 组织管理
+        - listitem [ref=e47]:
+          - link "SkillHub" [ref=e48] [cursor=pointer]:
+            - /url: /skills
+            - img [ref=e49]
+            - generic [ref=e51]: SkillHub
+        - listitem [ref=e52]:
+          - link "个人中心" [ref=e53] [cursor=pointer]:
+            - /url: /profile
+            - img [ref=e54]
+            - generic [ref=e57]: 个人中心
+        - listitem [ref=e58]:
+          - link "设置" [ref=e59] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e60]
+            - generic [ref=e63]: 设置
+    - button "AI 助手" [ref=e65]:
+      - generic [ref=e66]:
+        - img [ref=e67]
+        - img [ref=e70]
+      - generic [ref=e73]: AI 助手
+    - button "收起" [ref=e75]:
+      - generic [ref=e76]:
+        - img [ref=e77]
+        - generic [ref=e79]: 收起
+    - paragraph [ref=e81]: © 2026 OPC-Starter
+  - generic [ref=e82]:
+    - banner [ref=e83]:
+      - generic [ref=e84]:
+        - button [ref=e86]:
+          - img [ref=e87]
+        - button "切换主题" [ref=e90]:
+          - img
+          - generic [ref=e91]: 切换主题
+        - button [ref=e92]:
+          - img [ref=e93]
+        - button "云存储设置" [ref=e96]:
+          - img [ref=e97]
+        - generic [ref=e100]:
+          - button "测 测试用户" [ref=e101] [cursor=pointer]:
+            - generic [ref=e103]: 测
+            - generic [ref=e104]: 测试用户
+          - button "登出" [ref=e105]:
+            - img
+            - generic [ref=e106]: 登出
+    - main [ref=e107]:
+      - generic [ref=e108]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - img [ref=e113]
+            - heading "OPC-Starter" [level=1] [ref=e116]
+          - paragraph [ref=e117]: AI-Friendly React Boilerplate
+          - paragraph [ref=e118]: 欢迎回来，test@example.com！
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - heading "快速入口" [level=2] [ref=e121]
+            - generic [ref=e122]:
+              - link "组织管理 管理团队成员和组织架构 进入" [ref=e123] [cursor=pointer]:
+                - /url: /persons
+                - generic [ref=e124]:
+                  - img [ref=e126]
+                  - heading "组织管理" [level=3] [ref=e131]
+                  - paragraph [ref=e132]: 管理团队成员和组织架构
+                  - generic [ref=e133]:
+                    - text: 进入
+                    - img [ref=e134]
+              - link "个人中心 更新个人信息和头像 进入" [ref=e136] [cursor=pointer]:
+                - /url: /profile
+                - generic [ref=e137]:
+                  - img [ref=e139]
+                  - heading "个人中心" [level=3] [ref=e142]
+                  - paragraph [ref=e143]: 更新个人信息和头像
+                  - generic [ref=e144]:
+                    - text: 进入
+                    - img [ref=e145]
+              - link "云存储设置 管理存储和同步设置 进入" [ref=e147] [cursor=pointer]:
+                - /url: /settings/cloud-storage
+                - generic [ref=e148]:
+                  - img [ref=e150]
+                  - heading "云存储设置" [level=3] [ref=e152]
+                  - paragraph [ref=e153]: 管理存储和同步设置
+                  - generic [ref=e154]:
+                    - text: 进入
+                    - img [ref=e155]
+              - link "系统设置 配置应用偏好 进入" [ref=e157] [cursor=pointer]:
+                - /url: /settings
+                - generic [ref=e158]:
+                  - img [ref=e160]
+                  - heading "系统设置" [level=3] [ref=e163]
+                  - paragraph [ref=e164]: 配置应用偏好
+                  - generic [ref=e165]:
+                    - text: 进入
+                    - img [ref=e166]
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - heading "系统状态" [level=2] [ref=e170]:
+                - img [ref=e171]
+                - text: 系统状态
+              - generic [ref=e173]:
+                - generic [ref=e174]:
+                  - generic [ref=e175]: 网络状态
+                  - generic [ref=e176]: 在线
+                - generic [ref=e178]:
+                  - generic [ref=e179]: 同步状态
+                  - generic [ref=e180]: 已同步
+                - generic [ref=e181]:
+                  - generic [ref=e182]: 离线队列
+                  - generic [ref=e183]: 0 项
+                - generic [ref=e184]:
+                  - generic [ref=e185]: 最后同步
+                  - generic [ref=e186]: 2026/3/17 16:56:34
+            - generic [ref=e187]:
+              - heading "已集成功能" [level=2] [ref=e188]:
+                - img [ref=e189]
+                - text: 已集成功能
+              - generic [ref=e192]:
+                - generic [ref=e193]:
+                  - img [ref=e194]
+                  - generic [ref=e197]: Supabase Auth 认证
+                - generic [ref=e198]:
+                  - img [ref=e199]
+                  - generic [ref=e202]: 组织架构管理
+                - generic [ref=e203]:
+                  - img [ref=e204]
+                  - generic [ref=e207]: Agent Studio (A2UI)
+                - generic [ref=e208]:
+                  - img [ref=e209]
+                  - generic [ref=e212]: 数据同步 (IndexedDB + Realtime)
+                - generic [ref=e213]:
+                  - img [ref=e214]
+                  - generic [ref=e217]: Tailwind CSS v4
+                - generic [ref=e218]:
+                  - img [ref=e219]
+                  - generic [ref=e222]: TypeScript 严格模式
+          - generic [ref=e224]:
+            - img [ref=e226]
+            - generic [ref=e229]:
+              - heading "💡 提示：使用 Agent Studio" [level=3] [ref=e230]
+              - paragraph [ref=e231]: 点击右下角的 AI 助手按钮，可以使用自然语言与系统交互。 Agent 可以帮助你导航页面、回答问题等。
+              - button "了解更多" [ref=e232]

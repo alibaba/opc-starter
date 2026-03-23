@@ -15,7 +15,30 @@
 -- =====================================================
 
 -- =====================================================
--- 0. Extensions
+-- 0. Migration Metadata Table (must be first)
+-- =====================================================
+-- This table is the single source of truth for migration state.
+-- Every migration (including baseline) registers itself here.
+CREATE TABLE IF NOT EXISTS public._schema_migrations (
+  seq TEXT PRIMARY KEY,                      -- '00001', '00002', ...
+  name TEXT NOT NULL,                         -- 'baseline', 'add_xxx'
+  description TEXT,
+  story TEXT,                                 -- story key, e.g. '1-3-xxx'
+  status TEXT NOT NULL DEFAULT 'applied'      -- 'pending' | 'applied' | 'failed'
+    CHECK (status IN ('pending', 'applied', 'failed')),
+  applied_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  execution_time_ms INTEGER,                  -- how long the migration took
+  applied_by TEXT DEFAULT current_user,
+  checksum TEXT                               -- SHA256 hash of migration file
+);
+
+COMMENT ON TABLE public._schema_migrations IS 'Migration 版本元数据，由 db-migration workflow 自动维护';
+
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_status ON public._schema_migrations(status);
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_applied_at ON public._schema_migrations(applied_at DESC);
+
+-- =====================================================
+-- 0.1 Extensions
 -- =====================================================
 CREATE SCHEMA IF NOT EXISTS extensions;
 
@@ -502,3 +525,10 @@ SET search_path = public, extensions;
 -- =====================================================
 -- End of Schema
 -- =====================================================
+
+-- =====================================================
+-- Self-register baseline migration
+-- =====================================================
+INSERT INTO public._schema_migrations (seq, name, description, story)
+VALUES ('00001', 'baseline', 'OPC-Starter v1.0 初始 schema：profiles, organizations, organization_members, agent_threads/messages/actions, _schema_migrations', NULL)
+ON CONFLICT (seq) DO NOTHING;

@@ -1,0 +1,105 @@
+{
+  "workflow_version": "1.2.0",
+  "timestamps": {
+    "started": "2026-03-19T23:50:00.000Z",
+    "last_updated": "2026-03-19T23:50:00.000Z"
+  },
+  "mode": "initial_scan",
+  "scan_level": "quick",
+  "project_root": "/Users/xuqi/WebstormProjects/opc-starter",
+  "project_knowledge": "/Users/xuqi/WebstormProjects/opc-starter/docs",
+  "completed_steps": [
+    {
+      "step": "step_1",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:50:00.000Z",
+      "summary": "Classified as monolith with 1 part"
+    },
+    {
+      "step": "step_2",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:51:00.000Z",
+      "summary": "Found 9 existing docs"
+    },
+    {
+      "step": "step_3",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:52:00.000Z",
+      "summary": "Tech stack: React 19.1 + TypeScript 5.9 + Vite 7.1 + Supabase 2.80"
+    },
+    {
+      "step": "step_4",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:53:00.000Z",
+      "summary": "Conditional analysis complete: 4 Edge Functions, 5 Stores, ~64 components"
+    },
+    {
+      "step": "step_5",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:54:00.000Z",
+      "summary": "Source tree documented with 15 critical folders"
+    },
+    {
+      "step": "step_6",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:55:00.000Z",
+      "summary": "Dev/deployment guides written"
+    },
+    {
+      "step": "step_7",
+      "status": "skipped",
+      "timestamp": "2026-03-19T23:56:00.000Z",
+      "summary": "Skipped: monolith project has no multi-part integration"
+    },
+    {
+      "step": "step_8",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:56:00.000Z",
+      "summary": "Architecture docs: existing Architecture.md is comprehensive"
+    },
+    {
+      "step": "step_9",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:57:00.000Z",
+      "summary": "Supporting docs written: index.md created"
+    },
+    {
+      "step": "step_10",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:57:00.000Z",
+      "summary": "Master index generated"
+    },
+    {
+      "step": "step_11",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:58:00.000Z",
+      "summary": "Validation and review complete"
+    },
+    {
+      "step": "step_12",
+      "status": "completed",
+      "timestamp": "2026-03-19T23:58:00.000Z",
+      "summary": "Workflow complete"
+    }
+  ],
+  "current_step": "completed",
+  "timestamps": {
+    "started": "2026-03-19T23:50:00.000Z",
+    "last_updated": "2026-03-19T23:58:00.000Z",
+    "completed": "2026-03-19T23:58:00.000Z"
+  }
+  "findings": {
+    "project_classification": "Web application (monolith) with React SPA + Supabase BaaS architecture"
+  },
+  "outputs_generated": [
+    "project-scan-report.json"
+  ],
+  "resume_instructions": "Starting from step 2",
+  "project_types": [
+    {
+      "part_id": "main",
+      "project_type_id": "web",
+      "display_name": "Web Application"
+    }
+  ]
+}

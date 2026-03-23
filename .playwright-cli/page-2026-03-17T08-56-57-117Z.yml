@@ -1,0 +1,81 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - heading "OPC-Starter" [level=1] [ref=e7]
+      - paragraph [ref=e8]: 一人公司启动器
+    - navigation [ref=e9]:
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - link "首页" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 首页
+        - listitem [ref=e17]:
+          - link "组织管理" [ref=e18] [cursor=pointer]:
+            - /url: /persons
+            - img [ref=e19]
+            - generic [ref=e24]: 组织管理
+        - listitem [ref=e25]:
+          - link "SkillHub" [ref=e26] [cursor=pointer]:
+            - /url: /skills
+            - img [ref=e27]
+            - generic [ref=e29]: SkillHub
+        - listitem [ref=e30]:
+          - link "个人中心" [ref=e31] [cursor=pointer]:
+            - /url: /profile
+            - img [ref=e32]
+            - generic [ref=e35]: 个人中心
+        - listitem [ref=e36]:
+          - link "设置" [ref=e37] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e38]
+            - generic [ref=e41]: 设置
+    - button "AI 助手" [ref=e43]:
+      - generic [ref=e44]:
+        - img [ref=e45]
+        - img [ref=e48]
+      - generic [ref=e51]: AI 助手
+    - button "收起" [ref=e53]:
+      - generic [ref=e54]:
+        - img [ref=e55]
+        - generic [ref=e57]: 收起
+    - paragraph [ref=e59]: © 2026 OPC-Starter
+  - generic [ref=e60]:
+    - banner [ref=e61]:
+      - generic [ref=e62]:
+        - button [ref=e64]:
+          - img [ref=e65]
+        - button "切换主题" [ref=e68]:
+          - img
+          - generic [ref=e69]: 切换主题
+        - button [ref=e70]:
+          - img [ref=e71]
+        - button "云存储设置" [ref=e74]:
+          - img [ref=e75]
+        - generic [ref=e78]:
+          - button "测 测试用户" [ref=e79] [cursor=pointer]:
+            - generic [ref=e81]: 测
+            - generic [ref=e82]: 测试用户
+          - button "登出" [ref=e83]:
+            - img
+            - generic [ref=e84]: 登出
+    - main [ref=e85]:
+      - generic [ref=e87]:
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - heading "SkillHub" [level=1] [ref=e90]
+            - paragraph [ref=e91]: 发现和分享 AI Agent 技能
+          - button "上传技能" [ref=e92]:
+            - img [ref=e93]
+            - text: 上传技能
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - img [ref=e96]
+            - textbox "搜索技能名称或描述..." [ref=e99]
+          - combobox [ref=e100]:
+            - option "最新发布" [selected]
+            - option "最受欢迎"
+            - option "评分最高"
+        - generic [ref=e101]:
+          - img [ref=e102]
+          - paragraph [ref=e108]: 暂无技能，成为第一个上传者吧！
