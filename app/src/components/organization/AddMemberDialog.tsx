@@ -3,6 +3,7 @@
  * @description 搜索并邀请用户加入当前组织/团队，支持角色选择
  */
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, UserPlus, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,15 +35,10 @@ interface AddMemberDialogProps {
   onAddMember: (userId: string, role: 'manager' | 'member') => Promise<void>
 }
 
-const roleLabels = {
-  manager: '经理',
-  member: '成员',
-}
-
-const roleDescriptions = {
-  manager: '🔐 团队管理员 - 可管理本团队及子团队的组织架构和成员（限当前组织树）',
-  member: '👤 普通成员 - 只能管理自己的资源（默认角色）',
-}
+const roleKeys = {
+  manager: 'manager',
+  member: 'member',
+} as const
 
 export function AddMemberDialog({
   open,
@@ -52,6 +48,8 @@ export function AddMemberDialog({
   onSearchUsers,
   onAddMember,
 }: AddMemberDialogProps) {
+  const { t } = useTranslation('components')
+  const { t: tCommon } = useTranslation('common')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Profile[]>([])
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null)
@@ -101,7 +99,7 @@ export function AddMemberDialog({
       onOpenChange(false)
     } catch (error) {
       console.error('Failed to add member:', error)
-      alert(error instanceof Error ? error.message : '添加成员失败')
+      alert(error instanceof Error ? error.message : t('organization.addMemberDialog.addFailed'))
     } finally {
       setIsSubmitting(false)
     }
@@ -112,18 +110,20 @@ export function AddMemberDialog({
       <DialogContent className="max-w-2xl">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>添加成员到 {organizationName}</DialogTitle>
-            <DialogDescription>搜索用户并将其添加到当前组织</DialogDescription>
+            <DialogTitle>
+              {t('organization.addMemberDialog.title', { name: organizationName })}
+            </DialogTitle>
+            <DialogDescription>{t('organization.addMemberDialog.description')}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="search">搜索用户</Label>
+              <Label htmlFor="search">{t('organization.addMemberDialog.searchLabel')}</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="search"
-                  placeholder="输入用户名或邮箱搜索..."
+                  placeholder={t('organization.addMemberDialog.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -131,10 +131,16 @@ export function AddMemberDialog({
               </div>
             </div>
 
-            {isSearching && <p className="text-sm text-muted-foreground">搜索中...</p>}
+            {isSearching && (
+              <p className="text-sm text-muted-foreground">
+                {t('organization.addMemberDialog.searching')}
+              </p>
+            )}
 
             {searchQuery.trim().length >= 2 && !isSearching && searchResults.length === 0 && (
-              <p className="text-sm text-muted-foreground">未找到符合条件的用户</p>
+              <p className="text-sm text-muted-foreground">
+                {t('organization.addMemberDialog.noResults')}
+              </p>
             )}
 
             {searchResults.length > 0 && (
@@ -154,12 +160,14 @@ export function AddMemberDialog({
                       {user.full_name ? user.full_name.charAt(0).toUpperCase() : '?'}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="font-medium truncate">{user.full_name || '未命名'}</p>
+                      <p className="font-medium truncate">
+                        {user.full_name || t('organization.unnamed')}
+                      </p>
                       <p className="text-sm text-muted-foreground truncate">{user.id}</p>
                     </div>
                     {user.organization_id && (
                       <Badge variant="secondary" className="text-xs">
-                        已在其他组织
+                        {t('organization.inOtherOrg')}
                       </Badge>
                     )}
                   </button>
@@ -169,39 +177,43 @@ export function AddMemberDialog({
 
             {selectedUser && (
               <div className="space-y-2 p-4 bg-accent/50 rounded-lg">
-                <p className="text-sm font-medium">已选择用户:</p>
+                <p className="text-sm font-medium">
+                  {t('organization.addMemberDialog.selectedUser')}
+                </p>
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-linear-to-br from-avatar-from to-avatar-to flex items-center justify-center text-white font-semibold">
                     {selectedUser.full_name ? selectedUser.full_name.charAt(0).toUpperCase() : '?'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium">{selectedUser.full_name || '未命名'}</p>
+                    <p className="font-medium">
+                      {selectedUser.full_name || t('organization.unnamed')}
+                    </p>
                     <p className="text-sm text-muted-foreground truncate">{selectedUser.id}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 mt-4">
-                  <Label htmlFor="role">选择角色</Label>
+                  <Label htmlFor="role">{t('organization.addMemberDialog.roleLabel')}</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="w-full justify-between">
-                        {roleLabels[selectedRole]}
+                        {t(`organization.roles.${selectedRole}`)}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
                       <DropdownMenuItem onClick={() => setSelectedRole('member')}>
-                        成员
+                        {t('organization.roles.member')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setSelectedRole('manager')}>
-                        经理
+                        {t('organization.roles.manager')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <p className="text-xs text-muted-foreground">{roleDescriptions[selectedRole]}</p>
-                  <p className="text-xs text-amber-600">
-                    💡 提示: 系统管理员(admin)权限较高，请直接在 Supabase Dashboard 修改数据库
+                  <p className="text-xs text-muted-foreground">
+                    {t(`organization.roleDescriptions.${roleKeys[selectedRole]}`)}
                   </p>
+                  <p className="text-xs text-amber-600">{t('organization.adminRoleHint')}</p>
                 </div>
               </div>
             )}
@@ -214,15 +226,15 @@ export function AddMemberDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              取消
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={!selectedUser || isSubmitting}>
               {isSubmitting ? (
-                '添加中...'
+                t('organization.addMemberDialog.adding')
               ) : (
                 <>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  添加成员
+                  {t('organization.addMemberDialog.submit')}
                 </>
               )}
             </Button>

@@ -62,7 +62,7 @@ jobs:
           start: npm run dev:test
           wait-on: 'http://localhost:5173'
           wait-on-timeout: 120
-          config-file: cypress.config.js
+          config-file: cypress.config.cjs
           # Cypress Dashboard 配置（可选）
           # record: true
           # parallel: true

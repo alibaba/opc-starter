@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable'
 import { Bot, X, Minus, Maximize2, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -34,6 +35,7 @@ const WINDOW_SIZES = {
  * 悬浮窗口容器
  */
 export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
+  const { t } = useTranslation('components')
   // 🔧 React 19 兼容性: 使用 nodeRef 避免 findDOMNode 错误
   const nodeRef = useRef<HTMLDivElement>(null)
 
@@ -111,11 +113,11 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
 
   // 清空对话
   const handleClearChat = useCallback(() => {
-    if (window.confirm('确定要清空当前对话吗？')) {
+    if (window.confirm(t('agent.confirmClearChat'))) {
       clearThread()
       createThread()
     }
-  }, [clearThread, createThread])
+  }, [clearThread, createThread, t])
 
   // 切换最小化
   const toggleMinimize = useCallback(() => {
@@ -164,11 +166,11 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground leading-tight">
-                  Photo Wall 助手
+                  {t('agent.windowTitle')}
                 </h3>
                 {!isMinimized && (
                   <p className="text-[10px] text-muted-foreground">
-                    {isStreaming ? '思考中...' : '在线'}
+                    {isStreaming ? t('agent.thinking') : t('agent.online')}
                   </p>
                 )}
               </div>
@@ -183,7 +185,7 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
                   size="icon"
                   className="h-7 w-7 text-muted-foreground hover:text-destructive"
                   onClick={handleClearChat}
-                  title="清空对话"
+                  title={t('agent.clearChatTitle')}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
@@ -195,7 +197,7 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
                 size="icon"
                 className="h-7 w-7 text-muted-foreground hover:text-foreground"
                 onClick={toggleMinimize}
-                title={isMinimized ? '展开' : '最小化'}
+                title={isMinimized ? t('agent.expandTitle') : t('agent.minimizeTitle')}
               >
                 {isMinimized ? (
                   <Maximize2 className="w-3.5 h-3.5" />
@@ -210,7 +212,7 @@ export function AgentWindow({ isOpen, onClose }: AgentWindowProps) {
                 size="icon"
                 className="h-7 w-7 text-muted-foreground hover:text-destructive"
                 onClick={onClose}
-                title="关闭"
+                title={t('agent.closeTitle')}
               >
                 <X className="w-3.5 h-3.5" />
               </Button>

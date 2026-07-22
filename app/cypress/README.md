@@ -35,6 +35,7 @@ npm run cypress:open
 ```
 
 这会启动 Cypress Test Runner，你可以：
+
 - 选择要运行的测试文件
 - 实时查看测试执行过程
 - 使用时间旅行调试功能
@@ -137,10 +138,10 @@ describe('功能模块名称', () => {
   it('应该能够完成某个操作', () => {
     // 1. 访问页面
     cy.visit('/some-page')
-    
+
     // 2. 执行操作
     cy.get('button').click()
-    
+
     // 3. 验证结果
     cy.url().should('include', '/expected-url')
     cy.contains('预期文本').should('be.visible')
@@ -151,19 +152,21 @@ describe('功能模块名称', () => {
 ### 测试最佳实践
 
 1. **使用数据属性选择器**
+
    ```javascript
    // 好的做法
    cy.get('[data-testid="login-button"]').click()
-   
+
    // 避免使用（容易因样式改变而失败）
    cy.get('.btn.btn-primary.login').click()
    ```
 
 2. **使用自定义命令**
+
    ```javascript
    // 好的做法
    cy.login()
-   
+
    // 避免重复代码
    cy.visit('/login')
    cy.get('input[type="email"]').type('test@example.com')
@@ -172,27 +175,29 @@ describe('功能模块名称', () => {
    ```
 
 3. **适当的等待**
+
    ```javascript
    // 好的做法
    cy.get('.element', { timeout: 10000 }).should('be.visible')
-   
+
    // 避免硬编码延迟
    cy.wait(5000) // ❌
    ```
 
 4. **清晰的断言**
+
    ```javascript
    // 好的做法
    cy.url().should('eq', 'http://localhost:5173/')
-   cy.get('h1').should('contain', '照片时光机')
-   
+   cy.get('h1').should('contain', 'OPC-Starter')
+
    // 避免模糊的断言
    cy.get('h1').should('exist') // 不够具体
    ```
 
 ## 🔧 配置说明
 
-### cypress.config.js
+### cypress.config.cjs
 
 主要配置项：
 
@@ -222,6 +227,7 @@ cy.fixture('users').then((users) => {
 ### 1. 使用 Cypress Test Runner
 
 交互式模式提供了强大的调试功能：
+
 - 时间旅行：查看每一步的 DOM 状态
 - 控制台日志：查看应用和测试的日志
 - 网络请求：查看所有 API 请求
@@ -230,7 +236,7 @@ cy.fixture('users').then((users) => {
 
 ```javascript
 cy.get('.element')
-  .debug()  // 在这里暂停，可以在控制台检查元素
+  .debug() // 在这里暂停，可以在控制台检查元素
   .click()
 ```
 
@@ -238,13 +244,14 @@ cy.get('.element')
 
 ```javascript
 cy.visit('/login')
-cy.pause()  // 测试会暂停，可以手动操作
+cy.pause() // 测试会暂停，可以手动操作
 cy.get('button').click()
 ```
 
 ### 4. 查看截图和视频
 
 测试失败时会自动生成：
+
 - 截图：`cypress/screenshots/`
 - 视频：`cypress/videos/`
 
@@ -326,13 +333,17 @@ jobs:
 ### 测试运行问题
 
 #### Q: 测试失败，提示找不到元素？
+
 **解决方案**:
+
 - 检查元素选择器是否正确
 - 增加等待时间: `cy.get('.element', { timeout: 10000 })`
 - 使用 `data-testid` 属性而非 class 选择器
 
 #### Q: 端口被占用
+
 **解决方案**:
+
 ```bash
 # 查找占用端口的进程
 lsof -i :5173
@@ -343,14 +354,18 @@ kill -9 <PID>
 ### MSW Mock 问题
 
 #### Q: MSW 没有拦截请求？
+
 **解决方案**:
+
 1. 确保 `VITE_ENABLE_MSW=true`
 2. 检查 `public/mockServiceWorker.js` 文件存在
 3. 清除浏览器缓存和 Service Worker
 4. 查看浏览器控制台是否有 MSW 启动日志
 
 #### Q: 测试用户登录失败
+
 **解决方案**:
+
 1. 检查 `.env.test` 文件中 `VITE_ENABLE_MSW=true`
 2. 确认 `cypress/fixtures/users.json` 与 `src/mocks/handlers/authHandlers.ts` 中的账号一致:
    ```bash
@@ -361,7 +376,9 @@ kill -9 <PID>
 ### CI/CD 问题
 
 #### Q: 测试在本地通过但 CI 失败？
+
 **解决方案**:
+
 - 检查环境变量配置
 - 增加 CI 超时时间
 - 本地模拟 CI 环境: `npm run test:e2e:headless`
@@ -369,7 +386,9 @@ kill -9 <PID>
 ### 数据问题
 
 #### Q: IndexedDB 数据污染？
+
 **解决方案**:
+
 ```javascript
 beforeEach(() => {
   cy.clearAuth()
@@ -380,25 +399,28 @@ beforeEach(() => {
 ### 测试控制
 
 #### Q: 如何跳过某个测试？
+
 A: 使用 `it.skip()` 或 `describe.skip()`
 
 #### Q: 如何只运行某个测试？
+
 A: 使用 `it.only()` 或 `describe.only()`
 
 ### 调试技巧
 
 **使用 Cypress 调试工具**:
+
 ```javascript
-cy.pause()    // 暂停测试
-cy.debug()    // 打印调试信息
-cy.screenshot('debug-screenshot')  // 截图
+cy.pause() // 暂停测试
+cy.debug() // 打印调试信息
+cy.screenshot('debug-screenshot') // 截图
 ```
 
 **查看失败截图和视频**:
+
 - 截图: `cypress/screenshots/`
 - 视频: `cypress/videos/`
 
 ---
 
 **Happy Testing! 🎉**
-

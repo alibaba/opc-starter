@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import Cropper, { type Area } from 'react-easy-crop'
 import {
   Dialog,
@@ -30,6 +31,8 @@ interface CroppedArea {
 }
 
 export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProps) {
+  const { t } = useTranslation('components')
+  const { t: tCommon } = useTranslation('common')
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<CroppedArea | null>(null)
@@ -113,7 +116,7 @@ export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProp
       onComplete(croppedFile)
     } catch (error) {
       console.error('Failed to crop image:', error)
-      alert('裁剪失败，请重试')
+      alert(t('avatarCropper.cropFailed'))
     } finally {
       setIsProcessing(false)
     }
@@ -123,7 +126,7 @@ export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProp
     <Dialog open={true} onOpenChange={onCancel}>
       <DialogContent className="max-w-2xl p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle>裁剪头像</DialogTitle>
+          <DialogTitle>{t('avatarCropper.title')}</DialogTitle>
         </DialogHeader>
 
         {/* 裁剪区域 */}
@@ -151,7 +154,7 @@ export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProp
             step={0.1}
             onValueChange={(value) => setZoom(value[0])}
             className="flex-1"
-            aria-label="缩放"
+            aria-label={t('avatarCropper.zoomLabel')}
           />
           <ZoomIn className="w-5 h-5 text-muted-foreground flex-shrink-0" />
         </div>
@@ -159,10 +162,10 @@ export function AvatarCropper({ image, onComplete, onCancel }: AvatarCropperProp
         {/* 操作按钮 */}
         <DialogFooter className="px-6 pb-6 pt-2">
           <Button variant="outline" onClick={onCancel} disabled={isProcessing}>
-            取消
+            {tCommon('cancel')}
           </Button>
           <Button onClick={handleConfirm} disabled={isProcessing}>
-            {isProcessing ? '处理中...' : '确认'}
+            {isProcessing ? t('avatarCropper.processing') : t('avatarCropper.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

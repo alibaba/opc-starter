@@ -2,6 +2,7 @@
  * SearchBar - 搜索框组件，支持防抖和可选筛选面板
  */
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, X, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -27,10 +28,12 @@ export interface SearchBarProps {
 
 export function SearchBar({
   onSearch,
-  placeholder = '搜索照片、相册、人物...',
+  placeholder,
   showFilters = false,
   className,
 }: SearchBarProps) {
+  const { t } = useTranslation('components')
+  const resolvedPlaceholder = placeholder ?? t('ui.searchPlaceholder')
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<SearchFilter>({ type: 'all' })
   const [showFilterPanel, setShowFilterPanel] = useState(false)
@@ -64,7 +67,7 @@ export function SearchBar({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           className="pl-10 pr-20"
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -92,15 +95,19 @@ export function SearchBar({
           <div className="space-y-4">
             {/* 类型筛选 */}
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">搜索类型</label>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                {t('ui.searchType')}
+              </label>
               <div className="flex flex-wrap gap-2">
-                {[
-                  { value: 'all', label: '全部' },
-                  { value: 'photos', label: '照片' },
-                  { value: 'albums', label: '相册' },
-                  { value: 'persons', label: '人物' },
-                  { value: 'tags', label: '标签' },
-                ].map((type) => (
+                {(
+                  [
+                    { value: 'all', labelKey: 'ui.filterAll' },
+                    { value: 'photos', labelKey: 'ui.filterPhotos' },
+                    { value: 'albums', labelKey: 'ui.filterAlbums' },
+                    { value: 'persons', labelKey: 'ui.filterPersons' },
+                    { value: 'tags', labelKey: 'ui.filterTags' },
+                  ] as const
+                ).map((type) => (
                   <Badge
                     key={type.value}
                     variant={filters.type === type.value ? 'default' : 'outline'}
@@ -111,7 +118,7 @@ export function SearchBar({
                       })
                     }
                   >
-                    {type.label}
+                    {t(type.labelKey)}
                   </Badge>
                 ))}
               </div>
@@ -127,7 +134,7 @@ export function SearchBar({
                   setShowFilterPanel(false)
                 }}
               >
-                重置筛选
+                {t('ui.resetFilters')}
               </Button>
             </div>
           </div>

@@ -3,37 +3,40 @@
  */
 
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Settings, Cloud, Bell, Shield, Palette, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
 function SettingsPage() {
+  const { t } = useTranslation('pages')
+
   const settingsGroups = [
     {
-      title: '云存储',
-      description: '管理存储空间和同步设置',
+      title: t('settings.groups.cloudStorage.title'),
+      description: t('settings.groups.cloudStorage.description'),
       icon: Cloud,
       href: '/settings/cloud-storage',
       color: 'bg-blue-500/10 text-blue-500',
     },
     {
-      title: '通知',
-      description: '配置通知和提醒偏好',
+      title: t('settings.groups.notifications.title'),
+      description: t('settings.groups.notifications.description'),
       icon: Bell,
       href: '#',
       color: 'bg-yellow-500/10 text-yellow-500',
       disabled: true,
     },
     {
-      title: '安全',
-      description: '密码和安全设置',
+      title: t('settings.groups.security.title'),
+      description: t('settings.groups.security.description'),
       icon: Shield,
       href: '#',
       color: 'bg-red-500/10 text-red-500',
       disabled: true,
     },
     {
-      title: '外观',
-      description: '主题和显示设置',
+      title: t('settings.groups.appearance.title'),
+      description: t('settings.groups.appearance.description'),
       icon: Palette,
       href: '#',
       color: 'bg-purple-500/10 text-purple-500',
@@ -48,9 +51,9 @@ function SettingsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-3">
             <Settings className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">设置</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('settings.title')}</h1>
           </div>
-          <p className="text-muted-foreground mt-1">管理应用配置和偏好设置</p>
+          <p className="text-muted-foreground mt-1">{t('settings.subtitle')}</p>
         </div>
       </div>
 
@@ -73,7 +76,7 @@ function SettingsPage() {
                       {group.title}
                       {group.disabled && (
                         <span className="ml-2 text-xs text-muted-foreground font-normal">
-                          (即将推出)
+                          {t('settings.comingSoon')}
                         </span>
                       )}
                     </h3>
@@ -100,18 +103,18 @@ function SettingsPage() {
 
         {/* App Info */}
         <Card className="mt-8 p-6">
-          <h3 className="font-semibold text-foreground mb-4">关于</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t('settings.about')}</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">应用名称</span>
+              <span className="text-muted-foreground">{t('settings.appName')}</span>
               <span className="text-foreground">OPC-Starter</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">版本</span>
+              <span className="text-muted-foreground">{t('settings.version')}</span>
               <span className="text-foreground">1.0.0</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">技术栈</span>
+              <span className="text-muted-foreground">{t('settings.techStack')}</span>
               <span className="text-foreground">React 19 + TypeScript 5.9</span>
             </div>
           </div>

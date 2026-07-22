@@ -6,6 +6,7 @@
  */
 
 import { MessageCircle, Plus, RotateCcw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,8 @@ export function AgentResumeDialog({
   onNewChat,
   onResume,
 }: AgentResumeDialogProps) {
+  const { t } = useTranslation('components')
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
@@ -42,8 +45,8 @@ export function AgentResumeDialog({
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
             <MessageCircle className="w-6 h-6 text-primary" />
           </div>
-          <DialogTitle>继续上次对话？</DialogTitle>
-          <DialogDescription>您有一个未完成的对话，是否要继续？</DialogDescription>
+          <DialogTitle>{t('agent.resumeTitle')}</DialogTitle>
+          <DialogDescription>{t('agent.resumeDescription')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 pt-4">
@@ -58,8 +61,8 @@ export function AgentResumeDialog({
               <RotateCcw className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <div className="font-medium">恢复上次对话</div>
-              <div className="text-xs opacity-70">继续之前的对话内容</div>
+              <div className="font-medium">{t('agent.resumeButtonTitle')}</div>
+              <div className="text-xs opacity-70">{t('agent.resumeButtonDesc')}</div>
             </div>
           </Button>
 
@@ -74,8 +77,8 @@ export function AgentResumeDialog({
               <Plus className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <div className="font-medium">开始新对话</div>
-              <div className="text-xs text-muted-foreground">创建一个全新的对话</div>
+              <div className="font-medium">{t('agent.newChatTitle')}</div>
+              <div className="text-xs text-muted-foreground">{t('agent.newChatDesc')}</div>
             </div>
           </Button>
         </div>

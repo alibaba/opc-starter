@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 export interface A2UIImageProps {
@@ -47,6 +48,7 @@ export const A2UIImage: React.FC<A2UIImageProps> = ({
   rounded = 'md',
   className,
 }) => {
+  const { t } = useTranslation('components')
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
@@ -60,7 +62,7 @@ export const A2UIImage: React.FC<A2UIImageProps> = ({
         )}
         style={{ width, height }}
       >
-        <span className="text-sm">图片加载失败</span>
+        <span className="text-sm">{t('agent.imageLoadFailed')}</span>
       </div>
     )
   }

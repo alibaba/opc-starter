@@ -1,0 +1,51 @@
+{
+  "header": {
+    "orgManagement": "Organization",
+    "cloudStorageSettings": "Cloud storage settings",
+    "profile": "Profile",
+    "signOut": "Sign out",
+    "defaultUser": "User",
+    "languageSelector": "Change language"
+  },
+  "sidebar": {
+    "tagline": "Solo founder starter kit",
+    "nav": {
+      "home": "Home",
+      "persons": "Organization",
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "collapseShort": "Collapse",
+    "agentAssistant": "AI Assistant"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
+  "sync": {
+    "offline": "Offline",
+    "syncing": "Syncing...",
+    "syncingProgress": "Syncing {{current}}/{{total}}",
+    "failed": "{{count}} item(s) failed to sync",
+    "pending": "{{count}} item(s) pending sync",
+    "synced": "Synced",
+    "notSynced": "Not synced",
+    "conflictsResolved": "{{count}} conflict(s) resolved",
+    "clickRetry": "Click to retry",
+    "retrySync": "Retry sync",
+    "conflictSummary": "Conflicts: {{merged}} merged, {{serverWins}} server wins",
+    "badgeFailed": "{{count}} failed",
+    "badgeSyncing": "Syncing",
+    "initialSyncTitle": "Syncing data",
+    "initialSyncProgress": "Syncing {{table}}... ({{current}}/{{total}})",
+    "tables": {
+      "persons": "members"
+    }
+  }
+}

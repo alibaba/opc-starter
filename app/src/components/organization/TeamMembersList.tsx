@@ -3,6 +3,7 @@
  * @description 展示团队成员及角色，支持移除成员、修改角色和分配团队操作
  */
 import { UserMinus, UserPlus, Shield, User } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -19,40 +20,29 @@ interface TeamMembersListProps {
   className?: string
 }
 
-function getRoleBadge(role: 'admin' | 'manager' | 'member') {
+function getRoleBadge(role: 'admin' | 'manager' | 'member', t: (key: string) => string) {
   switch (role) {
     case 'admin':
       return (
         <Badge variant="destructive" className="gap-1">
           <Shield className="h-3 w-3" />
-          <span>管理员</span>
+          <span>{t('organization.roles.admin')}</span>
         </Badge>
       )
     case 'manager':
       return (
         <Badge variant="default" className="gap-1">
           <UserPlus className="h-3 w-3" />
-          <span>经理</span>
+          <span>{t('organization.roles.manager')}</span>
         </Badge>
       )
     case 'member':
       return (
         <Badge variant="secondary" className="gap-1">
           <User className="h-3 w-3" />
-          <span>成员</span>
+          <span>{t('organization.roles.member')}</span>
         </Badge>
       )
-  }
-}
-
-function getRoleName(role: 'admin' | 'manager' | 'member'): string {
-  switch (role) {
-    case 'admin':
-      return '管理员'
-    case 'manager':
-      return '经理'
-    case 'member':
-      return '成员'
   }
 }
 
@@ -66,6 +56,7 @@ export function TeamMembersList({
   onChangeRole,
   className,
 }: TeamMembersListProps) {
+  const { t } = useTranslation('components')
   const canManageMembers = currentUserRole === 'admin'
   const activeMembers = members.filter((m) => m.is_active)
 
@@ -74,19 +65,21 @@ export function TeamMembersList({
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-xl font-semibold">{organizationName}</h2>
-          <p className="text-sm text-muted-foreground">共 {activeMembers.length} 名成员</p>
+          <p className="text-sm text-muted-foreground">
+            {t('organization.memberCount', { count: activeMembers.length })}
+          </p>
         </div>
         {canManageMembers && onAddMember && (
           <Button onClick={onAddMember} size="sm">
             <UserPlus className="h-4 w-4 mr-2" />
-            添加成员
+            {t('organization.addMember')}
           </Button>
         )}
       </div>
 
       {activeMembers.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          <p className="text-sm">该团队暂无成员</p>
+          <p className="text-sm">{t('organization.noMembers')}</p>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
@@ -107,10 +100,12 @@ export function TeamMembersList({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium truncate">{member.full_name || '未命名'}</p>
+                        <p className="font-medium truncate">
+                          {member.full_name || t('organization.unnamed')}
+                        </p>
                         {isCurrentUser && (
                           <Badge variant="outline" className="text-xs">
-                            我
+                            {t('organization.me')}
                           </Badge>
                         )}
                       </div>
@@ -119,7 +114,7 @@ export function TeamMembersList({
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {getRoleBadge(member.role)}
+                    {getRoleBadge(member.role, t)}
 
                     {canManageMembers && !isCurrentUser && (
                       <div className="flex gap-1">
@@ -128,7 +123,9 @@ export function TeamMembersList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onChangeRole(member)}
-                            title={`更改角色（当前: ${getRoleName(member.role)}）`}
+                            title={t('organization.changeRoleTitle', {
+                              role: t(`organization.roles.${member.role}`),
+                            })}
                           >
                             <Shield className="h-4 w-4" />
                           </Button>
@@ -138,7 +135,7 @@ export function TeamMembersList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onRemoveMember(member)}
-                            title="移除成员"
+                            title={t('organization.removeMemberTitle')}
                           >
                             <UserMinus className="h-4 w-4 text-destructive" />
                           </Button>

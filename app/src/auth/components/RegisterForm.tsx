@@ -3,12 +3,14 @@
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { RegisterFormData } from '@/types/auth'
 
 export function RegisterForm() {
+  const { t } = useTranslation('pages')
   const navigate = useNavigate()
   const { signUp, error, isLoading } = useAuthStore()
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -24,12 +26,12 @@ export function RegisterForm() {
     setValidationError('')
 
     if (formData.password !== formData.confirmPassword) {
-      setValidationError('密码不匹配')
+      setValidationError(t('register.passwordMismatch'))
       return
     }
 
     if (formData.password.length < 6) {
-      setValidationError('密码至少需要6个字符')
+      setValidationError(t('register.passwordMinLength'))
       return
     }
 
@@ -43,7 +45,7 @@ export function RegisterForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="displayName" className="block text-sm font-medium mb-1">
-          昵称
+          {t('register.displayName')}
         </label>
         <Input
           id="displayName"
@@ -51,13 +53,13 @@ export function RegisterForm() {
           value={formData.displayName}
           onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
           required
-          placeholder="你的昵称"
+          placeholder={t('register.displayNamePlaceholder')}
         />
       </div>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          邮箱
+          {t('register.email')}
         </label>
         <Input
           id="email"
@@ -71,7 +73,7 @@ export function RegisterForm() {
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium mb-1">
-          密码
+          {t('register.password')}
         </label>
         <Input
           id="password"
@@ -79,13 +81,13 @@ export function RegisterForm() {
           value={formData.password}
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           required
-          placeholder="至少6个字符"
+          placeholder={t('register.passwordPlaceholder')}
         />
       </div>
 
       <div>
         <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
-          确认密码
+          {t('register.confirmPassword')}
         </label>
         <Input
           id="confirmPassword"
@@ -93,7 +95,7 @@ export function RegisterForm() {
           value={formData.confirmPassword}
           onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
           required
-          placeholder="再次输入密码"
+          placeholder={t('register.confirmPasswordPlaceholder')}
         />
       </div>
 
@@ -104,13 +106,13 @@ export function RegisterForm() {
       )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? '注册中...' : '注册'}
+        {isLoading ? t('register.submitting') : t('register.submit')}
       </Button>
 
       <div className="text-center text-sm">
-        已有账号？{' '}
+        {t('register.hasAccount')}{' '}
         <a href="/login" className="text-primary hover:underline">
-          登录
+          {t('register.login')}
         </a>
       </div>
     </form>

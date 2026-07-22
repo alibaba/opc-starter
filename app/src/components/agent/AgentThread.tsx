@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Bot, Sparkles, MapPin, AlertCircle } from 'lucide-react'
 import { useAgentStore } from '@/stores/useAgentStore'
 import { useAgentChat } from '@/hooks/useAgentChat'
@@ -58,18 +59,24 @@ export function AgentThread() {
  * 空状态组件 - 显示上下文感知的推荐
  */
 function EmptyStateWithSuggestions() {
+  const { t } = useTranslation('components')
   const { suggestions, emptyStateHint, currentPage, hasSelectedPhotos, selectedPhotoCount } =
     useContextualSuggestions()
 
-  // 页面名称映射
-  const pageNames: Record<string, string> = {
-    timeline: '时间线',
-    album: '相册',
-    editor: '编辑器',
-    'ai-studio': 'AI 工作室',
-    search: '搜索',
-    persons: '人物',
+  const pageNameKeys: Record<string, string> = {
+    timeline: 'agent.pageTimeline',
+    album: 'agent.pageAlbum',
+    editor: 'agent.pageEditor',
+    'ai-studio': 'agent.pageAiStudio',
+    search: 'agent.pageSearch',
+    persons: 'agent.pagePersons',
+    dashboard: 'agent.pageDashboard',
+    profile: 'agent.pageProfile',
+    settings: 'agent.pageSettings',
+    'cloud-storage': 'agent.pageCloudStorage',
   }
+
+  const pageName = pageNameKeys[currentPage] ? t(pageNameKeys[currentPage]) : currentPage
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
@@ -77,15 +84,15 @@ function EmptyStateWithSuggestions() {
       <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
         <Bot className="w-8 h-8 text-primary" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">Photo Wall 助手</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-2">{t('agent.emptyTitle')}</h3>
 
       {/* 上下文信息 */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
         <MapPin className="w-3 h-3" />
-        <span>当前: {pageNames[currentPage] || currentPage}</span>
+        <span>{t('agent.currentPage', { page: pageName })}</span>
         {hasSelectedPhotos && (
           <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-full">
-            {selectedPhotoCount} 张照片
+            {t('agent.selectedPhotoCount', { count: selectedPhotoCount })}
           </span>
         )}
       </div>

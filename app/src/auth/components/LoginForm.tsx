@@ -3,12 +3,14 @@
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { LoginFormData } from '@/types/auth'
 
 export function LoginForm() {
+  const { t } = useTranslation('pages')
   const navigate = useNavigate()
   const { signIn, error, isLoading } = useAuthStore()
   const [formData, setFormData] = useState<LoginFormData>({
@@ -28,7 +30,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          邮箱
+          {t('login.email')}
         </label>
         <Input
           id="email"
@@ -42,7 +44,7 @@ export function LoginForm() {
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium mb-1">
-          密码
+          {t('login.password')}
         </label>
         <Input
           id="password"
@@ -61,13 +63,13 @@ export function LoginForm() {
       )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? '登录中...' : '登录'}
+        {isLoading ? t('login.submitting') : t('login.submit')}
       </Button>
 
       <div className="text-center text-sm">
-        还没有账号？{' '}
+        {t('login.noAccount')}{' '}
         <a href="/register" className="text-primary hover:underline">
-          注册
+          {t('login.register')}
         </a>
       </div>
     </form>

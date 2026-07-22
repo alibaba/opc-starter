@@ -2,6 +2,7 @@
  * ThemeToggle - 主题切换组件，支持浅色/深色/跟随系统
  */
 import { Sun, Moon, Monitor } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useTheme, type Theme } from '@/hooks/useTheme'
 import { Button } from './button'
 import {
@@ -21,26 +22,14 @@ interface ThemeToggleProps {
   className?: string
 }
 
-/**
- * 主题切换组件
- *
- * @example
- * ```tsx
- * // 简单切换（light <-> dark）
- * <ThemeToggle variant="simple" />
- *
- * // 下拉菜单（包含 system 选项）
- * <ThemeToggle variant="dropdown" />
- * ```
- */
 export function ThemeToggle({
   variant = 'dropdown',
   size = 'default',
   className,
 }: ThemeToggleProps) {
+  const { t } = useTranslation('layout')
   const { theme, setTheme, isDark } = useTheme()
 
-  // 简单模式：直接切换 light/dark
   if (variant === 'simple') {
     return (
       <Button
@@ -48,19 +37,22 @@ export function ThemeToggle({
         size={size === 'sm' ? 'sm' : 'icon'}
         onClick={() => setTheme(isDark ? 'light' : 'dark')}
         className={cn('transition-colors', className)}
-        title={isDark ? '切换到浅色模式' : '切换到深色模式'}
+        title={isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
       >
         {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        <span className="sr-only">切换主题</span>
+        <span className="sr-only">{t('theme.toggle')}</span>
       </Button>
     )
   }
 
-  // 下拉菜单模式：包含 system 选项
-  const themeOptions: { value: Theme; label: string; icon: React.ReactNode }[] = [
-    { value: 'light', label: '浅色', icon: <Sun className="h-4 w-4" /> },
-    { value: 'dark', label: '深色', icon: <Moon className="h-4 w-4" /> },
-    { value: 'system', label: '跟随系统', icon: <Monitor className="h-4 w-4" /> },
+  const themeOptions: {
+    value: Theme
+    labelKey: 'theme.light' | 'theme.dark' | 'theme.system'
+    icon: React.ReactNode
+  }[] = [
+    { value: 'light', labelKey: 'theme.light', icon: <Sun className="h-4 w-4" /> },
+    { value: 'dark', labelKey: 'theme.dark', icon: <Moon className="h-4 w-4" /> },
+    { value: 'system', labelKey: 'theme.system', icon: <Monitor className="h-4 w-4" /> },
   ]
 
   const currentIcon =
@@ -79,10 +71,10 @@ export function ThemeToggle({
           variant="ghost"
           size={size === 'sm' ? 'sm' : 'icon'}
           className={cn('transition-colors', className)}
-          title="切换主题"
+          title={t('theme.toggle')}
         >
           {currentIcon}
-          <span className="sr-only">切换主题</span>
+          <span className="sr-only">{t('theme.toggle')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -96,7 +88,7 @@ export function ThemeToggle({
             )}
           >
             {option.icon}
-            <span>{option.label}</span>
+            <span>{t(option.labelKey)}</span>
             {theme === option.value && (
               <span className="ml-auto text-emerald-600 dark:text-emerald-400">✓</span>
             )}

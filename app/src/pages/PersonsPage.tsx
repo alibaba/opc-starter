@@ -3,6 +3,7 @@
  * @description 展示组织树、团队成员列表，支持创建组织、添加成员、分配团队等操作
  */
 import { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Settings, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { OrgTree } from '@/components/organization/OrgTree'
@@ -15,6 +16,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import type { OrganizationTreeNode, Profile } from '@/lib/supabase/organizationTypes'
 
 function PersonsPage() {
+  const { t } = useTranslation('pages')
   const { user } = useAuthStore()
   const userId = user?.id || ''
   const initializedRef = useRef(false)
@@ -63,14 +65,14 @@ function PersonsPage() {
   const handleDeleteOrg = async () => {
     if (!selectedOrg) return
 
-    if (!confirm(`确定要删除组织 "${selectedOrg.display_name}" 吗？此操作不可撤销。`)) {
+    if (!confirm(t('persons.deleteConfirm', { name: selectedOrg.display_name }))) {
       return
     }
 
     try {
       await deleteOrganization(selectedOrg.id)
     } catch (err) {
-      alert(err instanceof Error ? err.message : '删除失败')
+      alert(err instanceof Error ? err.message : t('persons.deleteFailed'))
     }
   }
 
@@ -79,14 +81,14 @@ function PersonsPage() {
   }
 
   const handleRemoveMember = async (member: Profile) => {
-    if (!confirm(`确定要将 ${member.full_name} 从组织中移除吗？`)) {
+    if (!confirm(t('persons.removeConfirm', { name: member.full_name }))) {
       return
     }
 
     try {
       await removeMember(member.id)
     } catch (err) {
-      alert(err instanceof Error ? err.message : '移除失败')
+      alert(err instanceof Error ? err.message : t('persons.removeFailed'))
     }
   }
 
@@ -110,7 +112,7 @@ function PersonsPage() {
   if (!userId) {
     return (
       <div className="max-w-7xl mx-auto p-4">
-        <p className="text-muted-foreground">请先登录</p>
+        <p className="text-muted-foreground">{t('persons.loginRequired')}</p>
       </div>
     )
   }
@@ -119,24 +121,24 @@ function PersonsPage() {
     <div className="max-w-7xl mx-auto p-4 h-[calc(100vh-4rem)]">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-3xl font-bold">组织架构与人员管理</h1>
-          <p className="text-sm text-muted-foreground mt-1">管理团队组织结构和成员信息</p>
+          <h1 className="text-3xl font-bold">{t('persons.title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('persons.subtitle')}</p>
         </div>
         {isAdmin && (
           <div className="flex gap-2">
             <Button onClick={handleCreateOrg} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              创建{selectedOrg ? '子' : ''}组织
+              {selectedOrg ? t('persons.createSubOrg') : t('persons.createOrg')}
             </Button>
             {selectedOrg && (
               <>
                 <Button variant="outline" size="sm">
                   <Settings className="h-4 w-4 mr-2" />
-                  编辑组织
+                  {t('persons.editOrg')}
                 </Button>
                 <Button variant="destructive" size="sm" onClick={handleDeleteOrg}>
                   <Trash2 className="h-4 w-4 mr-2" />
-                  删除组织
+                  {t('persons.deleteOrg')}
                 </Button>
               </>
             )}
@@ -150,17 +152,23 @@ function PersonsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 h-[calc(100%-5rem)]">
-        <div className="border rounded-lg p-4 overflow-y-auto bg-card">
-          <h2 className="text-lg font-semibold mb-3">组织树</h2>
-          {isLoading && !tree.length ? (
-            <p className="text-sm text-muted-foreground">加载中...</p>
-          ) : (
-            <OrgTree tree={tree} selectedId={selectedOrg?.id || null} onSelect={handleSelectOrg} />
-          )}
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 h-[calc(100%-5rem)] items-stretch">
+        <div className="border rounded-lg p-4 overflow-y-auto bg-card flex flex-col h-full min-h-0">
+          <h2 className="text-lg font-semibold mb-3">{t('persons.orgTree')}</h2>
+          <div className="flex flex-1 flex-col min-h-0">
+            {isLoading && !tree.length ? (
+              <p className="text-sm text-muted-foreground">{t('persons.loading')}</p>
+            ) : (
+              <OrgTree
+                tree={tree}
+                selectedId={selectedOrg?.id || null}
+                onSelect={handleSelectOrg}
+              />
+            )}
+          </div>
         </div>
 
-        <div className="border rounded-lg p-4 overflow-hidden bg-card">
+        <div className="border rounded-lg p-4 overflow-hidden bg-card flex flex-col h-full min-h-0">
           {selectedOrg ? (
             <TeamMembersList
               members={members}
@@ -173,7 +181,7 @@ function PersonsPage() {
             />
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p className="text-sm">请从左侧选择一个组织查看成员</p>
+              <p className="text-sm">{t('persons.selectOrgHint')}</p>
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { useAgentStore } from '@/stores/useAgentStore'
 import { A2UIRenderer } from './A2UIRenderer'
@@ -19,6 +20,7 @@ import { cn } from '@/lib/utils'
  * - fullscreen: 全屏模态 (Portal 到 body)
  */
 export function A2UIPortalContainer() {
+  const { t } = useTranslation('components')
   const portalContent = useAgentStore((s) => s.portalContent)
   const portalTarget = useAgentStore((s) => s.portalTarget)
   const portalDataModel = useAgentStore((s) => s.portalDataModel)
@@ -74,7 +76,7 @@ export function A2UIPortalContainer() {
       >
         {/* 顶部工具栏 */}
         <div className="flex-shrink-0 h-14 border-b flex items-center justify-between px-4 bg-background/95 backdrop-blur-sm">
-          <span className="text-sm font-medium">{config.title || '预览'}</span>
+          <span className="text-sm font-medium">{config.title || t('agent.a2uiPreview')}</span>
           <div className="flex items-center gap-2">
             {config.showMinimize && (
               <Button
@@ -89,7 +91,12 @@ export function A2UIPortalContainer() {
               </Button>
             )}
             {config.showClose !== false && (
-              <Button variant="ghost" size="icon" onClick={closePortal} aria-label="关闭">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closePortal}
+                aria-label={t('agent.closeTitle')}
+              >
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -125,7 +132,7 @@ export function A2UIPortalContainer() {
         <div className="relative z-10 w-full h-full max-w-[95vw] max-h-[95vh] m-4 bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col">
           {/* 顶部工具栏 */}
           <div className="flex-shrink-0 h-12 border-b flex items-center justify-between px-4">
-            <span className="text-sm font-medium">{config.title || '全屏预览'}</span>
+            <span className="text-sm font-medium">{config.title || t('agent.a2uiFullscreen')}</span>
             <div className="flex items-center gap-2">
               {config.showMinimize && (
                 <Button
@@ -139,7 +146,12 @@ export function A2UIPortalContainer() {
                 </Button>
               )}
               {config.showClose !== false && (
-                <Button variant="ghost" size="icon" onClick={closePortal} aria-label="关闭">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={closePortal}
+                  aria-label={t('agent.closeTitle')}
+                >
                   <X className="w-5 h-5" />
                 </Button>
               )}

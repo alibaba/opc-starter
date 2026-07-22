@@ -1,0 +1,184 @@
+{
+  "login": {
+    "title": "OPC-Starter",
+    "subtitle": "Sign in to your account",
+    "tagline": "Solo founder starter · AI-Friendly React Boilerplate",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "register": "Register"
+  },
+  "dashboard": {
+    "subtitle": "Solo founder starter - AI-Friendly React Boilerplate",
+    "welcomeBack": "Welcome back, {{name}}!",
+    "quickActionsTitle": "Quick links",
+    "enter": "Open",
+    "systemStatusTitle": "System status",
+    "networkStatus": "Network",
+    "online": "Online",
+    "offline": "Offline",
+    "syncStatus": "Sync status",
+    "syncStatusSyncing": "Syncing...",
+    "syncStatusSynced": "Synced",
+    "syncStatusError": "Sync error",
+    "syncStatusIdle": "Idle",
+    "offlineQueue": "Offline queue",
+    "queueItems": "{{count}} item(s)",
+    "lastSync": "Last sync",
+    "featuresTitle": "Built-in features",
+    "agentTipTitle": "💡 Tip: Use Agent Studio",
+    "agentTipBody": "Click the AI assistant button to interact with the app in natural language. The agent can help you navigate pages and answer questions.",
+    "learnMore": "Learn more",
+    "quickActions": {
+      "persons": {
+        "title": "Organization",
+        "description": "Manage team members and org structure"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Update your profile and avatar"
+      },
+      "cloudStorage": {
+        "title": "Cloud storage",
+        "description": "Manage storage and sync settings"
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Configure app preferences"
+      }
+    },
+    "features": {
+      "auth": "Supabase Auth",
+      "org": "Organization management",
+      "agentStudio": "Agent Studio (A2UI)",
+      "dataSync": "Data sync (IndexedDB + Realtime)",
+      "tailwind": "Tailwind CSS v4",
+      "typescript": "TypeScript strict mode"
+    }
+  },
+  "register": {
+    "title": "OPC-Starter",
+    "subtitle": "Create your account",
+    "tagline": "Solo founder starter · AI-Friendly React Boilerplate",
+    "displayName": "Display name",
+    "displayNamePlaceholder": "Your display name",
+    "email": "Email",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Enter password again",
+    "submit": "Register",
+    "submitting": "Registering…",
+    "hasAccount": "Already have an account?",
+    "login": "Sign in",
+    "passwordMismatch": "Passwords do not match",
+    "passwordMinLength": "Password must be at least 6 characters"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your profile and avatar",
+    "loading": "Loading profile…",
+    "loadFailed": "Failed to load",
+    "retry": "Retry",
+    "orgInfo": "Organization",
+    "changeTeam": "Change team",
+    "loadingOrg": "Loading organization…",
+    "avatar": "Avatar",
+    "avatarTip": "Tip: Your avatar appears on your profile and in team member lists.",
+    "mobileTip": "💡 Editing works best on desktop",
+    "currentUser": "Current user"
+  },
+  "persons": {
+    "title": "Organization & members",
+    "subtitle": "Manage org structure and team members",
+    "loginRequired": "Please sign in first",
+    "createOrg": "Create organization",
+    "createSubOrg": "Create sub-organization",
+    "editOrg": "Edit organization",
+    "deleteOrg": "Delete organization",
+    "deleteConfirm": "Delete organization \"{{name}}\"? This cannot be undone.",
+    "deleteFailed": "Delete failed",
+    "removeConfirm": "Remove {{name}} from this organization?",
+    "removeFailed": "Remove failed",
+    "orgTree": "Organization tree",
+    "loading": "Loading…",
+    "selectOrgHint": "Select an organization on the left to view members"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage app configuration and preferences",
+    "comingSoon": "(Coming soon)",
+    "about": "About",
+    "appName": "App name",
+    "version": "Version",
+    "techStack": "Tech stack",
+    "groups": {
+      "cloudStorage": {
+        "title": "Cloud storage",
+        "description": "Manage storage and sync settings"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Configure notification preferences"
+      },
+      "security": {
+        "title": "Security",
+        "description": "Password and security settings"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Theme and display settings"
+      }
+    }
+  },
+  "cloudStorage": {
+    "title": "Cloud storage",
+    "subtitle": "Manage Supabase Storage and sync settings",
+    "loginRequired": "Sign in to use cloud storage",
+    "loginNow": "Sign in",
+    "storageTitle": "Supabase Storage",
+    "freeTier": "Free tier 1GB",
+    "usageLabel": "Storage usage",
+    "payAsYouGo": "Pay as you go",
+    "freeTierHint": "Supabase free tier includes 1GB storage",
+    "upgradeTip": "💡 Tip: Upgrade to Pro for more storage and features",
+    "syncStatus": "Sync status",
+    "online": "Online",
+    "offline": "Offline",
+    "offlineQueue": "Offline queue",
+    "currentStatus": "Status",
+    "statusSyncing": "Syncing",
+    "statusSynced": "Synced",
+    "statusError": "Error",
+    "statusIdle": "Idle",
+    "conflictsTotal": "Conflicts",
+    "initialSync": "Initial sync",
+    "initialSyncDone": "Done",
+    "initialSyncPending": "Pending",
+    "lastSync": "Last sync: {{time}}",
+    "actions": "Actions",
+    "manualSync": "Sync now",
+    "syncing": "Syncing…",
+    "clearCache": "Clear cache",
+    "clearCacheConfirm": "Clear local cache? Cloud data will not be deleted.",
+    "tipsTitle": "💡 Tips",
+    "tips": {
+      "autoSync": "Data syncs to Supabase in the background",
+      "offline": "Data is stored locally when offline and syncs when back online",
+      "retry": "Failed sync operations retry automatically when the network recovers",
+      "clearCache": "Clearing cache does not delete cloud data"
+    },
+    "toast": {
+      "loginRequired": "Please sign in first",
+      "syncing": "Syncing data…",
+      "syncComplete": "Sync complete: {{queueMessage}}; added {{added}}, updated {{updated}}, deleted {{deleted}}",
+      "queueSuccess": "Queue succeeded {{count}}",
+      "queuePartial": "Queue succeeded {{success}}, failed {{failed}}",
+      "syncFailed": "Sync failed",
+      "cacheCleared": "Cache cleared",
+      "clearCacheFailed": "Failed to clear cache"
+    }
+  }
+}

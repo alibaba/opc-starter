@@ -42,8 +42,8 @@ describe('agentSuggestions', () => {
     it('dashboard 页面应该有组织管理和个人信息推荐', () => {
       const dashboardSuggestions = PAGE_SUGGESTIONS.dashboard.suggestions
 
-      const hasOrgSuggestion = dashboardSuggestions.some((s) => s.text.includes('组织'))
-      const hasProfileSuggestion = dashboardSuggestions.some((s) => s.text.includes('个人'))
+      const hasOrgSuggestion = dashboardSuggestions.some((s) => s.textKey === 'goOrgManagement')
+      const hasProfileSuggestion = dashboardSuggestions.some((s) => s.textKey === 'viewProfile')
 
       expect(hasOrgSuggestion).toBe(true)
       expect(hasProfileSuggestion).toBe(true)
@@ -52,8 +52,8 @@ describe('agentSuggestions', () => {
     it('persons 页面应该有创建组织和添加成员推荐', () => {
       const personsSuggestions = PAGE_SUGGESTIONS.persons.suggestions
 
-      const hasCreateOrg = personsSuggestions.some((s) => s.text.includes('创建'))
-      const hasAddMember = personsSuggestions.some((s) => s.text.includes('添加'))
+      const hasCreateOrg = personsSuggestions.some((s) => s.textKey === 'createOrg')
+      const hasAddMember = personsSuggestions.some((s) => s.textKey === 'addMember')
 
       expect(hasCreateOrg).toBe(true)
       expect(hasAddMember).toBe(true)
@@ -63,7 +63,7 @@ describe('agentSuggestions', () => {
       const profileSuggestions = PAGE_SUGGESTIONS.profile.suggestions
 
       const hasUpdateInfo = profileSuggestions.some(
-        (s) => s.text.includes('更新') || s.text.includes('修改')
+        (s) => s.textKey === 'updateInfo' || s.textKey === 'changeAvatar'
       )
 
       expect(hasUpdateInfo).toBe(true)
@@ -127,8 +127,7 @@ describe('agentSuggestions', () => {
         const result = getContextualSuggestions(context)
 
         expect(result.suggestions.length).toBeGreaterThan(0)
-        // 应该有回到首页的推荐
-        const hasHomeNav = result.suggestions.some((s) => s.text.includes('首页'))
+        const hasHomeNav = result.suggestions.some((s) => s.textKey === 'goHome')
         expect(hasHomeNav).toBe(true)
       })
     })
@@ -137,7 +136,7 @@ describe('agentSuggestions', () => {
   describe('GLOBAL_SUGGESTIONS', () => {
     it('应该包含通用推荐', () => {
       expect(GLOBAL_SUGGESTIONS.length).toBeGreaterThan(0)
-      expect(GLOBAL_SUGGESTIONS.some((s) => s.text.includes('搜索'))).toBe(true)
+      expect(GLOBAL_SUGGESTIONS.some((s) => s.textKey === 'searchPhotos')).toBe(true)
     })
   })
 })

@@ -3,6 +3,7 @@
  * @description 展示当前组织的层级路径，支持点击跳转到上级组织
  */
 import { ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import type { Organization } from '@/lib/supabase/organizationTypes'
 
@@ -24,15 +25,8 @@ function getRoleBadgeVariant(role: 'admin' | 'manager' | 'member') {
   }
 }
 
-function getRoleLabel(role: 'admin' | 'manager' | 'member'): string {
-  switch (role) {
-    case 'admin':
-      return '管理员'
-    case 'manager':
-      return '经理'
-    case 'member':
-      return '成员'
-  }
+function getRoleLabel(role: 'admin' | 'manager' | 'member', t: (key: string) => string): string {
+  return t(`organization.roles.${role}`)
 }
 
 export function OrganizationBreadcrumb({
@@ -41,10 +35,12 @@ export function OrganizationBreadcrumb({
   role,
   className = '',
 }: OrganizationBreadcrumbProps) {
+  const { t } = useTranslation('components')
+
   if (!currentOrg) {
     return (
       <div className={className}>
-        <p className="text-sm text-muted-foreground">未分配组织</p>
+        <p className="text-sm text-muted-foreground">{t('organization.unassigned')}</p>
       </div>
     )
   }
@@ -69,7 +65,7 @@ export function OrganizationBreadcrumb({
           </div>
         ))}
         <Badge variant={getRoleBadgeVariant(role)} className="ml-2">
-          {getRoleLabel(role)}
+          {getRoleLabel(role, t)}
         </Badge>
       </div>
     </div>

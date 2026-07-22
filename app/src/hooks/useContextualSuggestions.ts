@@ -5,6 +5,7 @@
  */
 
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAgentContext } from './useAgentContext'
 import { getContextualSuggestions, type SuggestionItem } from '@/config/agentSuggestions'
 
@@ -12,6 +13,8 @@ import { getContextualSuggestions, type SuggestionItem } from '@/config/agentSug
  * 带导航提示的推荐项
  */
 export interface ContextualSuggestion extends SuggestionItem {
+  /** 显示文本（已翻译） */
+  text: string
   /** 导航提示（如果需要前往其他页面或选择照片） */
   navigationHint?: string
   /** 是否可直接执行 */
@@ -43,6 +46,7 @@ export interface UseContextualSuggestionsReturn {
  */
 export function useContextualSuggestions(): UseContextualSuggestionsReturn {
   const context = useAgentContext()
+  const { i18n } = useTranslation()
 
   return useMemo(() => {
     const { suggestions, emptyStateHint, contextInfo } = getContextualSuggestions(context)
@@ -62,5 +66,5 @@ export function useContextualSuggestions(): UseContextualSuggestionsReturn {
       selectedPhotoCount: context.selectedPhotos.length,
       hasEditingPhoto: !!context.editingState?.photoId,
     }
-  }, [context])
+  }, [context, i18n.language])
 }

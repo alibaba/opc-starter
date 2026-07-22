@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import '@testing-library/jest-dom'
+import '@/lib/i18n'
 
 // Polyfill Blob.arrayBuffer for jsdom
 // jsdom 的 Blob/File 对象缺少 arrayBuffer 方法

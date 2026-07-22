@@ -2,7 +2,11 @@
  * 全局加载动画组件
  * 用于页面切换时的 Suspense fallback
  */
+import { useTranslation } from 'react-i18next'
+
 export function LoadingSpinner() {
+  const { t } = useTranslation('components')
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center space-y-4">
@@ -13,7 +17,7 @@ export function LoadingSpinner() {
         </div>
 
         {/* 加载文本 */}
-        <p className="text-sm text-muted-foreground">加载中...</p>
+        <p className="text-sm text-muted-foreground">{t('ui.loading')}</p>
       </div>
     </div>
   )

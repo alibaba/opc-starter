@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Loader2, User, Building2, Edit3 } from 'lucide-react'
 import { useProfileStore } from '@/stores/useProfileStore'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -15,6 +16,7 @@ import { AssignTeamDialog } from '@/components/organization/AssignTeamDialog'
 import { Button } from '@/components/ui/button'
 
 function ProfilePage() {
+  const { t } = useTranslation('pages')
   const { profile, isLoading, loadProfile, error } = useProfileStore()
   const { user } = useAuthStore()
   const userId = user?.id || ''
@@ -62,7 +64,7 @@ function ProfilePage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">加载个人信息中...</p>
+          <p className="text-muted-foreground">{t('profile.loading')}</p>
         </div>
       </div>
     )
@@ -76,13 +78,13 @@ function ProfilePage() {
           <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-8 h-8 text-destructive" />
           </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">加载失败</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-2">{t('profile.loadFailed')}</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
           <button
             onClick={loadProfile}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
-            重试
+            {t('profile.retry')}
           </button>
         </div>
       </div>
@@ -96,9 +98,9 @@ function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-3">
             <User className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">个人中心</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('profile.title')}</h1>
           </div>
-          <p className="text-muted-foreground mt-1">管理您的个人信息和头像</p>
+          <p className="text-muted-foreground mt-1">{t('profile.subtitle')}</p>
         </div>
       </div>
 
@@ -109,12 +111,12 @@ function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">组织信息</h2>
+              <h2 className="text-lg font-semibold">{t('profile.orgInfo')}</h2>
             </div>
             {isCurrentUserAdmin && (
               <Button variant="outline" size="sm" onClick={() => setAssignDialogOpen(true)}>
                 <Edit3 className="h-4 w-4 mr-2" />
-                修改团队
+                {t('profile.changeTeam')}
               </Button>
             )}
           </div>
@@ -122,7 +124,7 @@ function ProfilePage() {
           {orgLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm">加载组织信息...</span>
+              <span className="text-sm">{t('profile.loadingOrg')}</span>
             </div>
           ) : (
             <OrganizationBreadcrumb
@@ -138,12 +140,10 @@ function ProfilePage() {
           {/* 左侧：头像上传区域 */}
           <div className="lg:col-span-1">
             <div className="bg-card rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold mb-4">头像</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('profile.avatar')}</h2>
               <AvatarUploader />
               <div className="mt-6 p-4 bg-primary/10 rounded-lg">
-                <p className="text-sm text-primary">
-                  <strong>提示：</strong>上传的头像将用于 AI 人脸识别，帮助系统在照片中自动标注您。
-                </p>
+                <p className="text-sm text-primary">{t('profile.avatarTip')}</p>
               </div>
             </div>
           </div>
@@ -156,9 +156,7 @@ function ProfilePage() {
 
         {/* 移动端提示 */}
         <div className="mt-8 p-4 bg-secondary rounded-lg lg:hidden">
-          <p className="text-sm text-muted-foreground text-center">
-            💡 在桌面端可以获得更好的编辑体验
-          </p>
+          <p className="text-sm text-muted-foreground text-center">{t('profile.mobileTip')}</p>
         </div>
       </div>
 
@@ -168,7 +166,7 @@ function ProfilePage() {
           open={assignDialogOpen}
           onOpenChange={setAssignDialogOpen}
           userId={userId}
-          userName={profile?.fullName || '当前用户'}
+          userName={profile?.fullName || t('profile.currentUser')}
           currentOrg={userOrgInfo?.organization || null}
           organizationTree={tree}
           onSubmit={handleAssignTeam}

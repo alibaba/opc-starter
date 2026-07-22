@@ -1,25 +1,18 @@
 /**
  * AgentButton - 侧边栏 Agent 按钮
- * @description 触发打开 Agent 悬浮窗口的按钮
- * @version 1.0.0
- * @see STORY-23-004
  */
-
 import { Bot, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { useAgentStore } from '@/stores/useAgentStore'
 
 interface AgentButtonProps {
-  /** 是否折叠模式（仅显示图标） */
   isCollapsed?: boolean
-  /** 自定义类名 */
   className?: string
 }
 
-/**
- * 侧边栏 Agent 按钮
- */
 export function AgentButton({ isCollapsed = false, className }: AgentButtonProps) {
+  const { t } = useTranslation('layout')
   const togglePanel = useAgentStore((state) => state.togglePanel)
   const isPanelOpen = useAgentStore((state) => state.isPanelOpen)
 
@@ -35,9 +28,8 @@ export function AgentButton({ isCollapsed = false, className }: AgentButtonProps
         isPanelOpen && 'bg-primary text-primary-foreground',
         className
       )}
-      title="AI 助手"
+      title={t('sidebar.agentAssistant')}
     >
-      {/* 图标容器 */}
       <div
         className={cn(
           'relative flex items-center justify-center w-5 h-5 flex-shrink-0',
@@ -45,8 +37,6 @@ export function AgentButton({ isCollapsed = false, className }: AgentButtonProps
         )}
       >
         <Bot className="w-5 h-5" />
-
-        {/* 动态光效 */}
         {!isPanelOpen && (
           <Sparkles
             className={cn(
@@ -58,17 +48,15 @@ export function AgentButton({ isCollapsed = false, className }: AgentButtonProps
         )}
       </div>
 
-      {/* 文字标签 */}
       <span
         className={cn(
           'font-medium text-sm md:text-base whitespace-nowrap',
           isCollapsed && 'md:hidden'
         )}
       >
-        AI 助手
+        {t('sidebar.agentAssistant')}
       </span>
 
-      {/* 活跃指示器 */}
       {isPanelOpen && !isCollapsed && (
         <div className="ml-auto flex items-center">
           <span className="relative flex h-2 w-2">
@@ -81,10 +69,8 @@ export function AgentButton({ isCollapsed = false, className }: AgentButtonProps
   )
 }
 
-/**
- * 浮动 Agent 按钮（移动端或无侧边栏场景）
- */
 export function FloatingAgentButton({ className }: { className?: string }) {
+  const { t } = useTranslation('layout')
   const togglePanel = useAgentStore((state) => state.togglePanel)
   const isPanelOpen = useAgentStore((state) => state.isPanelOpen)
 
@@ -101,11 +87,9 @@ export function FloatingAgentButton({ className }: { className?: string }) {
         isPanelOpen && 'opacity-0 pointer-events-none',
         className
       )}
-      title="AI 助手"
+      title={t('sidebar.agentAssistant')}
     >
       <Bot className="w-6 h-6" />
-
-      {/* 脉冲动画 */}
       <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20" />
     </button>
   )

@@ -3,6 +3,7 @@
  * @description 提供表单创建新组织或子团队，支持设置名称和显示名称
  */
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -25,6 +26,8 @@ interface CreateOrgDialogProps {
 }
 
 export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: CreateOrgDialogProps) {
+  const { t } = useTranslation('components')
+  const { t: tCommon } = useTranslation('common')
   const [name, setName] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [description, setDescription] = useState('')
@@ -58,31 +61,35 @@ export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: Cre
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>创建组织</DialogTitle>
+            <DialogTitle>{t('organization.createOrg.title')}</DialogTitle>
             <DialogDescription>
-              {parentOrg ? `在 "${parentOrg.display_name}" 下创建子组织` : '创建根组织'}
+              {parentOrg
+                ? t('organization.createOrg.descChild', { name: parentOrg.display_name })
+                : t('organization.createOrg.descRoot')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">组织标识 *</Label>
+              <Label htmlFor="name">{t('organization.createOrg.nameLabel')}</Label>
               <Input
                 id="name"
-                placeholder="例如: mysql-team (用于路径，仅英文、数字、横线)"
+                placeholder={t('organization.createOrg.namePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 pattern="[a-z0-9-]+"
               />
-              <p className="text-xs text-muted-foreground">仅支持小写字母、数字和横线</p>
+              <p className="text-xs text-muted-foreground">
+                {t('organization.createOrg.nameHint')}
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="displayName">显示名称 *</Label>
+              <Label htmlFor="displayName">{t('organization.createOrg.displayNameLabel')}</Label>
               <Input
                 id="displayName"
-                placeholder="例如: MySQL 团队"
+                placeholder={t('organization.createOrg.displayNamePlaceholder')}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
@@ -90,10 +97,10 @@ export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: Cre
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">描述（可选）</Label>
+              <Label htmlFor="description">{t('organization.createOrg.descriptionLabel')}</Label>
               <Textarea
                 id="description"
-                placeholder="组织简介..."
+                placeholder={t('organization.createOrg.descriptionPlaceholder')}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
@@ -108,10 +115,12 @@ export function CreateOrgDialog({ open, onOpenChange, parentOrg, onSubmit }: Cre
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              取消
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting || !name.trim() || !displayName.trim()}>
-              {isSubmitting ? '创建中...' : '创建'}
+              {isSubmitting
+                ? t('organization.createOrg.creating')
+                : t('organization.createOrg.submit')}
             </Button>
           </DialogFooter>
         </form>

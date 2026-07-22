@@ -6,6 +6,7 @@
  */
 
 import { Bot, User, AlertCircle, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import type { AgentMessage as AgentMessageType } from '@/types/agent'
 import type { UserActionMessage } from '@/types/a2ui'
@@ -22,6 +23,7 @@ interface AgentMessageProps {
  * 消息气泡组件
  */
 export function AgentMessage({ message, onAction }: AgentMessageProps) {
+  const { t } = useTranslation('components')
   const isUser = message.role === 'user'
   const isAssistant = message.role === 'assistant'
   const isError = message.role === 'system' && message.content.includes('错误')
@@ -78,7 +80,7 @@ export function AgentMessage({ message, onAction }: AgentMessageProps) {
         {message.isStreaming && !message.content && (
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>思考中...</span>
+            <span>{t('agent.thinking')}</span>
           </div>
         )}
 
@@ -130,7 +132,7 @@ export function AgentMessage({ message, onAction }: AgentMessageProps) {
                         : 'bg-red-500/10 text-red-600'
                     )}
                   >
-                    {tool.result.success ? '成功' : '失败'}
+                    {tool.result.success ? t('agent.toolSuccess') : t('agent.toolFailed')}
                   </span>
                 )}
               </div>

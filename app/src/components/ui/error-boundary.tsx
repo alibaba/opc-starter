@@ -5,7 +5,11 @@ import type { ReactNode } from 'react'
 import React, { Component } from 'react'
 import { AlertTriangle, RefreshCw, WifiOff, ShieldAlert, Database } from 'lucide-react'
 import { Button } from './button'
+import i18n from '@/lib/i18n'
 import { isAppError, ErrorCategory, ErrorSeverity } from '@/types/error'
+
+const tError = (key: string, options?: Record<string, unknown>) =>
+  i18n.t(`components:errorBoundary.${key}`, options)
 
 interface Props {
   children: ReactNode
@@ -83,27 +87,27 @@ export class ErrorBoundary extends Component<Props, State> {
     if (isAppError(error)) {
       switch (error.category) {
         case ErrorCategory.NETWORK:
-          return '网络连接错误'
+          return tError('networkTitle')
         case ErrorCategory.AUTH:
-          return '身份验证失败'
+          return tError('authTitle')
         case ErrorCategory.STORAGE:
-          return '存储错误'
+          return tError('storageTitle')
         case ErrorCategory.BUSINESS:
-          return '操作失败'
+          return tError('businessTitle')
         case ErrorCategory.VALIDATION:
-          return '数据验证失败'
+          return tError('validationTitle')
         default:
-          return '糟糕，出错了'
+          return tError('defaultTitle')
       }
     }
-    return '糟糕，出错了'
+    return tError('defaultTitle')
   }
 
   getErrorMessage(error: Error | null): string {
     if (isAppError(error)) {
       return error.message
     }
-    return '应用程序遇到了一个意外错误，我们已经记录了这个问题。'
+    return tError('defaultMessage')
   }
 
   shouldShowRetry(error: Error | null): boolean {
@@ -155,14 +159,16 @@ export class ErrorBoundary extends Component<Props, State> {
 
               {isAppError(this.state.error) && this.state.error.code && (
                 <div className="w-full mb-4 p-3 bg-muted rounded-lg">
-                  <div className="text-xs text-muted-foreground mb-1">错误代码</div>
+                  <div className="text-xs text-muted-foreground mb-1">{tError('errorCode')}</div>
                   <div className="text-sm font-mono text-foreground">{this.state.error.code}</div>
                 </div>
               )}
 
               {import.meta.env.DEV && this.state.error && (
                 <div className="w-full mb-6 p-4 bg-muted rounded-lg text-left">
-                  <div className="text-sm font-semibold text-foreground mb-2">错误详情：</div>
+                  <div className="text-sm font-semibold text-foreground mb-2">
+                    {tError('errorDetails')}
+                  </div>
                   <pre className="text-xs text-destructive overflow-auto max-h-40">
                     {this.state.error.toString()}
                     {this.state.errorInfo && (
@@ -179,11 +185,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 {this.shouldShowRetry(this.state.error) && (
                   <Button onClick={this.handleReset} className="flex items-center gap-2">
                     <RefreshCw className="w-4 h-4" />
-                    重新加载
+                    {tError('reload')}
                   </Button>
                 )}
                 <Button variant="outline" onClick={() => (window.location.href = '/')}>
-                  返回首页
+                  {tError('backHome')}
                 </Button>
               </div>
             </div>
@@ -245,10 +251,12 @@ export class FeatureErrorBoundary extends Component<FeatureErrorBoundaryProps, S
             <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <h3 className="font-semibold text-destructive mb-1">
-                {this.props.featureName || '此功能'}暂时不可用
+                {tError('featureUnavailable', {
+                  feature: this.props.featureName || tError('thisFeature'),
+                })}
               </h3>
               <p className="text-sm text-destructive/80 mb-3">
-                {this.state.error?.message || '发生了一个错误'}
+                {this.state.error?.message || tError('genericError')}
               </p>
               <Button
                 size="sm"
@@ -257,7 +265,7 @@ export class FeatureErrorBoundary extends Component<FeatureErrorBoundaryProps, S
                 className="border-destructive/30 text-destructive hover:bg-destructive/10"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                重试
+                {tError('retry')}
               </Button>
             </div>
           </div>

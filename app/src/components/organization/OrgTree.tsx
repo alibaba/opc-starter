@@ -3,6 +3,7 @@
  * @description 递归渲染组织层级树，支持节点展开/折叠和选中交互
  */
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronRight, ChevronDown, FolderClosed, FolderOpen, Building2, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { OrganizationTreeNode } from '@/lib/supabase/organizationTypes'
@@ -114,6 +115,7 @@ function OrgTreeNodeComponent({
 }
 
 export function OrgTree({ tree, selectedId, onSelect, className }: OrgTreeProps) {
+  const { t } = useTranslation('components')
   // 默认展开所有根节点
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
     const rootIds = new Set<string>()
@@ -139,8 +141,13 @@ export function OrgTree({ tree, selectedId, onSelect, className }: OrgTreeProps)
 
   if (tree.length === 0) {
     return (
-      <div className={cn('flex items-center justify-center py-8 text-muted-foreground', className)}>
-        <p className="text-sm">暂无组织架构数据</p>
+      <div
+        className={cn(
+          'flex flex-1 items-center justify-center py-8 text-muted-foreground',
+          className
+        )}
+      >
+        <p className="text-sm">{t('organization.noOrgTreeData')}</p>
       </div>
     )
   }

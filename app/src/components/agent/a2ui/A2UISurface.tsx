@@ -5,6 +5,7 @@
  */
 
 import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { A2UIComponent, A2UIDataModel, UserActionMessage } from '@/types/a2ui'
 import { A2UIRendererSafe } from './A2UIRenderer'
 import { cn } from '@/lib/utils'
@@ -84,6 +85,8 @@ export const A2UISurface: React.FC<A2UISurfaceProps> = ({
  * 空 Surface 占位符
  */
 export const A2UISurfacePlaceholder: React.FC<{ className?: string }> = ({ className }) => {
+  const { t } = useTranslation('components')
+
   return (
     <div
       className={cn(
@@ -104,7 +107,7 @@ export const A2UISurfacePlaceholder: React.FC<{ className?: string }> = ({ class
             clipRule="evenodd"
           />
         </svg>
-        <p className="mt-2 text-sm">等待 AI 响应...</p>
+        <p className="mt-2 text-sm">{t('agent.a2uiWaiting')}</p>
       </div>
     </div>
   )

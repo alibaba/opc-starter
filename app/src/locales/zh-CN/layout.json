@@ -1,0 +1,51 @@
+{
+  "header": {
+    "orgManagement": "组织管理",
+    "cloudStorageSettings": "云存储设置",
+    "profile": "个人中心",
+    "signOut": "登出",
+    "defaultUser": "用户",
+    "languageSelector": "切换语言"
+  },
+  "sidebar": {
+    "tagline": "一人公司启动器",
+    "nav": {
+      "home": "首页",
+      "persons": "组织管理",
+      "profile": "个人中心",
+      "settings": "设置"
+    },
+    "expand": "展开侧边栏",
+    "collapse": "收起侧边栏",
+    "collapseShort": "收起",
+    "agentAssistant": "AI 助手"
+  },
+  "theme": {
+    "toggle": "切换主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统",
+    "switchToLight": "切换到浅色模式",
+    "switchToDark": "切换到深色模式"
+  },
+  "sync": {
+    "offline": "离线",
+    "syncing": "同步中...",
+    "syncingProgress": "同步中 {{current}}/{{total}}",
+    "failed": "{{count}} 项同步失败",
+    "pending": "{{count}} 项待同步",
+    "synced": "已同步",
+    "notSynced": "未同步",
+    "conflictsResolved": "已解决 {{count}} 个冲突",
+    "clickRetry": "点击重试",
+    "retrySync": "重试同步",
+    "conflictSummary": "冲突解决: {{merged}} 合并, {{serverWins}} 服务端",
+    "badgeFailed": "{{count}} 失败",
+    "badgeSyncing": "同步中",
+    "initialSyncTitle": "正在同步数据",
+    "initialSyncProgress": "正在同步{{table}}... ({{current}}/{{total}})",
+    "tables": {
+      "persons": "人员"
+    }
+  }
+}

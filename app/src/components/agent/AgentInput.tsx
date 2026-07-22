@@ -6,6 +6,7 @@
  */
 
 import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Send, Image, Paperclip, Square, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,7 @@ interface SuggestedPrompt {
  * 输入框组件
  */
 export function AgentInput({ className }: AgentInputProps) {
+  const { t } = useTranslation('components')
   const [input, setInput] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -105,9 +107,7 @@ export function AgentInput({ className }: AgentInputProps) {
       {selectedCount > 0 && (
         <div className="px-4 py-2 border-b border-border bg-muted/30 flex items-center gap-2 text-xs text-muted-foreground">
           <Image className="w-3.5 h-3.5" />
-          <span>
-            已选择 <span className="font-medium text-foreground">{selectedCount}</span> 张照片
-          </span>
+          <span>{t('agent.selectedPhotos', { count: selectedCount })}</span>
         </div>
       )}
 
@@ -143,7 +143,7 @@ export function AgentInput({ className }: AgentInputProps) {
             variant="ghost"
             size="icon"
             className="h-9 w-9 flex-shrink-0 text-muted-foreground hover:text-foreground"
-            title="添加附件"
+            title={t('agent.addAttachmentTitle')}
             disabled
           >
             <Paperclip className="w-4 h-4" />
@@ -156,7 +156,7 @@ export function AgentInput({ className }: AgentInputProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
+              placeholder={t('agent.inputPlaceholder')}
               disabled={isStreaming}
               rows={1}
               className={cn(
@@ -177,7 +177,7 @@ export function AgentInput({ className }: AgentInputProps) {
               variant="destructive"
               className="h-9 w-9 flex-shrink-0"
               onClick={abort}
-              title="停止生成"
+              title={t('agent.stopGenerationTitle')}
             >
               <Square className="w-3.5 h-3.5 fill-current" />
             </Button>
@@ -198,10 +198,10 @@ export function AgentInput({ className }: AgentInputProps) {
         <div className="text-[10px] text-muted-foreground/60 mt-2 text-center">
           {error ? (
             <span className="text-destructive">
-              {retryCount > 0 ? `正在重试 (${retryCount}/3)...` : error.message}
+              {retryCount > 0 ? t('agent.retrying', { count: retryCount }) : error.message}
             </span>
           ) : (
-            <span>Photo Wall 助手可能会出错，请核实重要信息</span>
+            <span>{t('agent.disclaimer')}</span>
           )}
         </div>
       </div>

@@ -3,6 +3,7 @@
  * Simple confirmation dialog for user actions
  */
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -29,12 +30,16 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmText = '确认',
-  cancelText = '取消',
+  confirmText,
+  cancelText,
   onConfirm,
   variant = 'default',
 }: ConfirmDialogProps) {
+  const { t: tCommon } = useTranslation('common')
   const [loading, setLoading] = useState(false)
+
+  const resolvedConfirmText = confirmText ?? tCommon('confirm')
+  const resolvedCancelText = cancelText ?? tCommon('cancel')
 
   const handleConfirm = async () => {
     setLoading(true)
@@ -55,14 +60,14 @@ export function ConfirmDialog({
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            {cancelText}
+            {resolvedCancelText}
           </Button>
           <Button
             variant={variant === 'destructive' ? 'destructive' : 'default'}
             onClick={handleConfirm}
             disabled={loading}
           >
-            {confirmText}
+            {resolvedConfirmText}
           </Button>
         </DialogFooter>
       </DialogContent>

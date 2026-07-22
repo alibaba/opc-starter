@@ -63,7 +63,13 @@ export class SupabaseAdapter<T extends BaseEntity> implements RemoteAdapter<T> {
   }
 
   async insert(doc: Omit<T, 'id'>): Promise<T> {
-    const { data, error } = await this.client.from(this.tableName).insert(doc).select().single()
+    // 未绑定 Database 泛型时，postgrest-js 的 RejectExcessProperties 无法接受 Omit<T,'id'>；
+    // 本适配器按表名动态操作，运行时形状由调用方保证。
+    const { data, error } = await this.client
+      .from(this.tableName)
+      .insert(doc as never)
+      .select()
+      .single()
 
     if (error) {
       throw error
@@ -75,7 +81,7 @@ export class SupabaseAdapter<T extends BaseEntity> implements RemoteAdapter<T> {
   async update(id: string, changes: Partial<T>): Promise<T> {
     const { data, error } = await this.client
       .from(this.tableName)
-      .update(changes)
+      .update(changes as never)
       .eq('id', id)
       .select()
       .single()

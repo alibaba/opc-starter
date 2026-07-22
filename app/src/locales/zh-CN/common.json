@@ -1,0 +1,11 @@
+{
+  "confirm": "确定",
+  "cancel": "取消",
+  "save": "保存",
+  "delete": "删除",
+  "loading": "加载中…",
+  "retry": "重试",
+  "close": "关闭",
+  "networkError": "网络请求异常",
+  "unknownError": "未知错误"
+}

@@ -10,6 +10,8 @@
  */
 
 import { CloudOff, Loader2, CheckCircle2, AlertCircle, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { cn } from '@/lib/utils'
 import { Progress } from '@/components/ui/progress'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -42,46 +44,46 @@ export interface SyncStatusIndicatorProps {
 /**
  * 获取状态配置
  */
-function getStatusConfig(status: SyncStatus) {
+function getStatusConfig(status: SyncStatus, t: TFunction<'components'>) {
   const configs = {
     synced: {
       icon: CheckCircle2,
       color: 'text-success',
       bgColor: 'bg-success/10',
-      label: '已同步',
-      description: '照片已安全同步到云端',
+      label: t('businessSync.synced'),
+      description: t('businessSync.syncedDesc'),
       animate: false,
     },
     syncing: {
       icon: Loader2,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
-      label: '同步中',
-      description: '正在上传到云端...',
+      label: t('businessSync.syncing'),
+      description: t('businessSync.syncingDesc'),
       animate: true,
     },
     pending: {
       icon: Clock,
       color: 'text-warning',
       bgColor: 'bg-warning/10',
-      label: '等待同步',
-      description: '等待上传到云端',
+      label: t('businessSync.pending'),
+      description: t('businessSync.pendingDesc'),
       animate: false,
     },
     error: {
       icon: AlertCircle,
       color: 'text-destructive',
       bgColor: 'bg-destructive/10',
-      label: '同步失败',
-      description: '上传失败，点击重试',
+      label: t('businessSync.error'),
+      description: t('businessSync.errorDesc'),
       animate: false,
     },
     offline: {
       icon: CloudOff,
       color: 'text-muted-foreground',
       bgColor: 'bg-muted',
-      label: '离线',
-      description: '网络连接断开，将在恢复后自动同步',
+      label: t('businessSync.offline'),
+      description: t('businessSync.offlineDesc'),
       animate: false,
     },
   }
@@ -113,7 +115,8 @@ export function SyncStatusIndicator({
   className,
   onClick,
 }: SyncStatusIndicatorProps) {
-  const config = getStatusConfig(status)
+  const { t } = useTranslation('components')
+  const config = getStatusConfig(status, t)
   const Icon = config.icon
   const iconSize = getIconSize(size)
 
@@ -208,6 +211,7 @@ export function GlobalSyncStatus({
   onClick,
   className,
 }: GlobalSyncStatusProps) {
+  const { t } = useTranslation('components')
   // 确定状态
   const status: SyncStatus = syncError
     ? 'error'
@@ -217,12 +221,12 @@ export function GlobalSyncStatus({
         ? 'pending'
         : 'synced'
 
-  const config = getStatusConfig(status)
+  const config = getStatusConfig(status, t)
   const Icon = config.icon
 
   // 格式化最后同步时间
   const formatLastSync = (date?: Date) => {
-    if (!date) return '从未同步'
+    if (!date) return t('businessSync.neverSynced')
 
     const now = new Date()
     const diff = now.getTime() - date.getTime()
@@ -230,10 +234,10 @@ export function GlobalSyncStatus({
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)
 
-    if (minutes < 1) return '刚刚'
-    if (minutes < 60) return `${minutes} 分钟前`
-    if (hours < 24) return `${hours} 小时前`
-    return `${days} 天前`
+    if (minutes < 1) return t('businessSync.justNow')
+    if (minutes < 60) return t('businessSync.minutesAgo', { count: minutes })
+    if (hours < 24) return t('businessSync.hoursAgo', { count: hours })
+    return t('businessSync.daysAgo', { count: days })
   }
 
   return (
@@ -251,15 +255,19 @@ export function GlobalSyncStatus({
         <div className="flex items-center justify-between">
           <p className={cn('text-sm font-medium', config.color)}>{config.label}</p>
           {pendingCount > 0 && (
-            <span className="text-xs text-muted-foreground">{pendingCount} 个待同步</span>
+            <span className="text-xs text-muted-foreground">
+              {t('businessSync.pendingCount', { count: pendingCount })}
+            </span>
           )}
         </div>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {syncError || `最后同步: ${formatLastSync(lastSyncAt)}`}
+          {syncError || t('businessSync.lastSync', { time: formatLastSync(lastSyncAt) })}
         </p>
       </div>
       {status === 'error' && (
-        <button className="text-xs text-primary hover:text-primary/80 font-medium">重试</button>
+        <button className="text-xs text-primary hover:text-primary/80 font-medium">
+          {t('businessSync.retry')}
+        </button>
       )}
     </div>
   )

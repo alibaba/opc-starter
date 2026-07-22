@@ -1,28 +1,21 @@
 /**
  * 同步状态指示器组件 (Epic-18: S18-5)
- *
- * 显示数据同步状态：
- * - 在线/离线状态
- * - 同步中状态（带动画）
- * - 待同步数量徽章
- * - 冲突统计
  */
-
 import { useState } from 'react'
 import { Cloud, CloudOff, RefreshCw, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { useSyncStatus } from '@/hooks/useSyncStatus'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export interface SyncStatusIndicatorProps {
-  /** 是否显示详细信息 */
   showDetails?: boolean
-  /** 额外的 CSS 类名 */
   className?: string
 }
 
 export function SyncStatusIndicator({ showDetails = false, className }: SyncStatusIndicatorProps) {
+  const { t } = useTranslation('layout')
   const {
     isSyncing,
     hasInitialSynced,
@@ -38,7 +31,6 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
 
   const [isRetrying, setIsRetrying] = useState(false)
 
-  // 处理重试
   const handleRetry = async () => {
     if (isRetrying) return
     setIsRetrying(true)
@@ -55,7 +47,6 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
     }
   }
 
-  // 获取状态图标
   const getStatusIcon = () => {
     if (!isOnline) {
       return <CloudOff className="w-4 h-4 text-muted-foreground" />
@@ -80,22 +71,23 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
     return <Cloud className="w-4 h-4 text-muted-foreground" />
   }
 
-  // 获取状态文本
   const getStatusText = () => {
-    if (!isOnline) return '离线'
+    if (!isOnline) return t('sync.offline')
     if (isSyncing) {
       if (progress) {
-        return `同步中 ${progress.current}/${progress.total}`
+        return t('sync.syncingProgress', {
+          current: progress.current,
+          total: progress.total,
+        })
       }
-      return '同步中...'
+      return t('sync.syncing')
     }
-    if (failedCount > 0) return `${failedCount} 项同步失败`
-    if (pendingCount > 0) return `${pendingCount} 项待同步`
-    if (hasInitialSynced) return '已同步'
-    return '未同步'
+    if (failedCount > 0) return t('sync.failed', { count: failedCount })
+    if (pendingCount > 0) return t('sync.pending', { count: pendingCount })
+    if (hasInitialSynced) return t('sync.synced')
+    return t('sync.notSynced')
   }
 
-  // 获取状态颜色
   const getStatusColor = () => {
     if (!isOnline) return 'bg-muted text-muted-foreground border-muted'
     if (isSyncing) return 'bg-primary/10 text-primary border-primary/20'
@@ -105,7 +97,6 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
     return 'bg-muted text-muted-foreground border-muted'
   }
 
-  // 简洁模式：仅图标 + 徽章
   if (!showDetails) {
     return (
       <Tooltip>
@@ -121,7 +112,6 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
           >
             {getStatusIcon()}
 
-            {/* 待同步/失败数量徽章 */}
             {(pendingCount > 0 || failedCount > 0) && (
               <span
                 className={cn(
@@ -141,11 +131,11 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
             <p className="font-medium">{getStatusText()}</p>
             {conflictStats.total > 0 && (
               <p className="text-xs text-muted-foreground mt-1">
-                已解决 {conflictStats.total} 个冲突
+                {t('sync.conflictsResolved', { count: conflictStats.total })}
               </p>
             )}
             {(pendingCount > 0 || failedCount > 0) && isOnline && (
-              <p className="text-xs text-muted-foreground mt-1">点击重试</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('sync.clickRetry')}</p>
             )}
           </div>
         </TooltipContent>
@@ -153,7 +143,6 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
     )
   }
 
-  // 详细模式：完整卡片
   return (
     <div
       className={cn(
@@ -162,15 +151,12 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
         className
       )}
     >
-      {/* 状态图标 */}
       <div className="flex-shrink-0">{getStatusIcon()}</div>
 
-      {/* 状态信息 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium truncate">{getStatusText()}</span>
 
-          {/* 进度条 */}
           {isSyncing && progress && (
             <div className="flex-1 h-1.5 bg-primary/20 rounded-full overflow-hidden">
               <div
@@ -181,17 +167,18 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
           )}
         </div>
 
-        {/* 冲突统计 */}
         {conflictStats.total > 0 && (
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-muted-foreground">
-              冲突解决: {conflictStats.merged} 合并, {conflictStats.serverWins} 服务端
+              {t('sync.conflictSummary', {
+                merged: conflictStats.merged,
+                serverWins: conflictStats.serverWins,
+              })}
             </span>
           </div>
         )}
       </div>
 
-      {/* 操作按钮 */}
       {isOnline && (pendingCount > 0 || failedCount > 0) && (
         <button
           onClick={handleRetry}
@@ -200,7 +187,7 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
             'flex-shrink-0 p-1.5 rounded-md transition-colors',
             'hover:bg-black/5 disabled:opacity-50 disabled:cursor-not-allowed'
           )}
-          title="重试同步"
+          title={t('sync.retrySync')}
         >
           <RefreshCw className={cn('w-4 h-4', isRetrying && 'animate-spin')} />
         </button>
@@ -209,18 +196,15 @@ export function SyncStatusIndicator({ showDetails = false, className }: SyncStat
   )
 }
 
-/**
- * 同步状态徽章组件
- * 更紧凑的显示方式
- */
 export function SyncStatusBadge({ className }: { className?: string }) {
+  const { t } = useTranslation('layout')
   const { isOnline, isSyncing, pendingCount, failedCount, hasInitialSynced } = useSyncStatus()
 
   if (!isOnline) {
     return (
       <Badge variant="secondary" className={cn('gap-1', className)}>
         <CloudOff className="w-3 h-3" />
-        离线
+        {t('sync.offline')}
       </Badge>
     )
   }
@@ -229,7 +213,7 @@ export function SyncStatusBadge({ className }: { className?: string }) {
     return (
       <Badge variant="secondary" className={cn('gap-1', className)}>
         <Loader2 className="w-3 h-3 animate-spin" />
-        同步中
+        {t('sync.badgeSyncing')}
       </Badge>
     )
   }
@@ -238,7 +222,7 @@ export function SyncStatusBadge({ className }: { className?: string }) {
     return (
       <Badge variant="destructive" className={cn('gap-1', className)}>
         <AlertCircle className="w-3 h-3" />
-        {failedCount} 失败
+        {t('sync.badgeFailed', { count: failedCount })}
       </Badge>
     )
   }
@@ -247,7 +231,7 @@ export function SyncStatusBadge({ className }: { className?: string }) {
     return (
       <Badge variant="outline" className={cn('gap-1 border-amber-300 text-amber-700', className)}>
         <RefreshCw className="w-3 h-3" />
-        {pendingCount} 待同步
+        {t('sync.pending', { count: pendingCount })}
       </Badge>
     )
   }
@@ -256,7 +240,7 @@ export function SyncStatusBadge({ className }: { className?: string }) {
     return (
       <Badge variant="outline" className={cn('gap-1 border-success/30 text-success', className)}>
         <CheckCircle2 className="w-3 h-3" />
-        已同步
+        {t('sync.synced')}
       </Badge>
     )
   }

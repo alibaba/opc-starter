@@ -3,6 +3,7 @@
  * @description 变更组织成员角色（admin/manager/member），包含角色说明
  */
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Shield, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -29,16 +30,11 @@ interface ChangeRoleDialogProps {
   onChangeRole: (userId: string, newRole: 'manager' | 'member') => Promise<void>
 }
 
-const roleLabels = {
-  admin: '管理员',
-  manager: '经理',
-  member: '成员',
-}
-
-const roleDescriptions = {
-  manager: '🔐 团队管理员 - 可管理本团队及子团队的组织架构和成员（限当前组织树）',
-  member: '👤 普通成员 - 只能管理自己的资源（默认角色）',
-}
+const roleKeys = {
+  admin: 'admin',
+  manager: 'manager',
+  member: 'member',
+} as const
 
 export function ChangeRoleDialog({
   open,
@@ -46,6 +42,8 @@ export function ChangeRoleDialog({
   member,
   onChangeRole,
 }: ChangeRoleDialogProps) {
+  const { t } = useTranslation('components')
+  const { t: tCommon } = useTranslation('common')
   const [selectedRole, setSelectedRole] = useState<'manager' | 'member'>(
     member?.role === 'admin' ? 'member' : ((member?.role || 'member') as 'manager' | 'member')
   )
@@ -61,7 +59,7 @@ export function ChangeRoleDialog({
       onOpenChange(false)
     } catch (error) {
       console.error('Failed to change role:', error)
-      alert(error instanceof Error ? error.message : '更改角色失败')
+      alert(error instanceof Error ? error.message : t('organization.changeRole.changeFailed'))
     } finally {
       setIsSubmitting(false)
     }
@@ -76,8 +74,10 @@ export function ChangeRoleDialog({
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>更改用户角色</DialogTitle>
-            <DialogDescription>为 {member.full_name} 设置新的角色</DialogDescription>
+            <DialogTitle>{t('organization.changeRole.title')}</DialogTitle>
+            <DialogDescription>
+              {t('organization.changeRole.description', { name: member.full_name })}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -87,9 +87,11 @@ export function ChangeRoleDialog({
                   {member.full_name ? member.full_name.charAt(0).toUpperCase() : '?'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium">{member.full_name || '未命名'}</p>
+                  <p className="font-medium">{member.full_name || t('organization.unnamed')}</p>
                   <p className="text-sm text-muted-foreground">
-                    当前角色: {roleLabels[member.role]}
+                    {t('organization.changeRole.currentRole', {
+                      role: t(`organization.roles.${roleKeys[member.role]}`),
+                    })}
                   </p>
                 </div>
               </div>
@@ -98,11 +100,10 @@ export function ChangeRoleDialog({
             {isCurrentlyAdmin ? (
               <div className="p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg space-y-2">
                 <div className="text-sm text-amber-800 dark:text-amber-200">
-                  ⚠️ <strong>系统管理员(admin)权限较高</strong>
+                  {t('organization.adminChangeWarning')}
                 </div>
                 <div className="text-sm text-amber-700 dark:text-amber-300">
-                  出于安全考虑，请直接在 Supabase Dashboard 的 SQL Editor
-                  中执行以下命令来更改管理员角色：
+                  {t('organization.adminChangeInstruction')}
                 </div>
                 <pre className="p-2 bg-amber-100 dark:bg-amber-900 rounded text-xs overflow-x-auto">
                   UPDATE profiles {'\n'}
@@ -112,27 +113,27 @@ export function ChangeRoleDialog({
               </div>
             ) : (
               <div className="space-y-2">
-                <Label htmlFor="role">新角色</Label>
+                <Label htmlFor="role">{t('organization.changeRole.newRoleLabel')}</Label>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                      {roleLabels[selectedRole]}
+                      {t(`organization.roles.${selectedRole}`)}
                       <ChevronDown className="h-4 w-4 opacity-50" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-full">
                     <DropdownMenuItem onClick={() => setSelectedRole('member')}>
-                      成员
+                      {t('organization.roles.member')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSelectedRole('manager')}>
-                      经理
+                      {t('organization.roles.manager')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <p className="text-xs text-muted-foreground">{roleDescriptions[selectedRole]}</p>
-                <p className="text-xs text-amber-600">
-                  💡 提示: 系统管理员(admin)权限较高，请直接在 Supabase Dashboard 修改数据库
+                <p className="text-xs text-muted-foreground">
+                  {t(`organization.roleDescriptions.${selectedRole}`)}
                 </p>
+                <p className="text-xs text-amber-600">{t('organization.adminRoleHint')}</p>
               </div>
             )}
           </div>
@@ -144,16 +145,16 @@ export function ChangeRoleDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              {isCurrentlyAdmin ? '关闭' : '取消'}
+              {isCurrentlyAdmin ? tCommon('close') : tCommon('cancel')}
             </Button>
             {!isCurrentlyAdmin && (
               <Button type="submit" disabled={isSubmitting || selectedRole === member.role}>
                 {isSubmitting ? (
-                  '更改中...'
+                  t('organization.changeRole.changing')
                 ) : (
                   <>
                     <Shield className="h-4 w-4 mr-2" />
-                    确认更改
+                    {t('organization.changeRole.submit')}
                   </>
                 )}
               </Button>

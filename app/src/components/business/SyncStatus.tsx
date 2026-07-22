@@ -9,15 +9,39 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Cloud, CloudOff, RefreshCw, AlertCircle } from 'lucide-react'
 import { dataService } from '@/services/data/DataService'
 import { useDataServiceStats } from '@/hooks/useDataServiceStats'
 import { cn } from '@/lib/utils'
 
+function formatRelativeTime(date: Date, t: TFunction<'components'>, locale: string): string {
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHour = Math.floor(diffMin / 60)
+
+  if (diffSec < 60) {
+    return t('businessSync.justNow')
+  }
+  if (diffMin < 60) {
+    return t('businessSync.minutesAgo', { count: diffMin })
+  }
+  if (diffHour < 24) {
+    return t('businessSync.hoursAgo', { count: diffHour })
+  }
+  return date.toLocaleDateString(locale)
+}
+
 export function SyncStatus() {
+  const { t, i18n } = useTranslation('components')
   const stats = useDataServiceStats()
   const [isVisible, setIsVisible] = useState(false)
   const [isManualSyncing, setIsManualSyncing] = useState(false)
+
+  const dateLocale = i18n.language.startsWith('en') ? 'en-US' : 'zh-CN'
 
   useEffect(() => {
     // 只在有同步活动或错误时显示
@@ -42,6 +66,16 @@ export function SyncStatus() {
       setIsManualSyncing(false)
     }
   }
+
+  const statusTitle = !stats.isOnline
+    ? t('businessSync.offlineMode')
+    : stats.status === 'syncing' || isManualSyncing
+      ? t('businessSync.syncingNow')
+      : stats.status === 'error'
+        ? t('businessSync.error')
+        : stats.queueSize > 0
+          ? t('businessSync.pending')
+          : t('businessSync.synced')
 
   // 如果在 MSW 模式下，不显示同步状态
   if (import.meta.env.VITE_ENABLE_MSW === 'true') {
@@ -82,15 +116,7 @@ export function SyncStatus() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm font-medium text-foreground dark:text-foreground">
-              {!stats.isOnline
-                ? '离线模式'
-                : stats.status === 'syncing' || isManualSyncing
-                  ? '正在同步...'
-                  : stats.status === 'error'
-                    ? '同步失败'
-                    : stats.queueSize > 0
-                      ? '等待同步'
-                      : '已同步'}
+              {statusTitle}
             </h3>
 
             {/* 手动同步按钮 */}
@@ -104,7 +130,7 @@ export function SyncStatus() {
                   'transition-colors duration-200',
                   'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1'
                 )}
-                title="立即同步"
+                title={t('businessSync.syncNowTitle')}
               >
                 <RefreshCw className="w-3 h-3" />
               </button>
@@ -114,20 +140,24 @@ export function SyncStatus() {
           {/* 详细信息 */}
           <div className="mt-1 space-y-1">
             {!stats.isOnline && (
-              <p className="text-xs text-muted-foreground">数据保存在本地，网络恢复后自动同步</p>
+              <p className="text-xs text-muted-foreground">{t('businessSync.offlineHint')}</p>
             )}
 
             {stats.isOnline && stats.queueSize > 0 && (
-              <p className="text-xs text-muted-foreground">队列中有 {stats.queueSize} 项待同步</p>
+              <p className="text-xs text-muted-foreground">
+                {t('businessSync.queuePending', { count: stats.queueSize })}
+              </p>
             )}
 
             {stats.status === 'error' && (
-              <p className="text-xs text-destructive">同步出错，将自动重试</p>
+              <p className="text-xs text-destructive">{t('businessSync.errorRetry')}</p>
             )}
 
             {stats.lastSyncAt && (
               <p className="text-xs text-muted-foreground">
-                最后同步: {formatRelativeTime(stats.lastSyncAt)}
+                {t('businessSync.lastSync', {
+                  time: formatRelativeTime(stats.lastSyncAt, t, dateLocale),
+                })}
               </p>
             )}
           </div>
@@ -146,25 +176,4 @@ export function SyncStatus() {
       </div>
     </div>
   )
-}
-
-/**
- * 格式化相对时间
- */
-function formatRelativeTime(date: Date): string {
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffSec = Math.floor(diffMs / 1000)
-  const diffMin = Math.floor(diffSec / 60)
-  const diffHour = Math.floor(diffMin / 60)
-
-  if (diffSec < 60) {
-    return '刚刚'
-  } else if (diffMin < 60) {
-    return `${diffMin} 分钟前`
-  } else if (diffHour < 24) {
-    return `${diffHour} 小时前`
-  } else {
-    return date.toLocaleDateString()
-  }
 }

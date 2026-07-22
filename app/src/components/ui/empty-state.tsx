@@ -3,6 +3,7 @@
  */
 import type { LucideIcon } from 'lucide-react'
 import { ImageOff, FolderOpen, Search, User, Calendar, Inbox } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 import { cn } from '@/lib/utils'
 
@@ -46,15 +47,17 @@ export function EmptyState({
 
 // 预定义的空状态组件
 export function EmptyPhotos({ onUpload }: { onUpload?: () => void }) {
+  const { t } = useTranslation('components')
+
   return (
     <EmptyState
       icon={ImageOff}
-      title="还没有照片"
-      description="开始上传你的第一张照片，记录美好瞬间"
+      title={t('ui.emptyPhotosTitle')}
+      description={t('ui.emptyPhotosDesc')}
       action={
         onUpload
           ? {
-              label: '上传照片',
+              label: t('ui.emptyPhotosAction'),
               onClick: onUpload,
             }
           : undefined
@@ -64,15 +67,17 @@ export function EmptyPhotos({ onUpload }: { onUpload?: () => void }) {
 }
 
 export function EmptyAlbums({ onCreate }: { onCreate?: () => void }) {
+  const { t } = useTranslation('components')
+
   return (
     <EmptyState
       icon={FolderOpen}
-      title="还没有相册"
-      description="创建你的第一个相册，整理你的照片"
+      title={t('ui.emptyAlbumsTitle')}
+      description={t('ui.emptyAlbumsDesc')}
       action={
         onCreate
           ? {
-              label: '创建相册',
+              label: t('ui.emptyAlbumsAction'),
               onClick: onCreate,
             }
           : undefined
@@ -82,50 +87,62 @@ export function EmptyAlbums({ onCreate }: { onCreate?: () => void }) {
 }
 
 export function EmptySearchResults() {
+  const { t } = useTranslation('components')
+
   return (
-    <EmptyState icon={Search} title="没有找到结果" description="尝试使用不同的关键词或筛选条件" />
+    <EmptyState
+      icon={Search}
+      title={t('ui.emptySearchTitle')}
+      description={t('ui.emptySearchDesc')}
+    />
   )
 }
 
 export function EmptyPersons() {
+  const { t } = useTranslation('components')
+
   return (
     <EmptyState
       icon={User}
-      title="还没有识别到人物"
-      description="上传包含人脸的照片，系统会自动识别人物"
+      title={t('ui.emptyPersonsTitle')}
+      description={t('ui.emptyPersonsDesc')}
     />
   )
 }
 
 export function EmptyTimeline() {
+  const { t } = useTranslation('components')
+
   return (
     <EmptyState
       icon={Calendar}
-      title="时间线还是空的"
-      description="上传照片后，它们会按时间顺序显示在这里"
+      title={t('ui.emptyTimelineTitle')}
+      description={t('ui.emptyTimelineDesc')}
     />
   )
 }
 
 // 通用的加载错误状态
 export function ErrorState({
-  title = '加载失败',
-  description = '无法加载内容，请稍后重试',
+  title,
+  description,
   onRetry,
 }: {
   title?: string
   description?: string
   onRetry?: () => void
 }) {
+  const { t } = useTranslation('components')
+
   return (
     <EmptyState
       icon={ImageOff}
-      title={title}
-      description={description}
+      title={title ?? t('ui.errorLoadTitle')}
+      description={description ?? t('ui.errorLoadDesc')}
       action={
         onRetry
           ? {
-              label: '重试',
+              label: t('ui.errorLoadAction'),
               onClick: onRetry,
             }
           : undefined

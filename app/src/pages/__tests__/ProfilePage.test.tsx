@@ -171,7 +171,7 @@ describe('ProfilePage', () => {
   it('应该显示头像相关提示信息', async () => {
     renderWithRouter(<ProfilePage />)
 
-    expect(screen.getByText(/上传的头像将用于 AI 人脸识别/)).toBeInTheDocument()
+    expect(screen.getByText(/上传的头像将在个人中心和团队列表中展示/)).toBeInTheDocument()
   })
 
   it('初始化时应该调用 loadProfile', async () => {

@@ -3,10 +3,12 @@
  * @description 包含通知、设置、用户头像、移动端菜单等操作入口
  */
 import { Bell, Settings, LogOut, Shield, Menu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { usePermission } from '@/hooks/usePermission'
 import { Button } from '@/components/ui/button'
+import { LanguageSelector } from '@/components/ui/language-selector'
 import { SyncStatusIndicator } from '@/components/ui/sync-status-indicator'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
@@ -17,6 +19,7 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
+  const { t } = useTranslation('layout')
   const navigate = useNavigate()
   const { user, signOut } = useAuthStore()
   const { isAdmin } = usePermission()
@@ -35,7 +38,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   }
 
   // 获取用户显示名称
-  const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '用户'
+  const displayName =
+    user?.user_metadata?.display_name || user?.email?.split('@')[0] || t('header.defaultUser')
 
   // 获取用户头像首字母
   const avatarInitial = displayName.charAt(0).toUpperCase()
@@ -61,7 +65,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             className="gap-1 md:gap-2 px-2 md:px-3"
           >
             <Shield className="w-4 h-4" />
-            <span className="hidden md:inline">组织管理</span>
+            <span className="hidden md:inline">{t('header.orgManagement')}</span>
           </Button>
         )}
 
@@ -69,6 +73,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         <TooltipProvider>
           <SyncStatusIndicator />
         </TooltipProvider>
+
+        <LanguageSelector />
 
         {/* 主题切换 */}
         <ThemeToggle variant="dropdown" />
@@ -82,7 +88,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <button
           className="p-2 hover:bg-accent rounded-lg transition-colors"
           onClick={handleSettingsClick}
-          title="云存储设置"
+          title={t('header.cloudStorageSettings')}
         >
           <Settings className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -94,7 +100,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <button
               onClick={handleProfileClick}
               className="flex items-center gap-2 hover:bg-secondary rounded-lg px-1 md:px-2 py-1 transition-colors cursor-pointer"
-              title="个人中心"
+              title={t('header.profile')}
             >
               <div className="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-xs md:text-sm font-medium text-primary-foreground">
@@ -112,7 +118,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               className="gap-1 md:gap-2 px-2"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden md:inline">登出</span>
+              <span className="hidden md:inline">{t('header.signOut')}</span>
             </Button>
           </div>
         )}

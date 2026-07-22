@@ -4,29 +4,33 @@
  */
 
 import { z } from 'zod'
+import type { TFunction } from 'i18next'
+import i18n from '@/lib/i18n'
 
 /**
  * Profile 表单验证 Schema
  */
-export const profileSchema = z.object({
-  fullName: z.string().min(2, '姓名至少2个字符').max(50, '姓名最多50个字符'),
-  nickname: z
-    .string()
-    .min(2, '花名至少2个字符')
-    .max(20, '花名最多20个字符')
-    .optional()
-    .or(z.literal('')),
-  gender: z.enum(['male', 'female', 'other']).optional(),
-  team: z
-    .string()
-    .min(2, '团队名称至少2个字符')
-    .max(50, '团队名称最多50个字符')
-    .optional()
-    .or(z.literal('')),
-  bio: z.string().max(200, '简介最多200个字符').optional().or(z.literal('')),
-})
+export function createProfileSchema(t: TFunction<'components'>) {
+  return z.object({
+    fullName: z.string().min(2, t('validation.fullNameMin')).max(50, t('validation.fullNameMax')),
+    nickname: z
+      .string()
+      .min(2, t('validation.nicknameMin'))
+      .max(20, t('validation.nicknameMax'))
+      .optional()
+      .or(z.literal('')),
+    gender: z.enum(['male', 'female', 'other']).optional(),
+    team: z
+      .string()
+      .min(2, t('validation.teamMin'))
+      .max(50, t('validation.teamMax'))
+      .optional()
+      .or(z.literal('')),
+    bio: z.string().max(200, t('validation.bioMax')).optional().or(z.literal('')),
+  })
+}
 
-export type ProfileFormData = z.infer<typeof profileSchema>
+export type ProfileFormData = z.infer<ReturnType<typeof createProfileSchema>>
 
 /**
  * 头像上传验证
@@ -49,7 +53,7 @@ export function validateAvatarFile(file: File): {
   if (!avatarValidation.allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: '只支持 JPG、PNG、WebP 格式的图片',
+      error: i18n.t('validation.avatarType', { ns: 'components' }),
     }
   }
 
@@ -57,7 +61,10 @@ export function validateAvatarFile(file: File): {
   if (file.size > avatarValidation.maxSize) {
     return {
       valid: false,
-      error: `文件大小不能超过 ${avatarValidation.maxSize / 1024 / 1024}MB`,
+      error: i18n.t('validation.avatarSize', {
+        ns: 'components',
+        size: avatarValidation.maxSize / 1024 / 1024,
+      }),
     }
   }
 
@@ -77,7 +84,10 @@ export function validateImageDimensions(
   if (width < avatarValidation.minDimension || height < avatarValidation.minDimension) {
     return {
       valid: false,
-      error: `图片尺寸至少为 ${avatarValidation.minDimension}x${avatarValidation.minDimension}px`,
+      error: i18n.t('validation.avatarDimension', {
+        ns: 'components',
+        size: avatarValidation.minDimension,
+      }),
     }
   }
 

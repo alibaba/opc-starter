@@ -4,6 +4,7 @@
  * @version 2.0.0 - 适配 OPC-Starter 简化页面类型
  */
 
+import i18n from '@/lib/i18n'
 import type { AgentContext } from '@/hooks/useAgentContext'
 
 // 页面类型（与 useAgentContext 保持一致）
@@ -13,8 +14,8 @@ type PageType = AgentContext['currentPage']
  * 推荐操作项
  */
 export interface SuggestionItem {
-  /** 显示文本 */
-  text: string
+  /** i18n key（components.agentSuggestions.*） */
+  textKey: string
   /** 图标 emoji */
   icon: string
   /** 可选：需要导航到的目标页面（如果当前页面不支持该操作） */
@@ -34,7 +35,7 @@ export interface PageSuggestions {
   /** 该页面下的推荐操作 */
   suggestions: SuggestionItem[]
   /** 无上下文时的提示（如需要先选择照片） */
-  emptyStateHint?: string
+  emptyStateHintKey?: string
 }
 
 /**
@@ -42,11 +43,11 @@ export interface PageSuggestions {
  */
 export const GLOBAL_SUGGESTIONS: SuggestionItem[] = [
   {
-    text: '搜索照片',
+    textKey: 'searchPhotos',
     icon: '🔍',
   },
   {
-    text: '查看我的相册',
+    textKey: 'viewAlbums',
     icon: '📁',
   },
 ]
@@ -58,19 +59,19 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
   dashboard: {
     suggestions: [
       {
-        text: '带我去组织管理',
+        textKey: 'goOrgManagement',
         icon: '👥',
       },
       {
-        text: '查看我的个人信息',
+        textKey: 'viewProfile',
         icon: '👤',
       },
       {
-        text: '管理云存储设置',
+        textKey: 'manageCloudStorage',
         icon: '☁️',
       },
       {
-        text: '帮我了解这个系统',
+        textKey: 'learnSystem',
         icon: '❓',
       },
     ],
@@ -79,19 +80,19 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
   persons: {
     suggestions: [
       {
-        text: '创建新的组织',
+        textKey: 'createOrg',
         icon: '🏢',
       },
       {
-        text: '添加团队成员',
+        textKey: 'addMember',
         icon: '➕',
       },
       {
-        text: '查看组织架构',
+        textKey: 'viewOrgStructure',
         icon: '📊',
       },
       {
-        text: '回到首页',
+        textKey: 'goHome',
         icon: '🏠',
       },
     ],
@@ -100,19 +101,19 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
   profile: {
     suggestions: [
       {
-        text: '更新我的个人信息',
+        textKey: 'updateInfo',
         icon: '✏️',
       },
       {
-        text: '修改我的头像',
+        textKey: 'changeAvatar',
         icon: '📷',
       },
       {
-        text: '查看我的团队',
+        textKey: 'viewTeam',
         icon: '👥',
       },
       {
-        text: '回到首页',
+        textKey: 'goHome',
         icon: '🏠',
       },
     ],
@@ -121,15 +122,15 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
   settings: {
     suggestions: [
       {
-        text: '打开云存储设置',
+        textKey: 'openCloudStorage',
         icon: '☁️',
       },
       {
-        text: '查看系统信息',
+        textKey: 'viewSystemInfo',
         icon: 'ℹ️',
       },
       {
-        text: '回到首页',
+        textKey: 'goHome',
         icon: '🏠',
       },
     ],
@@ -138,19 +139,19 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
   'cloud-storage': {
     suggestions: [
       {
-        text: '查看存储空间使用情况',
+        textKey: 'viewStorageUsage',
         icon: '📊',
       },
       {
-        text: '管理同步设置',
+        textKey: 'manageSyncSettings',
         icon: '🔄',
       },
       {
-        text: '回到设置页',
+        textKey: 'goSettings',
         icon: '⚙️',
       },
       {
-        text: '回到首页',
+        textKey: 'goHome',
         icon: '🏠',
       },
     ],
@@ -159,15 +160,15 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
   other: {
     suggestions: [
       {
-        text: '回到首页',
+        textKey: 'goHome',
         icon: '🏠',
       },
       {
-        text: '打开组织管理',
+        textKey: 'openOrgManagement',
         icon: '👥',
       },
       {
-        text: '查看个人中心',
+        textKey: 'viewProfileCenter',
         icon: '👤',
       },
     ],
@@ -175,15 +176,19 @@ export const PAGE_SUGGESTIONS: Record<PageType, PageSuggestions> = {
 }
 
 /**
- * 导航提示模板
+ * 导航提示模板 key
  */
-export const NAVIGATION_HINTS: Record<PageType, string> = {
-  dashboard: '📍 前往首页',
-  persons: '📍 前往组织管理',
-  profile: '📍 前往个人中心',
-  settings: '📍 前往系统设置',
-  'cloud-storage': '📍 前往云存储设置',
-  other: '📍 前往其他页面',
+export const NAVIGATION_HINT_KEYS: Record<PageType, string> = {
+  dashboard: 'navDashboard',
+  persons: 'navPersons',
+  profile: 'navProfile',
+  settings: 'navSettings',
+  'cloud-storage': 'navCloudStorage',
+  other: 'navOther',
+}
+
+function translateSuggestionKey(textKey: string): string {
+  return i18n.t(`agentSuggestions.${textKey}`, { ns: 'components' })
 }
 
 /**
@@ -192,30 +197,38 @@ export const NAVIGATION_HINTS: Record<PageType, string> = {
  * @returns 过滤后的推荐列表和提示信息
  */
 export function getContextualSuggestions(context: AgentContext): {
-  suggestions: Array<SuggestionItem & { navigationHint?: string }>
+  suggestions: Array<SuggestionItem & { text: string; navigationHint?: string }>
   emptyStateHint?: string
   contextInfo: string
 } {
   const pageConfig = PAGE_SUGGESTIONS[context.currentPage]
 
   // 生成上下文描述
-  const contextInfo = `当前页面: ${context.currentPage}`
+  const contextInfo = i18n.t('agentSuggestions.contextInfo', {
+    ns: 'components',
+    page: context.currentPage,
+  })
 
   // 简化推荐处理（OPC-Starter 不需要照片选择逻辑）
   const filteredSuggestions = pageConfig.suggestions.map((suggestion) => {
+    const text = translateSuggestionKey(suggestion.textKey)
+
     // 检查是否需要特定页面
     if (suggestion.requiresPage && suggestion.requiresPage !== context.currentPage) {
       return {
         ...suggestion,
-        navigationHint: NAVIGATION_HINTS[suggestion.requiresPage],
+        text,
+        navigationHint: translateSuggestionKey(NAVIGATION_HINT_KEYS[suggestion.requiresPage]),
       }
     }
-    return suggestion
+    return { ...suggestion, text }
   })
 
   return {
     suggestions: filteredSuggestions,
-    emptyStateHint: pageConfig.emptyStateHint,
+    emptyStateHint: pageConfig.emptyStateHintKey
+      ? translateSuggestionKey(pageConfig.emptyStateHintKey)
+      : undefined,
     contextInfo,
   }
 }

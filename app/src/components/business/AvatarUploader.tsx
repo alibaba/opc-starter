@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Upload, User, X, Loader2 } from 'lucide-react'
 import { useProfileStore } from '@/stores/useProfileStore'
 import { validateAvatarFile, validateImageDimensions } from '@/types/validation'
@@ -16,6 +17,8 @@ interface AvatarUploaderProps {
 }
 
 export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
+  const { t } = useTranslation('components')
+  const { t: tCommon } = useTranslation('common')
   const { profile, uploadAvatar, deleteAvatar, isLoading, uploadProgress } = useProfileStore()
   const [isDragging, setIsDragging] = useState(false)
   const [showCropper, setShowCropper] = useState(false)
@@ -27,36 +30,39 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
   /**
    * 处理文件选择
    */
-  const handleFileSelect = useCallback(async (file: File) => {
-    setError(null)
+  const handleFileSelect = useCallback(
+    async (file: File) => {
+      setError(null)
 
-    // 验证文件
-    const validation = validateAvatarFile(file)
-    if (!validation.valid) {
-      setError(validation.error || '文件验证失败')
-      return
-    }
-
-    // 读取图片并验证尺寸
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const img = new Image()
-      img.onload = () => {
-        const dimensionValidation = validateImageDimensions(img.width, img.height)
-        if (!dimensionValidation.valid) {
-          setError(dimensionValidation.error || '图片尺寸不符合要求')
-          return
-        }
-
-        // 显示裁剪界面
-        setSelectedImage(e.target?.result as string)
-        setSelectedFile(file)
-        setShowCropper(true)
+      // 验证文件
+      const validation = validateAvatarFile(file)
+      if (!validation.valid) {
+        setError(validation.error || t('avatarUploader.validationFailed'))
+        return
       }
-      img.src = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }, [])
+
+      // 读取图片并验证尺寸
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const dimensionValidation = validateImageDimensions(img.width, img.height)
+          if (!dimensionValidation.valid) {
+            setError(dimensionValidation.error || t('avatarUploader.dimensionInvalid'))
+            return
+          }
+
+          // 显示裁剪界面
+          setSelectedImage(e.target?.result as string)
+          setSelectedFile(file)
+          setShowCropper(true)
+        }
+        img.src = e.target?.result as string
+      }
+      reader.readAsDataURL(file)
+    },
+    [t]
+  )
 
   /**
    * 处理点击上传
@@ -125,7 +131,7 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
       setSelectedImage(null)
       setSelectedFile(null)
     } catch (error) {
-      setError(error instanceof Error ? error.message : '上传失败')
+      setError(error instanceof Error ? error.message : t('avatarUploader.uploadFailed'))
     }
   }
 
@@ -142,11 +148,11 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
    * 处理删除头像
    */
   const handleDelete = async () => {
-    if (confirm('确定要删除头像吗？')) {
+    if (confirm(t('avatarUploader.deleteConfirm'))) {
       try {
         await deleteAvatar()
       } catch (error) {
-        setError(error instanceof Error ? error.message : '删除失败')
+        setError(error instanceof Error ? error.message : t('avatarUploader.deleteFailed'))
       }
     }
   }
@@ -167,10 +173,14 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
           onClick={handleClick}
           role="button"
           tabIndex={0}
-          aria-label="上传头像"
+          aria-label={t('avatarUploader.uploadLabel')}
         >
           {profile?.avatarUrl ? (
-            <img src={profile.avatarUrl} alt="用户头像" className="w-full h-full object-cover" />
+            <img
+              src={profile.avatarUrl}
+              alt={t('avatarUploader.userAvatar')}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-secondary">
               <User className="w-16 h-16 text-muted-foreground" />
@@ -181,7 +191,7 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
           <div className="absolute inset-0 bg-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <div className="text-primary-foreground text-center">
               <Upload className="w-8 h-8 mx-auto mb-1" />
-              <span className="text-sm">更换头像</span>
+              <span className="text-sm">{t('avatarUploader.changeAvatar')}</span>
             </div>
           </div>
 
@@ -201,7 +211,7 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
               handleDelete()
             }}
             className="absolute top-0 right-0 w-8 h-8 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
-            aria-label="删除头像"
+            aria-label={t('avatarUploader.deleteLabel')}
           >
             <X className="w-4 h-4" />
           </button>
@@ -213,15 +223,15 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
         <div className="w-full max-w-xs">
           <Progress value={uploadProgress} className="h-2" />
           <p className="text-sm text-muted-foreground text-center mt-1">
-            上传中... {uploadProgress}%
+            {t('avatarUploader.uploading', { progress: uploadProgress })}
           </p>
         </div>
       )}
 
       {/* 提示文本 */}
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">点击或拖拽图片到头像区域上传</p>
-        <p className="text-xs text-muted-foreground/70 mt-1">支持 JPG、PNG、WebP 格式，最大 5MB</p>
+        <p className="text-sm text-muted-foreground">{t('avatarUploader.hint')}</p>
+        <p className="text-xs text-muted-foreground/70 mt-1">{t('avatarUploader.formatHint')}</p>
       </div>
 
       {/* 错误提示 */}
@@ -229,7 +239,7 @@ export function AvatarUploader({ className = '' }: AvatarUploaderProps) {
         <div className="w-full max-w-xs p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
           <p className="text-sm text-destructive">{error}</p>
           <Button variant="ghost" size="sm" onClick={() => setError(null)} className="mt-2 w-full">
-            关闭
+            {tCommon('close')}
           </Button>
         </div>
       )}

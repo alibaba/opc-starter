@@ -66,7 +66,6 @@ export function createSyncOrchestrator(deps: SyncOrchestratorDeps): SyncOrchestr
         current: 0,
         total: 1,
         table: 'persons',
-        message: '正在同步人员...',
       })
 
       await deps.syncPersonsFromCloud()

@@ -3,6 +3,7 @@
  * @description 将成员从一个组织/团队分配到另一个团队，支持组织树选择
  */
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -35,6 +36,8 @@ export function AssignTeamDialog({
   organizationTree,
   onSubmit,
 }: AssignTeamDialogProps) {
+  const { t } = useTranslation('components')
+  const { t: tCommon } = useTranslation('common')
   const [selectedOrg, setSelectedOrg] = useState<OrganizationTreeNode | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -67,12 +70,14 @@ export function AssignTeamDialog({
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>分配团队</DialogTitle>
-            <DialogDescription>为用户 "{userName}" 分配所属组织团队</DialogDescription>
+            <DialogTitle>{t('organization.assignTeam.title')}</DialogTitle>
+            <DialogDescription>
+              {t('organization.assignTeam.description', { name: userName })}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="py-4">
-            <Label className="mb-2 block">选择组织</Label>
+            <Label className="mb-2 block">{t('organization.assignTeam.selectOrg')}</Label>
             <div className="border rounded-md p-4 max-h-96 overflow-y-auto">
               <OrgTree
                 tree={organizationTree}
@@ -84,7 +89,9 @@ export function AssignTeamDialog({
             {selectedOrg && (
               <div className="mt-3 p-3 bg-accent rounded-md">
                 <p className="text-sm">
-                  <span className="text-muted-foreground">已选择：</span>
+                  <span className="text-muted-foreground">
+                    {t('organization.assignTeam.selected')}
+                  </span>
                   <span className="font-medium ml-2">{selectedOrg.display_name}</span>
                 </p>
               </div>
@@ -98,10 +105,12 @@ export function AssignTeamDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              取消
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting || !selectedOrg}>
-              {isSubmitting ? '分配中...' : '确认分配'}
+              {isSubmitting
+                ? t('organization.assignTeam.assigning')
+                : t('organization.assignTeam.submit')}
             </Button>
           </DialogFooter>
         </form>

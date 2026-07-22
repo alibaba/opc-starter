@@ -4,6 +4,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../Sidebar'
 import { Header } from '../Header'
 import { dataService } from '@/services/data/DataService'
@@ -20,6 +21,7 @@ const SIDEBAR_COLLAPSED_KEY = 'photo-wall:sidebar-collapsed'
  * 首次同步加载组件 (Epic-18: S18-2)
  */
 function InitialSyncLoader() {
+  const { t } = useTranslation('layout')
   const { isSyncing, progress, hasInitialSynced } = useSyncStatus()
 
   // 如果已完成首次同步，不显示加载器
@@ -32,11 +34,14 @@ function InitialSyncLoader() {
       <div className="flex flex-col items-center gap-4 p-4 md:p-8 rounded-xl bg-card shadow-lg border mx-4">
         <Loader2 className="w-8 h-8 md:w-10 md:h-10 text-primary animate-spin" />
         <div className="text-center">
-          <h3 className="text-base md:text-lg font-semibold">正在同步数据</h3>
+          <h3 className="text-base md:text-lg font-semibold">{t('sync.initialSyncTitle')}</h3>
           {progress && (
             <p className="text-xs md:text-sm text-muted-foreground mt-1">
-              {progress.message ||
-                `同步 ${progress.table}... (${progress.current}/${progress.total})`}
+              {t('sync.initialSyncProgress', {
+                table: t(`sync.tables.${progress.table}`, { defaultValue: progress.table }),
+                current: progress.current,
+                total: progress.total,
+              })}
             </p>
           )}
         </div>
